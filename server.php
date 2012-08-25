@@ -22,8 +22,8 @@ $raw_code     = $_REQUEST['code'];
 $raw_from     = $_REQUEST['from'];
 $raw_message  = $_REQUEST['message'];
 
-$code    = ereg_replace("[^A-Za-z0-9]", "", $raw_code);
-$from    = ereg_replace("[^A-Za-z0-9]", "", $raw_from);
+$code    = preg_replace("[^A-Za-z0-9]", '', $raw_code);
+$from    = preg_replace("[^A-Za-z0-9]", '', $raw_from);
 $time    = time();
 $message = $raw_message; // Individual messages must filter.
 
