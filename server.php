@@ -7,9 +7,10 @@
  * Licensed under the MIT license.
  */
 
-require_once("./inc/room.php");
-require_once("./inc/message.php");
-require_once("./inc/client.php");
+require_once('./inc/config.php');
+require_once('./inc/room.php');
+require_once('./inc/message.php');
+require_once('./inc/client.php');
 
 header("Content-Type: text/plain");
 header("Cache-Control: no-cache, must-revalidate");
