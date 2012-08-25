@@ -15,7 +15,10 @@
 <div id="encap_div">
   <div id="title_div">
     <div id="title_bord">
-      <div id="title_marg"><a href="http://www.phpchatscript.com">PHP Chat Script</a></div>
+      <div id="title_marg">
+        <a href="http://www.phpchatscript.com">PHP Chat Script</a> |
+        <a href="git://github.com/delphian/php-chat-script.git">Git</a>
+      </div>
     </div>
   </div>
   <div id="menu_div">
