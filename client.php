@@ -2,7 +2,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-  <title>Open Chat Client</title>
+  <title>PHP Chat Script Client</title>
   <link href="client.css" rel="stylesheet" type="text/css" />
   <script type="text/javascript" src="js/dom-print.js"></script>
   <script type="text/javascript" src="js/chat-client-msg.js"></script>

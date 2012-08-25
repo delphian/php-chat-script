@@ -292,13 +292,15 @@ class client extends message {
     return TRUE;
   }
 
-  /* ---------------------------------------------------------------- */
+  /**
+   * Process a request to change client's name.
+   */
   public function client_req_cl_name ($message) {
     if ((!$this->voice) && (!$this->admin)) {
       $this->client_srv_failure($this->id, "May not change name while muted.");
       return FALSE;
     }
-    $value = ereg_replace("[^A-Za-z0-9._]", "", $message[0]);
+    $value = preg_replace('/[^A-Za-z0-9._]/', '', $message[0]);
     if (!strlen($message[0])) {
       $this->client_srv_failure($this->id, "Name contains invalide characters.");
       return FALSE;
