@@ -1,4 +1,2 @@
-php-chat-script
-===============
-
-PHP Chat Script
+aom-chat
+========
