@@ -325,11 +325,12 @@ class client extends message {
    * @endcode
    */
   public function client_req_rm_admin ($message) {
+    global $php_chat_script;
     $client_id = $message[0];
     $room_id   = $message[1];
     $switch    = $message[2];
     $password  = $message[3];
-    if ((!$this->admin) && ($password != 'depot')) return FALSE;
+    if ((!$this->admin) && ($password != $php_chat_script['password'])) return FALSE;
     if (!room::exists($room_id)) return FALSE;
     if (!client::exists($client_id)) return FALSE;
     $client = new client($client_id, $this->orig_id);
