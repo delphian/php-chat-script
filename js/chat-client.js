@@ -134,6 +134,8 @@ function clientInputSetup(parm) {
     print('setl_div', "Enter the URL for the youtube video :");
   } else if (parm == 'image') {
     print('setl_div', "Enter the URL for the image :");
+  } else if (parm == 'iframe') {
+    print('set_input', '<iframe src="http://www.phpchatscript.com">');
   } else {
     print('setl_div', "HOW DID YOU DO THAT???");
   }

@@ -63,7 +63,7 @@
   <div id="bot_div">
     <div id="bot_bord">
       <div id="link_div">
-        <a href="http://www.gmodules.com/ig/creator?url=http://hosting.gmodules.com/ig/gadgets/file/102453829241266631407/open-chat.xml">Add to my webpage</a>
+        <a href="#" onclick="clientInputSetup('iframe')">Add to my site</a>
       </div>
     </div>
   </div>
