@@ -64,6 +64,7 @@ class client extends message {
   }
 
   public function save() {
+    $new_lines = NULL;
     if (!$this->id) return FALSE;
 
     $update  = $this->id."\t";

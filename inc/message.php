@@ -104,6 +104,8 @@ class message {
   /* Returns array of messages from/to user. Removes messages ------- */
   /* from the file. Also removes messages that have expired. */
   public function msg_read ($client_id, $time=NULL) {
+    $report = NULL;
+    $new_messages = NULL;
     if (!$time) $time = time() - 120;
 
     $file = fopen(message::FILE_NAME, 'r+');
