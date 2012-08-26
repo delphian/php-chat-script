@@ -18,8 +18,9 @@
 // have copied this file into config.inc, and then only make
 // the changes in the config.inc file itself.
 $php_chat_script = array(
-  'password' => 'password',
-  'path_inc' => preg_replace('/\/[^\/]*$/', '', __FILE__) . '/',
+  'password'     => 'password',
+  'path_inc'     => preg_replace('/\/[^\/]*$/', '', __FILE__) . '/',
+  'path_plugins' => preg_replace('/\/[^\/]*$/', '', __FILE__) . '/plugins/',
 );
 
 // Turn on all error reporting for a development environment.

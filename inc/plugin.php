@@ -49,4 +49,19 @@ abstract class PHPChatScriptPlugin {
 
 }
 
+
+/**
+ * Include all files in the plugins directory if they are php files.
+ */
+if ($handle = opendir($php_chat_script['path_plugins'])) {
+  /* This is the correct way to loop over the directory. */
+  while (false !== ($entry = readdir($handle))) {
+    if (preg_match('/.*\.php$/', $entry, $matches)) {
+      include_once($php_chat_script['path_plugins'] . $entry);
+    }
+  }
+  
+  closedir($handle);
+}
+
 ?>
