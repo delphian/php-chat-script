@@ -411,7 +411,7 @@ class client extends message {
       $this->client_srv_failure($this->id, "Unable to deliver message. Room does not exist.");
       return FALSE;
     }
-    $msg = ereg_replace("[^A-Za-z0-9 .,?!/:-_%&]", "", $msg);
+    $msg = preg_replace('/[^A-Za-z0-9 .,?!\/:\-_%()=]/', '', $msg);
     $report = $this->client_rm_msg($room_id, $msg);
     return $report;
   }
