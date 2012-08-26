@@ -17,8 +17,8 @@
     <div id="title_bord">
       <div id="title_marg">
         <a href="http://www.phpchatscript.com" title="Go to the chat site">PHP Chat Script</a> |
-        <a href="git://github.com/delphian/php-chat-script.git" title="Download the git repo">Git</a> |
-        <a href="https://github.com/delphian/php-chat-script/zipball/master" title="Download as zip">Zip</a>
+        <a href="git://github.com/delphian/php-chat-script.git" title="Clone the git repo">Git</a> |
+        <a href="https://github.com/delphian/php-chat-script/zipball/master" title="Download as zipball">Zip</a>
       </div>
     </div>
   </div>
