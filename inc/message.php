@@ -1,6 +1,13 @@
 <?php
 
 /*
+ * http://www.phpchatscript.com
+ * 
+ * Copyright (c) 2012 "delphian" Bryan Hazelbaker
+ * Licensed under the MIT license.
+ */
+
+/*
  * METHODS *************************************************************
  *
  * string msg_format  array $values

@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * http://www.phpchatscript.com
+ * 
+ * Copyright (c) 2012 "delphian" Bryan Hazelbaker
+ * Licensed under the MIT license.
+ */
+
 /* ------------------------------------------------------------------ */
 /*  CLASS ROOM
  *
@@ -19,6 +26,7 @@ class room {
   public $name;
   public $moderated;
   public $locked;
+  public $title;
 
   public function room ($room_id) {
     if (!($elements = room::exists($room_id))) {

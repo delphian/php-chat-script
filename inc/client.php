@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * http://www.phpchatscript.com
+ * 
+ * Copyright (c) 2012 "delphian" Bryan Hazelbaker
+ * Licensed under the MIT license.
+ */
+
 /* ------------------------------------------------------------------ */
 /*  CLASS CLIENT
  *
@@ -43,6 +50,7 @@ class client extends message {
   public $admin;
   public $voice;
   public $room;
+  public $image;
 
   public function client ($client_id, $orig_id) {
     if (!($elements = client::exists($client_id))) {
@@ -176,6 +184,7 @@ class client extends message {
   }
 
   public static function delete($client_id) {
+    $new_lines = NULL;
     $file = fopen(client::FILE_NAME, 'r+');
     flock($file, LOCK_EX);
 
@@ -464,7 +473,6 @@ $this->client_srv_failure($this->id, "Loaded : ".$url);
   /* ---------------------------------------------------------------- */
   public function client_req_rm_join ($message) {
     $room_id  = $message[0];
-    $password = $message[1];
     if (room::exists($room_id)) {
       $room = new room($room_id);
       if ($room->locked) {
@@ -561,19 +569,33 @@ $this->client_srv_failure($this->id, "Loaded : ".$url);
   /* Report all room detail to client. ------------------------------ */
   public function client_rm_all () {
     if (is_array($room_ids = room::get_all())) {
-      foreach ($room_ids as $id) {
-        $this->client_rm_detail($id);
+      foreach ($room_ids as $room_id) {
+        $this->client_rm_detail($room_id);
       }
     }
     return TRUE;
   }
 
-  /* Report room detail to client. ---------------------------------- */
+  /**
+   * Report room details to current client.
+   *
+   * @param int $room_id
+   *   Unique room identifier to report details on.
+   *
+   * @return bool $reported
+   *   TRUE if the detail was sent to client, FALSE otherwise.
+   */
   public function client_rm_detail ($room_id) {
-    if (!room::exists($room_id)) return FALSE;
-    $room = new room($id);
-    $this->__sm($id, message::RM_DETAIL, $room->id, $room->title, $room->moderated, $room->locked);
-    return TRUE;
+    $reported = FALSE;
+
+    if (room::exists($room_id)) {
+      $room = new room($room_id);
+      $this->__sm($this->id, message::RM_DETAIL, $room->id, $room->title, 
+                  $room->moderated, $room->locked);
+      $reported = TRUE;
+    }
+    
+    return $reported;
   }
 
   /* Report to room client's posted image --------------------------- */
