@@ -81,7 +81,7 @@
   </div>
 </div>
 
-<embed id="sound_emb" src="sound/ding.mp3" />
+<audio id="sound_emb" src="sound/ding.mp3" />
 
 </body>
 </html>

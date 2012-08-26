@@ -334,7 +334,7 @@ function pmRmJoin (message) {
     printPlus("text_div", '<span class="msg_join">You Have Joined the Chat. Type a greeting in the box below and click send.</span><br />');
   } else {
     printPlus("text_div", '<span class="msg_join">'+name+' Joined Chat.</span><br />');
-    //playSound('/data/ding.mp3');
+    playSound('sound/ding.mp3');
   }
   return 1;
 }

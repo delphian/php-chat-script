@@ -17,7 +17,7 @@ function getViewName() {
 function playSound (source) {
   soundEmbed = document.getElementById('sound_emb');
   soundEmbed.src = source;
-  soundEmbed.Play();
+  soundEmbed.play();
 
   return 1;
 }
