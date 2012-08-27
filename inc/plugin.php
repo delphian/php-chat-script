@@ -24,14 +24,53 @@ class PHPChatScriptPluginBase {
   // to a negative number relative to other plugins to execute before they do.
   private $weight  = 0;
   private $classes = array();
+  public $variables = array();
+  private $config = NULL;
 
   /**
    * Constructor.
    */
-  public function __construct($classes = array()) {
-    $this->classes = $classes;
+  public function __construct($config = NULL) {
+    $this->config  = $config;
+    $this->classes = $config['plugins'];
 
     return;
+  }
+  
+  /**
+   * Manage limited variable retention for plugins.
+   */
+  public function variables_read() {
+    if (file_exists($this->config['path_data'] . 'variables.txt')) {
+      $file_string = file_get_contents($this->config['path_data'] . 'variables.txt');
+      if ($file_string) {
+        if ($variables = explode($file_string, "\n")) {
+          foreach($variables as $variable) {
+            $this->variables[] = json_decode($variable);
+         }
+        }
+      }
+    }
+
+    return;
+  }
+
+  /**
+   * Write plugin variables to file.
+   */
+  public function variables_write() {
+    if (!empty($this->variables)) {
+      $handle = fopen($this->config['path_data'] . 'variables.txt', 'w');
+      if ($handle) {
+        $encoded = json_encode($this->variables);
+        if (!$x = fwrite($handle, $encoded)) {
+          throw new Exception('Could not write to variables file.');
+        }
+        fclose($handle);
+      } else {
+        throw new Exception('Could not open variable file for writing.');
+      }
+    }
   }
 
   /**

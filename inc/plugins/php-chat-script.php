@@ -15,6 +15,7 @@
 class PHPChatScriptDefault extends PHPChatScriptPluginBase {
 
   public $weight = 5;
+  public $variables = array('test' => 'yes');
 
   /**
    * Constructor.
@@ -66,6 +67,8 @@ class PHPChatScriptDefault extends PHPChatScriptPluginBase {
   }
 
   public function halt() {
+    $this->variables_write($this->variables);
+
     return;
   }
 }
