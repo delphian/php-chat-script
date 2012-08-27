@@ -13,13 +13,15 @@ require_once('./inc/message.php');
 require_once('./inc/client.php');
 require_once('./inc/plugin.php');
 
+$plugins = new PHPChatScriptPluginBase($php_chat_script['plugins']);
+$plugins->boot();
+
 $server_input = array(
   'time'    => NULL,
   'code'    => NULL,
   'from'    => NULL,
   'message' => NULL,
 );
-$plugins = new PHPChatScriptPluginBase($php_chat_script['plugins']);
 $plugins->message_from_request($_REQUEST, $server_input);
 
 header("Content-Type: text/plain");

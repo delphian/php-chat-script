@@ -35,6 +35,22 @@ class PHPChatScriptPluginBase {
   }
 
   /**
+   * Plugins opportunity to do stuff before any main server code has been 
+   * executed.
+   */
+  public function boot() {
+    // Execute this method for all other plugins.
+    if (!empty($this->classes)) {
+      foreach($this->classes as $class) {
+        if (method_exists($class, 'boot')) {
+          $class->boot();
+        }
+      }
+    }
+    return;
+  }
+
+  /**
    * Create the initial message that the server will process. If the plugin
    * has nothing to offer for this web server request then don't make any
    * changes!
