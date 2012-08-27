@@ -42,7 +42,7 @@ class PHPChatScriptDefault extends PHPChatScriptPluginBase {
    *   Another plugin may have already filled this with values. This is our
    *   opportunity to change the data.
    */
-  public function message_from_request($request, &$server_input) {
+  public function format_request($request, &$server_input) {
     $raw_time     = $request['time'];
     $raw_code     = $request['code'];
     $raw_from     = $request['from'];

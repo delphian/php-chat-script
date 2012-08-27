@@ -51,9 +51,10 @@ class PHPChatScriptPluginBase {
   }
 
   /**
-   * Create the initial message that the server will process. If the plugin
-   * has nothing to offer for this web server request then don't make any
-   * changes!
+   * Recieve the http request and format the message that the server will
+   * process. All requests to the server must be formatted the same way. If
+   * the plugin has nothing to offer for this web server request then don't
+   * make any changes!
    *
    * @param array $request
    *   The raw information submitted to the web server. Generally his will be 
@@ -67,12 +68,12 @@ class PHPChatScriptPluginBase {
    *   Another plugin may have already filled this with values. This is our
    *   opportunity to change the data.
    */
-  public function message_from_request($request, &$server_input) {
+  public function format_request($request, &$server_input) {
     // Execute this method for all other plugins.
     if (!empty($this->classes)) {
       foreach($this->classes as $class) {
-        if (method_exists($class, 'message_from_request')) {
-          $class->message_from_request($request, $server_input);
+        if (method_exists($class, 'format_request')) {
+          $class->format_request($request, $server_input);
         }
       }
     }

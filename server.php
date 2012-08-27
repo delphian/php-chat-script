@@ -22,7 +22,7 @@ $server_input = array(
   'from'    => NULL,
   'message' => NULL,
 );
-$plugins->message_from_request($_REQUEST, $server_input);
+$plugins->format_request($_REQUEST, $server_input);
 
 header("Content-Type: text/plain");
 header("Cache-Control: no-cache, must-revalidate");
