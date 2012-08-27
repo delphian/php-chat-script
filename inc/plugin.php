@@ -7,10 +7,12 @@
  * Licensed under the MIT license.
  */
 
+/* *********************************************************************** */
+
 /**
  * Main class that plugins should extend.
  */
-abstract class PHPChatScriptPlugin {
+abstract class PHPChatScriptPluginBase {
     
   // Weight will define the order in which our plugins are executed. A plugin
   // with the highest weight (number with the highest value) will execute
@@ -47,8 +49,55 @@ abstract class PHPChatScriptPlugin {
    */
   abstract public function message_from_request($request, &$server_input);
 
+  /**
+   * The main server code is finished operating. This allows the plugins
+   * to clean up anything they have been working on.
+   */
+  abstract public function halt();
 }
 
+/* *********************************************************************** */
+
+/**
+ * All server code will make calls to methods in this class. This class will
+ * be responsible for calling all other plugins.
+ */
+class PHPChatScriptPlugin extends PHPChatScriptPluginBase {
+    
+  public $classes = array();
+  
+  /**
+   * Constructor.
+   */
+  public function __construct($classes) {
+    // TODO : make sure the classes really exist.
+    $this->classes = $classes;
+
+    return;
+  }
+  
+  public function message_from_request($request, &$server_input) {
+    // Execute this method for all other plugins.
+    if (!empty($this->classes)) {
+      foreach($this->classes as $class) {
+        $class->message_from_request($request, $server_input);
+      }
+    }
+    return;
+  }
+  
+  public function halt() {
+    // Execute this method for all other plugins.
+    if (!empty($this->classes)) {
+      foreach($this->classes as $class) {
+        $class->halt();
+      }
+    }
+    return;
+  }
+}
+
+/* *********************************************************************** */
 
 /**
  * Include all files in the plugins directory if they are php files.
@@ -63,5 +112,6 @@ if ($handle = opendir($php_chat_script['path_plugins'])) {
   
   closedir($handle);
 }
+
 
 ?>

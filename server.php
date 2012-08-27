@@ -13,25 +13,20 @@ require_once('./inc/message.php');
 require_once('./inc/client.php');
 require_once('./inc/plugin.php');
 
+$server_input = array(
+  'time'    => NULL,
+  'code'    => NULL,
+  'from'    => NULL,
+  'message' => NULL,
+);
+$plugins = new PHPChatScriptPlugin($php_chat_script['plugins']);
+$plugins->message_from_request($_REQUEST, $server_input);
+
 header("Content-Type: text/plain");
 header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
 
 $server_version = "0.4.8";
-
-$raw_time     = $_REQUEST['time'];
-$raw_code     = $_REQUEST['code'];
-$raw_from     = $_REQUEST['from'];
-$raw_message  = $_REQUEST['message'];
-
-$code    = preg_replace("[^A-Za-z0-9]", '', $raw_code);
-$from    = preg_replace("[^A-Za-z0-9]", '', $raw_from);
-$time    = time();
-$message = $raw_message; // Individual messages must filter.
-
-$message = str_replace('%25', '%', $message);
-$message = str_replace('%3b', ';', $message);
-$message = explode(';', $message);
 
 /**********************************************************************/
 /*                                                                    */
@@ -39,9 +34,10 @@ $message = explode(';', $message);
 /*                                                                    */
 /**********************************************************************/
 
-if ($code) {
-  if ($code == message::CL_ID) {
-    $from = client::create();
+if ($server_input['code']) {
+  // Something is requesting to be a client.
+  if ($server_input['code'] == message::CL_ID) {
+    $from   = client::create();
     $client = new client($from, $from);
     $client->ip = $_SERVER['REMOTE_ADDR'];
     $client->port = $_SERVER['REMOTE_PORT'];
@@ -49,16 +45,18 @@ if ($code) {
     $client->client_cl_id();
     unset($client);
   } else {
-    if (!client::exists($from)) {
-      print "Not Logged In. From: $from, Code: $code\n";
+    if (!client::exists($server_input['from'])) {
+      print "Not Logged In. From: {$server_input['code']}, Code: {$server_input['code']}\n";
       return FALSE;
     }
-    $client = new client($from, $from);
-    $client->client_main($code, $message, $server_version);
+    $client = new client($server_input['from'], $server_input['from']);
+    $client->client_main($server_input['code'], $server_input['message'], $server_version);
     unset($client);
   }
 } else {
   message::msg_improper_format();
 }
+
+$plugins->halt();
 
 ?>

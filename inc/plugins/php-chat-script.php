@@ -12,7 +12,7 @@
  * It is actually used so don't delete it unless you know what your doing.
  */
 
-class PHPChatScriptDefault extends PHPChatScriptPlugin {
+class PHPChatScriptDefault extends PHPChatScriptPluginBase {
 
   public $weight = 5;
 
@@ -43,9 +43,31 @@ class PHPChatScriptDefault extends PHPChatScriptPlugin {
    *   opportunity to change the data.
    */
   public function message_from_request($request, &$server_input) {
+    $raw_time     = $request['time'];
+    $raw_code     = $request['code'];
+    $raw_from     = $request['from'];
+    $raw_message  = $request['message'];
+
+    $code    = preg_replace("[^A-Za-z0-9]", '', $raw_code);
+    $from    = preg_replace("[^A-Za-z0-9]", '', $raw_from);
+    $time    = time();
+    $message = $raw_message;
+
+    $message = str_replace('%25', '%', $message);
+    $message = str_replace('%3b', ';', $message);
+    $message = explode(';', $message);
+
+    $server_input['time'] = $time;
+    $server_input['code'] = $code;
+    $server_input['from'] = $from;
+    $server_input['message'] = $message;
+
     return;
   }
 
+  public function halt() {
+    return;
+  }
 }
 
 
