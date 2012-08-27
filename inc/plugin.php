@@ -10,9 +10,11 @@
 /* *********************************************************************** */
 
 /**
- * Main class that plugins should extend.
+ * Main class that plugins should extend. The main purpose of this class
+ * is really to call the methods of any other plugins that have been
+ * registered.
  */
-abstract class PHPChatScriptPluginBase {
+class PHPChatScriptPluginBase {
     
   // Weight will define the order in which our plugins are executed. A plugin
   // with the highest weight (number with the highest value) will execute
@@ -20,13 +22,15 @@ abstract class PHPChatScriptPluginBase {
   // data. The default weight is 0. Increase the weight to a positive number
   // relative to other plugins to execute after they do. Decrease the weight
   // to a negative number relative to other plugins to execute before they do.
-  private $weight = 0;
+  private $weight  = 0;
+  private $classes = array();
 
   /**
    * Constructor.
    */
-  public function __construct() {
-    // @todo register this class so we can call its functions.
+  public function __construct($classes = array()) {
+    $this->classes = $classes;
+
     return;
   }
 
@@ -47,50 +51,29 @@ abstract class PHPChatScriptPluginBase {
    *   Another plugin may have already filled this with values. This is our
    *   opportunity to change the data.
    */
-  abstract public function message_from_request($request, &$server_input);
+  public function message_from_request($request, &$server_input) {
+    // Execute this method for all other plugins.
+    if (!empty($this->classes)) {
+      foreach($this->classes as $class) {
+        if (method_exists($class, 'message_from_request')) {
+          $class->message_from_request($request, $server_input);
+        }
+      }
+    }
+    return;
+  }
 
   /**
    * The main server code is finished operating. This allows the plugins
    * to clean up anything they have been working on.
    */
-  abstract public function halt();
-}
-
-/* *********************************************************************** */
-
-/**
- * All server code will make calls to methods in this class. This class will
- * be responsible for calling all other plugins.
- */
-class PHPChatScriptPlugin extends PHPChatScriptPluginBase {
-    
-  public $classes = array();
-  
-  /**
-   * Constructor.
-   */
-  public function __construct($classes) {
-    // TODO : make sure the classes really exist.
-    $this->classes = $classes;
-
-    return;
-  }
-  
-  public function message_from_request($request, &$server_input) {
-    // Execute this method for all other plugins.
-    if (!empty($this->classes)) {
-      foreach($this->classes as $class) {
-        $class->message_from_request($request, $server_input);
-      }
-    }
-    return;
-  }
-  
   public function halt() {
     // Execute this method for all other plugins.
     if (!empty($this->classes)) {
       foreach($this->classes as $class) {
-        $class->halt();
+        if (method_exists($class, 'halt')) {
+          $class->halt();
+        }
       }
     }
     return;
@@ -100,7 +83,9 @@ class PHPChatScriptPlugin extends PHPChatScriptPluginBase {
 /* *********************************************************************** */
 
 /**
- * Include all files in the plugins directory if they are php files.
+ * Include all files in the plugins directory if they are php files. These
+ * plugins will extend the above class and then register themselves with
+ * the global variable.
  */
 if ($handle = opendir($php_chat_script['path_plugins'])) {
   /* This is the correct way to loop over the directory. */

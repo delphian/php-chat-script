@@ -19,7 +19,7 @@ $server_input = array(
   'from'    => NULL,
   'message' => NULL,
 );
-$plugins = new PHPChatScriptPlugin($php_chat_script['plugins']);
+$plugins = new PHPChatScriptPluginBase($php_chat_script['plugins']);
 $plugins->message_from_request($_REQUEST, $server_input);
 
 header("Content-Type: text/plain");
