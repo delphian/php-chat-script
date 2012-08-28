@@ -14,14 +14,23 @@
 
 class PHPChatScriptDefault extends PHPChatScriptPluginBase {
 
+  public $name = 'MyDefaultPlugin';
   public $weight = 5;
-  public $variables = array('test' => 'yes');
+  
+  // $this->variables exists as a persistant array for each plugin to store
+  // information in.
 
   /**
    * Constructor.
    */
   public function __construct() {
     parent::__construct();
+
+    return;
+  }
+
+  public function boot() {
+    parent::boot();
 
     return;
   }
@@ -44,10 +53,10 @@ class PHPChatScriptDefault extends PHPChatScriptPluginBase {
    *   opportunity to change the data.
    */
   public function format_request($request, &$server_input) {
-    $raw_time     = $request['time'];
-    $raw_code     = $request['code'];
-    $raw_from     = $request['from'];
-    $raw_message  = $request['message'];
+    $raw_time     = (isset($request['time']))    ? $request['time'] : NULL;
+    $raw_code     = (isset($request['code']))    ? $request['code'] : NULL;
+    $raw_from     = (isset($request['from']))    ? $request['from'] : NULL;
+    $raw_message  = (isset($request['message'])) ? $request['message'] : NULL;
 
     $code    = preg_replace("[^A-Za-z0-9]", '', $raw_code);
     $from    = preg_replace("[^A-Za-z0-9]", '', $raw_from);
@@ -67,13 +76,13 @@ class PHPChatScriptDefault extends PHPChatScriptPluginBase {
   }
 
   public function halt() {
-    $this->variables_write($this->variables);
+    parent::halt();
 
     return;
   }
 }
 
-
-$php_chat_script['plugins'][] = new PHPChatScriptDefault();
+// Register our plugin class.
+PHPChatScriptPluginBase::register('PHPChatScriptDefault');
 
 ?>

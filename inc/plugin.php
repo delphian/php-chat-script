@@ -23,33 +23,83 @@ class PHPChatScriptPluginBase {
   // relative to other plugins to execute after they do. Decrease the weight
   // to a negative number relative to other plugins to execute before they do.
   private $weight  = 0;
-  private $classes = array();
+
+  // List of all other plugins. This is an array of actual instantiated classes.
+  public static $plugins = array();
+
+  // Our global configuration.
+  public static $config = NULL;
+
+  // This is a persistant variable that can be used by extending classes. It
+  // Will be saved when the child class calls parent::halt() and will be loaded
+  // again when the child calls parent::boot().
   public $variables = array();
-  private $config = NULL;
+
+  public static function register($class_name) {
+    // Check class->name for valid.
+    PHPChatScriptPluginBase::$plugins[] = new $class_name();
+
+    return;
+  }
+
+  /**
+   * Include all files in the plugins directory if they are php files. These
+   * plugins will extend the above class and then register themselves with
+   * the global variable.
+   */
+  public static function load_plugins() {
+    if ($handle = opendir(self::$config['path_plugins'])) {
+      /* This is the correct way to loop over the directory. */
+      while (false !== ($entry = readdir($handle))) {
+        if (preg_match('/.*\.php$/', $entry, $matches)) {
+          include_once(self::$config['path_plugins'] . $entry);
+        }
+      }
+
+      closedir($handle);
+    }
+  }
 
   /**
    * Constructor.
    */
-  public function __construct($config = NULL) {
-    $this->config  = $config;
-    $this->classes = $config['plugins'];
+  public function __construct() {
 
     return;
   }
-  
+
+  /**
+   * Execute a method for all plugins.
+   *
+   * @param string $method
+   *   The name of the method to invoke on all plugins.
+   */
+  public function invoke_all() {     
+    $stack = debug_backtrace();
+    if (!empty($stack[0]['args'])) {
+      $arguments = array();
+      foreach ($stack[0]["args"] as &$arg) {
+        $arguments[] = &$arg;
+      }
+    }
+    $method = array_shift($arguments);
+    $plugins = PHPChatScriptPluginBase::$plugins;
+    if (!empty($plugins)) {
+      foreach($plugins as $plugin) {
+        if (method_exists($plugin, $method)) {
+          call_user_func_array(array($plugin, $method), $arguments);
+        }
+      }
+    }
+  }
+
   /**
    * Manage limited variable retention for plugins.
    */
   public function variables_read() {
-    if (file_exists($this->config['path_data'] . 'variables.txt')) {
-      $file_string = file_get_contents($this->config['path_data'] . 'variables.txt');
-      if ($file_string) {
-        if ($variables = explode($file_string, "\n")) {
-          foreach($variables as $variable) {
-            $this->variables[] = json_decode($variable);
-         }
-        }
-      }
+    if (file_exists(self::$config['path_data'] . 'variables.txt')) {
+      $file_array = json_decode(file_get_contents(self::$config['path_data'] . 'variables.txt'), TRUE);
+      $this->variables = $file_array[$this->name];
     }
 
     return;
@@ -60,9 +110,12 @@ class PHPChatScriptPluginBase {
    */
   public function variables_write() {
     if (!empty($this->variables)) {
-      $handle = fopen($this->config['path_data'] . 'variables.txt', 'w');
+      $file_array = array();
+      $file_array = json_decode(file_get_contents(self::$config['path_data'] . 'variables.txt'), TRUE);
+      $file_array[$this->name] = $this->variables;
+      $handle = fopen(self::$config['path_data'] . 'variables.txt', 'w');
       if ($handle) {
-        $encoded = json_encode($this->variables);
+        $encoded = json_encode($file_array);
         if (!$x = fwrite($handle, $encoded)) {
           throw new Exception('Could not write to variables file.');
         }
@@ -78,14 +131,8 @@ class PHPChatScriptPluginBase {
    * executed.
    */
   public function boot() {
-    // Execute this method for all other plugins.
-    if (!empty($this->classes)) {
-      foreach($this->classes as $class) {
-        if (method_exists($class, 'boot')) {
-          $class->boot();
-        }
-      }
-    }
+    $this->variables_read();
+
     return;
   }
 
@@ -108,14 +155,7 @@ class PHPChatScriptPluginBase {
    *   opportunity to change the data.
    */
   public function format_request($request, &$server_input) {
-    // Execute this method for all other plugins.
-    if (!empty($this->classes)) {
-      foreach($this->classes as $class) {
-        if (method_exists($class, 'format_request')) {
-          $class->format_request($request, $server_input);
-        }
-      }
-    }
+
     return;
   }
 
@@ -124,35 +164,10 @@ class PHPChatScriptPluginBase {
    * to clean up anything they have been working on.
    */
   public function halt() {
-    // Execute this method for all other plugins.
-    if (!empty($this->classes)) {
-      foreach($this->classes as $class) {
-        if (method_exists($class, 'halt')) {
-          $class->halt();
-        }
-      }
-    }
+    $this->variables_write();
+
     return;
   }
 }
-
-/* *********************************************************************** */
-
-/**
- * Include all files in the plugins directory if they are php files. These
- * plugins will extend the above class and then register themselves with
- * the global variable.
- */
-if ($handle = opendir($php_chat_script['path_plugins'])) {
-  /* This is the correct way to loop over the directory. */
-  while (false !== ($entry = readdir($handle))) {
-    if (preg_match('/.*\.php$/', $entry, $matches)) {
-      include_once($php_chat_script['path_plugins'] . $entry);
-    }
-  }
-  
-  closedir($handle);
-}
-
 
 ?>

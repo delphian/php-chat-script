@@ -13,20 +13,19 @@ require_once('./inc/message.php');
 require_once('./inc/client.php');
 require_once('./inc/plugin.php');
 
-$plugins = new PHPChatScriptPluginBase($php_chat_script);
-//$plugins->variables_read();
-$plugins->variables['test1'] = 1;
-$plugins->variables['test3'] = 3;
-//$plugins->variables_write();
-$plugins->boot();
+$plugins = new PHPChatScriptPluginBase();
+$plugins::$config = $php_chat_script;
+$plugins::load_plugins();
+
+$plugins->invoke_all('boot');
 
 $server_input = array(
-  'time'    => NULL,
+  'time'    => 23,
   'code'    => NULL,
   'from'    => NULL,
   'message' => NULL,
 );
-$plugins->format_request($_REQUEST, $server_input);
+$plugins->invoke_all('format_request', $_REQUEST, &$server_input);
 
 header("Content-Type: text/plain");
 header("Cache-Control: no-cache, must-revalidate");
@@ -63,6 +62,6 @@ if ($server_input['code']) {
   message::msg_improper_format();
 }
 
-$plugins->halt();
+$plugins->invoke_all('halt');
 
 ?>

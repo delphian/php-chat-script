@@ -1,0 +1,1 @@
+{"MyDefaultPlugin":{"test":"sometimes"},"Github":{"hello":"world!"}}
