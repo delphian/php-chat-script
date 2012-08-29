@@ -19,13 +19,8 @@ $plugins::load_plugins();
 
 $plugins->invoke_all('boot');
 
-$server_input = array(
-  'time'    => 23,
-  'code'    => NULL,
-  'from'    => NULL,
-  'message' => NULL,
-);
-$plugins->invoke_all('format_request', $_REQUEST, &$server_input);
+$server_input = array();
+$plugins->invoke_all('format_request', $_REQUEST, $server_input);
 
 header("Content-Type: text/plain");
 header("Cache-Control: no-cache, must-revalidate");

@@ -74,15 +74,13 @@ class PHPChatScriptPluginBase {
    * @param string $method
    *   The name of the method to invoke on all plugins.
    */
-  public function invoke_all() {     
-    $stack = debug_backtrace();
-    if (!empty($stack[0]['args'])) {
-      $arguments = array();
-      foreach ($stack[0]["args"] as &$arg) {
-        $arguments[] = &$arg;
-      }
-    }
-    $method = array_shift($arguments);
+  public function invoke_all($method, &$p1=NULL, &$p2=NULL, &$p3=NULL) {
+    // Wow this is ugly...
+    $arguments = array();
+    $arguments[0] = &$p1;
+    $arguments[1] = &$p2;
+    $arguments[2] = &$p3;
+
     $plugins = PHPChatScriptPluginBase::$plugins;
     if (!empty($plugins)) {
       foreach($plugins as $plugin) {
@@ -99,7 +97,9 @@ class PHPChatScriptPluginBase {
   public function variables_read() {
     if (file_exists(self::$config['path_data'] . 'variables.txt')) {
       $file_array = json_decode(file_get_contents(self::$config['path_data'] . 'variables.txt'), TRUE);
-      $this->variables = $file_array[$this->name];
+      if (isset($file_array[$this->name])) {
+        $this->variables = $file_array[$this->name];
+      }
     }
 
     return;

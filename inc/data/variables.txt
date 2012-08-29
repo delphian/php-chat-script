@@ -1,1 +1,1 @@
-{"MyDefaultPlugin":{"test":"sometimes","client_id":373494668},"Github":{"hello":"world!"},"PHPchatScriptBot":{"client_id":497763082}}
+{"PHPchatScriptBot":{"client_id":1474504295}}
