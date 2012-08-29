@@ -52,6 +52,9 @@ class client extends message {
   public $room;
   public $image;
 
+  /**
+   * Constructor.
+   */
   public function client ($client_id, $orig_id) {
     if (!($elements = client::exists($client_id))) {
       $this->id = 0;
@@ -108,6 +111,18 @@ class client extends message {
     return TRUE;
   }
 
+  /**
+   * Checks if a client_id exists in the database file.
+   *
+   * @param int $client_id
+   *   The unique client identifier.
+   *
+   * @return array $elements
+   *   The contents of this client's row in the database file if found, FALSE
+   *   if not found.
+   *
+   * @see client::save()
+   */
   public static function exists($client_id) {
     $lines = file(self::FILE_NAME);
 
@@ -123,6 +138,15 @@ class client extends message {
     return FALSE;
   }
 
+  /**
+   * Creates a client entry in the database file. This does not instantiate
+   * an object or do anything else! Calling code is expected to instantiate
+   * a client object based on the unique id that is returned. This is the first
+   * step to create a new client.
+   *
+   * @return int $client_id
+   *   The unique client identifier that was written to database file.
+   */
   public static function create() {
     $client_id = mt_rand();
 
@@ -303,7 +327,13 @@ class client extends message {
   }
 
   /**
-   * Process a request to change client's name.
+   * Client requests a change of name. If the change is granted the client
+   * will be saved and all other cleints in the same room will be notified
+   * of the change.
+   *
+   * @param array $message
+   *   An array of parameters
+   *    - [0] string. The new name.
    */
   public function client_req_cl_name ($message) {
     if ((!$this->voice) && (!$this->admin)) {
@@ -312,7 +342,7 @@ class client extends message {
     }
     $value = preg_replace('/[^A-Za-z0-9._]/', '', $message[0]);
     if (!strlen($message[0])) {
-      $this->client_srv_failure($this->id, "Name contains invalide characters.");
+      $this->client_srv_failure($this->id, "Name contains invalid characters.");
       return FALSE;
     }
     $report = $this->client_cl_name($value);
@@ -404,7 +434,17 @@ class client extends message {
     return $report;
   }
 
-  /* ---------------------------------------------------------------- */
+  /**
+   * Client requests to send message to room.
+   *
+   * @param array $message
+   *   An array of parameters
+   *    - [0] string. The unique room id.
+   *    - [1] string. The message to post in the room.
+   *
+   * @return bool $report
+   *   TRUE if message was sent, FALSE otherwise.
+   */
   public function client_req_rm_msg ($message) {
     $room_id = $message[0];
     $msg     = $message[1];
@@ -470,7 +510,13 @@ $this->client_srv_failure($this->id, "Loaded : ".$url);
     return $report;
   }
 
-  /* ---------------------------------------------------------------- */
+  /**
+   * Client requests to  join a room.
+   *
+   * @param array $message
+   *   An array of parameters
+   *    - [0] string. The unique room id.
+   */
   public function client_req_rm_join ($message) {
     $room_id  = $message[0];
     if (room::exists($room_id)) {
@@ -577,7 +623,7 @@ $this->client_srv_failure($this->id, "Loaded : ".$url);
   }
 
   /**
-   * Report room details to current client.
+   * Report details of a single room to client.
    *
    * @param int $room_id
    *   Unique room identifier to report details on.
@@ -620,7 +666,19 @@ $this->client_srv_failure($this->id, "Loaded : ".$url);
     return TRUE;
   }
 
-  /* Join client to room. Report to room client's join -------------- */
+  /**
+   * Join client to room. Will create the room if it does not exist. If room
+   * is created then this client will be set as admin. Will automatically part
+   * client from last room it was in. Instantiates all clients that are listed
+   * as already being in the room, if any, and sends them a notification that
+   * our client has joined. Saves our client after joining them to a room.
+   *
+   * @param string $room_id
+   *   The unique room identifier to join. This can be an alphanumeric value.
+   *
+   * @return bool $result
+   *   TRUE on success, FALSE on failure to join room.
+   */
   public function client_rm_join ($room_id) {
     // Create room if it does not exist.
     $this->voice  = 1;
