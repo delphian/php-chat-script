@@ -15,7 +15,10 @@
  * registered.
  */
 class PHPChatScriptPluginBase {
-    
+
+  // Entire class is designed to be a singleton.
+  public static $plugin_base = NULL;
+
   // Weight will define the order in which our plugins are executed. A plugin
   // with the highest weight (number with the highest value) will execute
   // last and have the last opportunity to change information and process
@@ -40,6 +43,21 @@ class PHPChatScriptPluginBase {
     PHPChatScriptPluginBase::$plugins[] = new $class_name();
 
     return;
+  }
+
+  /**
+   * Load up our class as a singleton. On the first time this function is called
+   * assign the new class instantiated to our own static variable. Any other
+   * time this function is called simply return the static variable if it
+   * has a value. Always use this function to instantiate the base plugin class.
+   */
+  public static function load($config = NULL) {
+    if (!isset(self::$plugin_base)) {
+      self::$plugin_base = new PHPChatScriptPluginBase();
+      self::$config = $config;
+    }
+
+    return self::$plugin_base;
   }
 
   /**
