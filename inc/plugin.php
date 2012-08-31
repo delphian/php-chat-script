@@ -55,6 +55,7 @@ class PHPChatScriptPluginBase {
     if (!isset(self::$plugin_base)) {
       self::$plugin_base = new PHPChatScriptPluginBase();
       self::$config = $config;
+      self::load_plugins();
     }
 
     return self::$plugin_base;

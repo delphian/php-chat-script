@@ -13,9 +13,7 @@ require_once('./inc/message.php');
 require_once('./inc/client.php');
 require_once('./inc/plugin.php');
 
-$plugins = new PHPChatScriptPluginBase();
-$plugins::$config = $php_chat_script;
-$plugins::load_plugins();
+$plugins = PHPChatScriptPluginBase::load($php_chat_script);
 
 $plugins->invoke_all('boot');
 
