@@ -105,16 +105,33 @@ class PHPChatScriptBot extends PHPChatScriptPluginBase {
   }
 
   /**
+   * Say something in the current room.
+   *
+   * @param string $message
+   *   The message to post into a room.
+   *
+   * @return bool $result
+   *   TRUE if the message was posted, FALSE otherwise.
+   */
+  public function say($message) {
+    $result = FALSE;
+
+    // Print $message into the room 'new'.
+    $payload = array(
+      'new',
+      $message,
+    );
+    $result = $this->client->client_req_rm_msg($payload);
+
+    return $result;
+  }
+
+  /**
    * Post any messages received from github into our room.
    */
   public function github($payload) {
     $payload = json_decode($payload, TRUE);
-    // Say something in the room.
-    $message = array(
-      'new',
-      'Got ping from github: ' . $payload['commits'][0]['message'],
-    );
-    $this->client->client_req_rm_msg($message);
+    $this->say('Got ping from github: ' . $payload['commits'][0]['message']);
     return;
   }
 }
