@@ -79,7 +79,7 @@ class message {
 
   /* Create a message informing client of improper formating. ------- */
   public static function msg_improper_format() {
-    $report = "0\t".time()."\t".SRV_IMPROPER."\tImproper Message Format\n";
+    $report = "0\t".time()."\t".message::SRV_IMPROPER."\tImproper Message Format\n";
     print $report;
     return TRUE;
   }

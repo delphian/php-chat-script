@@ -64,8 +64,8 @@ class PHPChatScriptBot extends PHPChatScriptPluginBase {
       if (isset($request['payload'])) {
         $server_input = array(
           'code'    => 'github',
-          'message' => $_request['payload'],
-          'from'    => $this->$variables['client_id'],
+          'message' => $request['payload'],
+          'from'    => $this->variables['client_id'],
           'time'    => time(),
         );
         $server_input = NULL;
@@ -112,7 +112,7 @@ class PHPChatScriptBot extends PHPChatScriptPluginBase {
     // Say something in the room.
     $message = array(
       'new',
-      'Got a ping from github!',
+      'Got ping from github: ' . $payload['commits'][0]['message'],
     );
     $this->client->client_req_rm_msg($message);
     return;
