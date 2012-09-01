@@ -52,8 +52,23 @@ class client extends message {
   public $room;
   public $image;
 
+  // Easy reference to the plugins singleton.
+  public $plugins = NULL;
+
   /**
    * Constructor.
+   *
+   * @param int $client_id
+   *   The unique client identifier to load from database file.
+   * @param int $orig_id
+   *   The unique client identifier of the originating client. This is the id
+   *   of the client that has sent a request to the server. Depending on the
+   *   type of request, the server may be required to load many other clients
+   *   in order to send them messages.
+   *
+   * @returns bool TRUE|FALSE
+   *   TRUE on success, FALSE if the client id could not be found in the
+   *   database file.
    */
   public function client ($client_id, $orig_id) {
     if (!($elements = client::exists($client_id))) {
@@ -61,8 +76,10 @@ class client extends message {
       return FALSE;
     }
 
-    $this->id      = $elements[0];
     $this->orig_id = $orig_id;
+    $this->plugins = PHPChatScriptPluginBase::load();
+
+    $this->id      = $elements[0];
     $this->time    = $elements[1];
     $this->name    = $elements[2];
     $this->domain  = $elements[3];
@@ -71,7 +88,8 @@ class client extends message {
     $this->admin   = $elements[6];
     $this->voice   = $elements[7];
     $this->room    = new room($elements[8]);
-    return;
+
+    return TRUE;
   }
 
   public function save() {
@@ -239,7 +257,8 @@ class client extends message {
 
   /* ---------------------------------------------------------------- */
   /* ---------------------------------------------------------------- */
-  public function client_main($code, $message, $version) {
+  public function process_request($code, $message, $version) {
+    $this->plugins->invoke_all('process_request', $code, $message);
     switch ($code) {
       case message::SRV_VERSION:
         $this->client_req_srv_version($message, $version);

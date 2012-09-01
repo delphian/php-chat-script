@@ -48,7 +48,7 @@ if ($server_input['code']) {
       return FALSE;
     }
     $client = new client($server_input['from'], $server_input['from']);
-    $client->client_main($server_input['code'], $server_input['message'], $server_version);
+    $client->process_request($server_input['code'], $server_input['message'], $server_version);
     unset($client);
   }
 } else {

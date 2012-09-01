@@ -53,6 +53,9 @@ class PHPChatScriptPluginBase {
    */
   public static function load($config = NULL) {
     if (!isset(self::$plugin_base)) {
+      if (!isset($config)) {
+        throw new Exception('Missing configuration parameter. Class has not been initialized properly.');
+      }
       self::$plugin_base = new PHPChatScriptPluginBase();
       self::$config = $config;
       self::load_plugins();
@@ -174,8 +177,25 @@ class PHPChatScriptPluginBase {
    *   opportunity to change the data.
    */
   public function format_request($request, &$server_input) {
-
     return;
+  }
+
+  /**
+   * Process or alter any codes and their payloads.
+   *
+   * @param int $code
+   *   Unique code that provides context for the playload. This is the specific
+   *   nature of the request or command.
+   * @param mixed $payload
+   *   This value, and its type, is code dependent.
+   *
+   * @returns bool $processed
+   *   TRUE if we have performed any action, FALSE otherwise.
+   */
+  public function process_request(&$code, &$payload) {
+    $processed = FALSE;
+
+    return $processed;
   }
 
   /**

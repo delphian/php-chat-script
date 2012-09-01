@@ -58,11 +58,44 @@ class PHPChatScriptBot extends PHPChatScriptPluginBase {
     // If this request is from github then kill the input and process it
     // ourself. The public IP address should be from 207.97.227.253, 
     // 50.57.128.197, or 108.171.174.178.
-    if (isset($request['payload'])) {
-      $server_input = NULL;
-      $this->github($request['payload']);
-    }
+//    if ($_SERVER['REMOTE_ADDR'] == '207.97.227.253' ||
+//        $_SERVER['REMOTE_ADDR'] == '50.57.128.197' ||
+//        $_SERVER['REMOTE_ADDR'] == '108.171.174.179') {
+      if (isset($request['payload'])) {
+        $server_input = array(
+          'code'    => 'github',
+          'message' => $_request['payload'],
+          'from'    => $this->$variables['client_id'],
+          'time'    => time(),
+        );
+        $server_input = NULL;
+        $this->github($request['payload']);
+      }
+//    }
     return;
+  }
+
+  /**
+   * Process or alter any codes and their payloads.
+   *
+   * @param int $code
+   *   Unique code that provides context for the playload. This is the specific
+   *   nature of the request or command.
+   * @param mixed $payload
+   *   This value, and its type, is code dependent.
+   *
+   * @returns bool TRUE|FALSE
+   *   TRUE if we have performed any action, FALSE otherwise.
+   */
+  public function process_request(&$code, &$payload) {
+    $processed = FALSE;
+    
+    if ($code == 'github') {
+      $this->github($payload);
+      $processed = TRUE;
+    }
+
+    return $processed;
   }
 
   public function halt() {
