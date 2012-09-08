@@ -12,77 +12,38 @@
  * It is actually used so don't delete it unless you know what your doing.
  */
 
-class PHPChatScriptDefault extends PHPChatScriptPluginBase {
+class PHPChatScript extends ServerPlugin { 
 
-  public $name = 'MyDefaultPlugin';
-  public $weight = 5;
-  
-  // $this->variables exists as a persistant array for each plugin to store
-  // information in.
+  private $name = 'PHPChatScript';
+  private $weight = 0;
+  private static $codes = array(
+    'request_client_id',
+    '2001',
+  );
 
   /**
    * Constructor.
    */
   public function __construct() {
     parent::__construct();
-
     return;
   }
 
-  public function boot() {
-    parent::boot();
-
-    return;
-  }
-
-  /**
-   * Create the initial message that the server will process. If the plugin
-   * has nothing to offer for this web server request then don't make any
-   * changes!
-   *
-   * @param array $request
-   *   The raw information submitted to the web server. Generally his will be 
-   *   the $_REQUEST variable.
-   * @param array $&server_input
-   *   An associative array containing the data the server will process:
-   *    - 'code'
-   *    - 'from'
-   *    - 'time'
-   *    - 'message'
-   *   Another plugin may have already filled this with values. This is our
-   *   opportunity to change the data.
-   */
-  public function format_request($request, &$server_input) {
-    $raw_time     = (isset($request['time']))    ? $request['time'] : NULL;
-    $raw_code     = (isset($request['code']))    ? $request['code'] : NULL;
-    $raw_from     = (isset($request['from']))    ? $request['from'] : NULL;
-    $raw_message  = (isset($request['message'])) ? $request['message'] : NULL;
-
-    $code    = preg_replace("[^A-Za-z0-9]", '', $raw_code);
-    $from    = preg_replace("[^A-Za-z0-9]", '', $raw_from);
-    $time    = time();
-    $message = $raw_message;
-
-    $message = str_replace('%25', '%', $message);
-    $message = str_replace('%3b', ';', $message);
-    $message = explode(';', $message);
-
-    $server_input['time'] = $time;
-    $server_input['code'] = $code;
-    $server_input['from'] = $from;
-    $server_input['message'] = $message;
-
+  // Main function to process a message.
+  public function receive_message(&$code, Server $server) {
+    parent::receive_message($code, $server);
     return;
   }
 
   public function halt() {
     parent::halt();
-
     return;
   }
+
 }
 
-// Register our plugin class.
-PHPChatScriptPluginBase::register('PHPChatScriptDefault');
+
+// Register our plugin.
+Server::register_plugin('PHPChatScript', PHPChatScript::get_codes());
 
 ?>
