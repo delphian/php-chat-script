@@ -7,54 +7,30 @@
  * Licensed under the MIT license.
  */
 
-require_once('./inc/config.php');
-require_once('./inc/room.php');
-require_once('./inc/message.php');
-require_once('./inc/client.php');
-require_once('./inc/plugin.php');
+$config = array(
+  'path_root'    => preg_replace('/\/[^\/]*$/', '', __FILE__),
+  'path_inc'     => preg_replace('/\/[^\/]*$/', '', __FILE__) . '/inc',
+  'path_plugins' => preg_replace('/\/[^\/]*$/', '', __FILE__) . '/inc/plugins',
+  'path_data'    => preg_replace('/\/[^\/]*$/', '', __FILE__) . '/data',
+);
 
-$plugins = PHPChatScriptPluginBase::load($php_chat_script);
+// Turn on all error reporting for a development environment.
+ini_set('error_reporting', E_ALL);
 
-$plugins->invoke_all('boot');
+require_once($config['path_inc'] . '/server.php');
+require_once($config['path_inc'] . '/server_plugin.php');
 
-$server_input = array();
-$plugins->invoke_all('format_request', $_REQUEST, $server_input);
 
-header("Content-Type: text/plain");
-header("Cache-Control: no-cache, must-revalidate");
-header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
-
-$server_version = "0.4.8";
-
-/**********************************************************************/
-/*                                                                    */
-/* Main processing for messages sent by clients.                      */
-/*                                                                    */
-/**********************************************************************/
-
-if ($server_input['code']) {
-  // Something is requesting to be a client.
-  if ($server_input['code'] == message::CL_ID) {
-    $from   = client::create();
-    $client = new client($from, $from);
-    $client->ip = $_SERVER['REMOTE_ADDR'];
-    $client->port = $_SERVER['REMOTE_PORT'];
-    $client->save();
-    $client->client_cl_id();
-    unset($client);
-  } else {
-    if (!client::exists($server_input['from'])) {
-      print "Not Logged In. From: {$server_input['code']}, Code: {$server_input['code']}\n";
-      return FALSE;
-    }
-    $client = new client($server_input['from'], $server_input['from']);
-    $client->process_request($server_input['code'], $server_input['message'], $server_version);
-    unset($client);
-  }
-} else {
-  message::msg_improper_format();
-}
-
-$plugins->invoke_all('halt');
+/**
+ * Begin running server.
+ */
+// Create server.
+$server = Server::load($config);
+// Get the request from $_GET, $_POST, or a plugin.
+$server->receive_request();
+// Run the server. Invoke all plugins registered for this code.
+$server->process_request();
+// Close down the server gracefully.
+$server->halt();
 
 ?>

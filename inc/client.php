@@ -323,9 +323,11 @@ class client extends message {
 
   /* ---------------------------------------------------------------- */
   public function client_req_cl_retrieve () {
-    if (is_array($messages = $this->msg_read($this->id))) {
+    $msg = new message();
+    $messages = $msg->read($this->id);
+    if (!empty($messages)) {
       foreach ($messages as $message) {
-        print $message;
+        print json_encode($message) . "\n";
       }
     } else {
       $this->client_srv_nac($this->id, "No Messages Found");
@@ -570,29 +572,16 @@ $this->client_srv_failure($this->id, "Loaded : ".$url);
   /********************************************************************/
 
   /* ---------------------------------------------------------------- */
-  private function __sm ($to_id, $code) {
-    $message = '';
-    $time = time();
-    $line = '';
-    $line .= "{$to_id}\t";
-    $line .= "{$time}\t";
-    $line .= "{$code}\t";
+  private function __sm ($to_id, $code, $payload) {
+    $msg = new message();
+    $msg->to      = $to_id;
+    $msg->from    = $this->orig_id;
+    $msg->time    = time();
+    $msg->code    = $code;
+    $msg->payload = $payload;
 
-    for ($x=2;$x<func_num_args();$x++) {
-      if ($x != 2) $message .= ';';
-      $parm = func_get_arg($x);
-      $part = str_replace('%', '%25', $parm);
-      $part = str_replace(';', '%3b', $part);
-      $message .= $part;
-    }
-    $line .= $message;
-    $line .= "\n";
+    $msg->write();
 
-    if ($this->orig_id == $to_id) {
-      $this->msg_write(message::DIRECT, $line);
-    } else {
-      $this->msg_write(message::INDIRECT_APPEND, $line);
-    }
     return TRUE;
   }
 

@@ -77,6 +77,27 @@ class message {
   const CL_ID         = 2200;
 
 
+  public $msg_to      = NULL;
+  public $msg_from    = NULL;
+  public $msg_time    = NULL;
+  public $msg_code    = NULL;
+  public $msg_payload = NULL;
+
+  // Payloads should be configured according to the following structure.
+  // 'to client' plugins are javascript classes. The class name must match
+  // the filename without the .js extention. The file must be located in the
+  // js/plugins/ directory.
+  // 'to server' plugins are php classes. The class name must match the filename
+  // without the .php extention. The file must be located in the inc/plugins/
+  // directory.
+  public $payload_config = array(
+    'request_client_id' => array(
+      'description' => 'A potential client is requesting access to the system',
+      'plugin' => NULL,
+      'value' => TRUE,
+    ),
+  );
+
   /* Create a message informing client of improper formating. ------- */
   public static function msg_improper_format() {
     $report = "0\t".time()."\t".message::SRV_IMPROPER."\tImproper Message Format\n";
@@ -84,25 +105,26 @@ class message {
     return TRUE;
   }
 
-  /* Append message(s) to the message file. ------------------------- */
-  public function msg_write ($type, $message) {
+  /**
+   * Record a message in the message file.
+   */
+  public function write () {
+    $message = json_encode(array(
+      'time'    => $this->time,
+      'to'      => $this->to,
+      'from'    => $this->from,
+      'code'    => $this->code,
+      'payload' => $this->payload,
+    ));
 
-    $lines = explode("\n", $message);
-
-    if ($type == message::INDIRECT_APPEND) {
+    if ($this->from == $this->to) {
+      print $message . "\n";
+    }
+    else {
       $file = fopen(message::FILE_NAME, 'a');
       flock($file, LOCK_EX);
       fwrite($file, $message);
       fclose($file);
-    }
-    if ($type == message::INDIRECT_OVER) {
-      $file = fopen(message::FILE_NAME, 'w');
-      flock($file, LOCK_EX);
-      fwrite($file, $message);
-      fclose($file);
-    }
-    if ($type == message::DIRECT) {
-      print $message;
     }
 
     return TRUE;
@@ -110,7 +132,7 @@ class message {
 
   /* Returns array of messages from/to user. Removes messages ------- */
   /* from the file. Also removes messages that have expired. */
-  public function msg_read ($client_id, $time=NULL) {
+  public function read ($client_id, $time=NULL) {
     $report = NULL;
     $new_messages = NULL;
     if (!$time) $time = time() - 120;
@@ -119,15 +141,13 @@ class message {
     flock($file, LOCK_EX);
 
     while (!feof($file)) {
-      $line = fgets($file);
-      if (rtrim($line)) {
-        $elements = explode("\t", $line);
-        if ($elements[0] == $client_id) {
-          $report[] = $line;
-        } else {
-          if ($elements[1] > $time) {
-            $new_messages .= $line;
-          }
+      $line = json_decode(rtrim(fgets($file)), TRUE);
+      if ($line['to'] == $client_id) {
+        $report[] = $line;
+      }
+      else {
+        if ($line['time'] > $time) {
+          $new_messages .= json_encode($line) . "\n";
         }
       }
     }

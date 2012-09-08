@@ -166,7 +166,7 @@ function initChat() {
     document.body.style.fontSize = size;
   }
   print("text_div", '<span class="cln_all">'+"Client Version : "+my_client_version+".</span><br />");
-  __sm(CL_ID);
+  __sm('request_client_id', {'plugin': null, 'value': true});
   document.getElementById('input_box').focus();
   my_int_id = setInterval("__sm("+CL_RETRIEVE+")", 5000);
 

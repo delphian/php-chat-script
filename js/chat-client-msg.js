@@ -69,23 +69,12 @@ function pmRaw (messages) {
   } else {
     var text = messages;
   }
+ 
   var main = text.split("\n");
-  var msg  = '';
   for (y in main) {
     if (msg = main[y].replace("\n", '')) {
-      var parts      = msg.split("\t");
-      var header     = new Array();
-      var message    = new Array();
-      var part       = '';
-      header['to']   = parts[0];
-      header['time'] = parts[1];
-      header['code'] = parts[2];
-      if (parts[3]) {
-        part           = parts[3].replace('%25', '%');
-        part           = part.replace('%3b', ';');
-        message        = part.split(';');
-      }
-      pmProcessed(header, message, msg);
+      message = eval("(" + msg + ")");
+      pmProcessed(message);
     }
   }
 
@@ -93,11 +82,11 @@ function pmRaw (messages) {
 }
 
 /* Process message code. -------------------------------------------- */
-function pmProcessed (header, message, raw_message) {
+function pmProcessed (message) {
 
-  switch(Number(header['code'])) {
+  switch(Number(message['code'])) {
     case SRV_FAILURE:
-      printPlus("text_div", '<span class="cln_err">'+message[0]+'<span><br />');
+      printPlus("text_div", '<span class="cln_err">'+message['payload']+'<span><br />');
       break;
     case SRV_NAC:
       //printPlus("text_div", '<span class="cln_all">'+"NAC</span><br />");
@@ -148,7 +137,7 @@ function pmProcessed (header, message, raw_message) {
       pmClDetail(message);
       break;
     default:
-      err_msg = "Unrecognized Information From Server : "+raw_message.replace("\n", '')+".<br />";
+      err_msg = "Unrecognized Information From Server : "+message+".<br />";
       printPlus("text_div", '<span class="cln_err">'+err_msg+'<br /></span>');
       //alert(err_msg);
   }
@@ -156,43 +145,20 @@ function pmProcessed (header, message, raw_message) {
 }
 
 /* Send a message to server. ---------------------------------------- */
-function __sm(type) {
+function __sm(type, payload) {
   var output  = new Array();
-  var element = '';
-  var message = '';
+  var message = JSON.stringify(payload);
 
-  for (x=1;x<arguments.length;x++) {
-    if (x != 1) message += ';';
-    element = String(arguments[x]);
-    element = element.replace('%', '%25');
-    element = element.replace(';', '%3b');
-    message += element;
-  }
-
-  output['time']    = 0;
-  output['code']    = type;
-  output['from']    = my_client_id;
-  output['message'] = message;
-
-  if (my_container) {
-    var vals   = gadgets.io.encodeValues(output);
-    var url    = my_server_url+"?"+vals;
-    var params = {};
-    params[gadgets.io.RequestParameters.CONTENT_TYPE]     = gadgets.io.ContentType.TEXT;
-    params[gadgets.io.RequestParameters.REFRESH_INTERVAL] = 2;
-    gadgets.io.makeRequest(url, pmRaw, params);
-  } else {
-    var url = my_server_url+"?time="+output['time']+"&code="+output['code']+"&from="+output['from']+"&message="+output['message'];
-    ajaxFunction(url);
-  }
+  var url = my_server_url+"?code="+type+"&payload="+message;
+  ajaxFunction(url);
 
   return;
 }
 
 /* Server reports version. ------------------------------------------ */
 function pmSrvVersion (message) {
-  printPlus("text_div", '<span class="cln_all">'+"Server Version : "+message[0]+".<span><br />");
-  my_server_version = message[0];
+  printPlus("text_div", '<span class="cln_all">'+"Server Version : "+message['payload']+".<span><br />");
+  my_server_version = message['payload'];
 
   if (my_container) {
     var prefs = new gadgets.Prefs();
@@ -207,7 +173,7 @@ function pmSrvVersion (message) {
 
 /* Server reports our client's id. ---------------------------------- */
 function pmClId (message) {
-  my_client_id = message[0];
+  my_client_id = message['payload'];
   printPlus("text_div", '<span class="cln_all">'+"Granted Client ID : "+my_client_id+".<span><br />");
   __sm(SRV_VERSION);
   return 1;
