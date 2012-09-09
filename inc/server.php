@@ -39,7 +39,7 @@ class Server {
   private static $config = NULL;
 
   // Keep track of our code handlers.
-  private static $plugins = NULL;
+  private static $plugins = array();
   // Track which plugins actually got instantiated.
   private $plugins_loaded = array();
 
@@ -204,12 +204,11 @@ class Server {
        (empty(self::$plugins) || !array_key_exists($code, self::$plugins))) {
       throw new Exception("No handler found to process code:{$code}");
     }
-    $plugins = self::$plugins[$code];
+    $plugins = (!empty(self::$plugins[$code])) ? self::$plugins[$code] : NULL;
 
     if (is_array($plugins)) {
       foreach($plugins as $plugin) {
-        $this->plugins_loaded[$plugin] = new $plugin();
-        $class =& $this->plugins_loaded[$plugin];
+        $class = $plugin::load();
         if ($report) {
           $report = $class->receive_message($code, $this);
         }
@@ -235,7 +234,7 @@ class Server {
       header($header);
     }
     // Send out our output.
-    print $output;
+    print $this->output;
 
     return;
   }
@@ -281,6 +280,47 @@ class Server {
 
     return $report;
   }
+
+  /**
+   * Set our headers.
+   *
+   * @param array $headers
+   *   Strings to be output as header information.
+   *
+   * @return bool $report
+   *   TRUE if headers set, FALSE if the headers were rejected as invalid.
+   */
+  public function set_headers($headers) {
+    $report = FALSE;
+
+    if (is_array($headers)) {
+      $this->headers = $headers;
+      $report = TRUE;
+    }
+
+    return $report;
+  }
+
+  /**
+   * Set our output.
+   *
+   * @param string $output
+   *   output sent to the browser.
+   *
+   * @return bool $report
+   *   TRUE if output set, FALSE if the output was rejected as invalid.
+   */
+  public function set_output($output) {
+    $report = FALSE;
+
+    if (!isset($output) || is_string($output)) {
+      $this->output = $output;
+      $report = TRUE;
+    }
+
+    return $report;
+  }
+
 
 }
 

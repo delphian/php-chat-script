@@ -12,11 +12,11 @@
  * It is actually used so don't delete it unless you know what your doing.
  */
 
-class PHPChatScript extends ServerPlugin { 
+class PHPChatScript extends ServerPlugin {
 
-  private $name = 'PHPChatScript';
-  private $weight = 0;
-  private static $codes = array(
+  protected static $name = 'PHPChatScript';
+  protected static $codes = array(
+    '__halt',
     'request_client_id',
     '2001',
   );
@@ -31,12 +31,45 @@ class PHPChatScript extends ServerPlugin {
 
   // Main function to process a message.
   public function receive_message(&$code, Server $server) {
+    switch($code) {
+      case '__halt':
+        $this->code_halt();
+        break;
+      case '2001':
+        $this->code_update();
+        break;
+    }
+
+    // Allow plugins to change what we have done.
     parent::receive_message($code, $server);
+
+    if ($this->output) {
+      $this->headers[] = 'Content-Type: text/plain';
+      $this->headers[] = 'Cache-Control: no-cache, must-revalidate';
+      $this->headers[] = 'Expires: Sat, 26 Jul 1997 05:00:00 GMT';
+      $server->set_headers($this->headers);
+      $server->set_output($this->output);
+    }
+
     return;
   }
 
-  public function halt() {
+  // halt.
+  public function code_halt() {
+    // Parent will persist our variables.
     parent::halt();
+    return;
+  }
+
+  // Update client with any changes.
+  public function code_update() {
+    if (isset($this->variables['2001'])) {
+      $this->variables['2001']++;
+    }
+    else {
+      $this->variables['2001'] = 0;
+    }
+    $this->output = 'No soup for you!' . ' ' . $this->variables['2001'];
     return;
   }
 
