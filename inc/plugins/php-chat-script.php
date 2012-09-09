@@ -35,6 +35,9 @@ class PHPChatScript extends ServerPlugin {
       case '__halt':
         $this->code_halt();
         break;
+      case 'request_client_id':
+        $this->code_request_client_id();
+        break;
       case '2001':
         $this->code_update();
         break;
@@ -58,6 +61,26 @@ class PHPChatScript extends ServerPlugin {
   public function code_halt() {
     // Parent will persist our variables.
     parent::halt();
+    return;
+  }
+
+  // Grant a client its unique identification.
+  public function code_request_client_id() {
+    $new_id = mt_rand();
+    $this->variables['client_id'][$new_id] = array(
+      'id'     => $new_id,
+      'name'   => 'guest_' . $new_id,
+      'time'   => time(),
+      'ip'     => $_SERVER['REMOTE_ADDR'],
+      'secret' => mt_rand(),
+    );
+
+    $output = json_encode(array(
+      'code' => 'client_id_granted',
+      'payload' => $this->variables['client_id'][$new_id],
+    )) . "\n";
+    $this->output = $output;
+
     return;
   }
 

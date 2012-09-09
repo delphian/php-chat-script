@@ -174,6 +174,7 @@ class Server {
    * Execute the code recieved and pass the payload to the appropriate handler.
    */
   public function process_request() {
+    $this->log(__CLASS__, __METHOD__);
     switch ($this->code) {
       case '__version':
         $this->headers[] = 'Content-Type: text/plain';
@@ -184,6 +185,43 @@ class Server {
     }
     // Call all plugin handles.
     $this->invoke_all($this->code);
+  }
+
+  /**
+   * Log the current server state into a text file.
+   *
+   * @param string $class
+   *   Class that is invoking log, generally __CLASS__.
+   * @param string $method
+   *   Method that is invoking log, generally __METHOD__.
+   *
+   * @return bool TRUE
+   *   TRUE on success, throws error on failure.
+   */
+  public function log($class = NULL, $method = NULL) {
+    $config = self::get_config();
+    $file   = $config['path_data'] . '/server_log.txt';
+    $output = array(
+      'time'    => time(),
+      'class'   => $class,
+      'method'  => $method,
+      'code'    => $this->code,
+      'payload' => $this->payload,
+      'headers' => $this->headers,
+      'output'  => $this->output,
+    );
+    $handle = (file_exists($file)) ? fopen($file, 'a') : fopen($file, 'w');
+    if ($handle) {
+      $encoded = json_encode($output) . "\n";
+      if (!$x = fwrite($handle, $encoded)) {
+        throw new Exception('Could not write to variables file.');
+      }
+      fclose($handle);
+    } else {
+      throw new Exception('Could not open variable file for writing.');
+    }
+
+    return TRUE;
   }
 
   /**
@@ -229,6 +267,7 @@ class Server {
     // Give plugins the opportunity to shut down gracefully.
     $this->invoke_all('__halt');
 
+    $this->log(__CLASS__, __METHOD__);
     // Send out our headers.
     foreach ($this->headers as $header) {
       header($header);
