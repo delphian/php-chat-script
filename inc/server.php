@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Distribute a code and payload to the proper handler.
+ * Distribute a route and payload to the proper handler.
  * http://www.phpchatscript.com
  *
  * Copyright (c) 2012 "delphian" Bryan Hazelbaker
@@ -14,13 +14,13 @@
  *  $server = Server::load($config);
  *  // Craete plugin.
  *  class MyPlugin {
- *    protected static $codes = array('code_one', 'code_two', 'code_three');
+ *    protected static $routes = array('/myplugin/one', '/myplugin/two');
  *  }
- *  // Register plugin to handle codes.
- *  $server->register_handler('MyPlugin', MyPlugin::codes);
+ *  // Register plugin to handle routes.
+ *  $server->register_handler('MyPlugin', MyPlugin::routes);
  *  // Get the request from $_GET, $_POST, or a plugin.
  *  $server->receive_request();
- *  // Run the server. Invoke all plugins registered for this code.
+ *  // Run the server. Invoke all plugins registered for this route.
  *  $server->process_request();
  *  // Close down the server gracefully.
  *  $server->halt();
@@ -29,8 +29,9 @@
 
 class Server {
 
-  // Codes are used to route payloads to the appropriate destination.
-  private $code = NULL;
+  // Routes are url paths. A route determines where a payload
+  // will end up.
+  private $route = NULL;
   private $payload = NULL;
 
   // Entire class is designed to be a singleton.
@@ -38,7 +39,7 @@ class Server {
   // Path variables and other configuration options.
   private static $config = NULL;
 
-  // Keep track of our code handlers.
+  // Keep track of our route handlers.
   private static $plugins = array();
   // Track which plugins actually got instantiated.
   private $plugins_loaded = array();
@@ -81,23 +82,23 @@ class Server {
 
   /**
    * Plugins may register themselves here to get a callback when the server
-   * encounters a code. All codes must be registered first. If the server
-   * receives a code for which there is no handler the server will abort.
+   * encounters a route. All routes must be registered first. If the server
+   * receives a route for which there is no handler the server will abort.
    *
    * @param string $plugin_name
    *   The name of the class to instantiate for callback.
    * @param array string $codes
-   *   When these codes are encountered the server will inform the callback.
+   *   When these routes are encountered the server will inform the callback.
    *
    * @return bool $report
    *   TRUE on success, FALSE if there was any possible failure.
    */
-  public static function register_plugin($plugin_name, $codes) {
+  public static function register_plugin($plugin_name, $routes) {
     $report = TRUE;
 
-    $codes = is_array($codes) ? $codes : array($codes);
-    foreach($codes as $code) {
-      self::$plugins[$code][] = $plugin_name;
+    $routes = is_array($routes) ? $routes : array($routes);
+    foreach($routes as $route) {
+      self::$plugins[$route][] = $plugin_name;
     }
 
     return $report;
@@ -151,31 +152,33 @@ class Server {
   }
 
   /**
-   * Plugins should use the boot hook to set or alter the code or payload
-   * received by the server. 
+   * Plugins should use the boot hook to set or alter the route or payload
+   * received by the server.
    *
-   * @return $this->code
-   *   The current code, or NULL on failure.
+   * @return $this->route
+   *   The current route, or NULL on failure.
    */
   public function receive_request() {
-    // Get a code from get or post.
-    if ($this->set_code($_GET['code'])) {
-      $this->set_payload($_GET['payload']);
-    } elseif ($this->set_code($_POST['code'])) {
-      $this->set_payload($_POST['payload']);
+    // Get the route from the url. The route is the url.
+    $url_path = $_REQUEST['route'];
+    if ($this->set_route($url_path)) {
+      if (!$this->set_payload($_GET['payload'])) {
+        $this->set_payload($_POST['payload']);
+      }
     }
-    // Give plugins the opportunity to alter or set the code.
-    $this->invoke_all('__code');
+    // Give plugins the opportunity to alter or set the route.
+    $this->invoke_all('__route');
 
-    return $this->code;
+    return $this->route;
   }
 
   /**
-   * Execute the code recieved and pass the payload to the appropriate handler.
+   * Execute the route recieved and pass the payload to the 
+   * appropriate handler.
    */
   public function process_request() {
     $this->log(__CLASS__, __METHOD__);
-    switch ($this->code) {
+    switch ($this->route) {
       case '__version':
         $this->headers[] = 'Content-Type: text/plain';
         $this->headers[] = 'Cache-Control: no-cache, must-revalidate';
@@ -184,7 +187,7 @@ class Server {
         break;
     }
     // Call all plugin handles.
-    $this->invoke_all($this->code);
+    $this->invoke_all($this->route);
   }
 
   /**
@@ -205,7 +208,7 @@ class Server {
       'time'    => time(),
       'class'   => $class,
       'method'  => $method,
-      'code'    => $this->code,
+      'route'   => $this->route,
       'payload' => $this->payload,
       'headers' => $this->headers,
       'output'  => $this->output,
@@ -227,31 +230,31 @@ class Server {
   /**
    * Inform plugins that a message they have registered for has been received.
    *
-   * @param string $code
-   *   Execute all handlers that have registered for this code.
+   * @param string $route
+   *   Execute all handlers that have registered for this route.
    *
    * @return bool $report
    *   TRUE if no errors were encountered, FALSE if one or more errors.
    */
-  public function invoke_all($code) {
+  public function invoke_all($route) {
     $report = TRUE;
 
     // If this is a message not generated by the server or a plugin and the
     // message has no handler then complain.
-    if (!preg_match('/^__/', $code) &&
-       (empty(self::$plugins) || !array_key_exists($code, self::$plugins))) {
-      throw new Exception("No handler found to process code:{$code}");
+    if (!preg_match('/^__/', $route) &&
+       (empty(self::$plugins) || !array_key_exists($route, self::$plugins))) {
+      throw new Exception("No handler found to process route:{$route}");
     }
-    $plugins = (!empty(self::$plugins[$code])) ? self::$plugins[$code] : NULL;
+    $plugins = (!empty(self::$plugins[$route])) ? self::$plugins[$route] : NULL;
 
     if (is_array($plugins)) {
       foreach($plugins as $plugin) {
         $class = $plugin::load();
         if ($report) {
-          $report = $class->receive_message($code, $this);
+          $report = $class->receive_message($route, $this);
         }
         else {
-          $class->receive_message($code, $this);
+          $class->receive_message($route, $this);
         }
       }
     }
@@ -279,21 +282,21 @@ class Server {
   }
 
   /**
-   * Receive our code and make sure its safe.
+   * Receive our route and make sure its safe.
    *
-   * @param string $code
+   * @param string $route
    *
    * @return bool $report
-   *   TRUE if code was set, FALSE if the code was rejected as invalid.
+   *   TRUE if route was set, FALSE if the route was rejected as invalid.
    */
-  public function set_code($code) {
+  public function set_code($route) {
     $report = FALSE;
 
     // @todo make sure this code has a handler.
     // @todo make sure the code is not prepended with 2 underscores. These are
     // reserved for server messages to plugins.
-    if (is_string($code)) {
-      $this->code = $code;
+    if (is_string($route)) {
+      $this->route = $route;
       $report = TRUE;
     }
 
@@ -302,7 +305,7 @@ class Server {
 
   /**
    * Receive our payload and make sure its safe. Not much will really be
-   * done since ensuring a proper payload is code dependent.
+   * done since ensuring a proper payload is route dependent.
    *
    * @param string|NULL $payload
    *
