@@ -132,23 +132,33 @@ class Server {
    * This should be called by the static load method after the configuration
    * has been set.
    *
-   * @return bool $report
-   *   TRUE on success, FALSE if there was one or more errors.
+   * @param string $base (optional)
+   *   Directory to load all php files from. Primarily used for recursion.
+   *
+   * @return bool TRUE
    */
-  function load_plugins() {
-    $report = FALSE;
-    $config = self::get_config();
+  public function load_plugins($base = NULL) {
+    $recursion = FALSE;
+    if (!isset($base)) {
+      $report = FALSE;
+      $config = self::get_config();
+      $base   = $config['path_plugins'];
+      $recursion = TRUE;
+    }
 
-    if ($handle = opendir($config['path_plugins'])) {
+    if ($handle = opendir($base)) {
       while (false !== ($entry = readdir($handle))) {
+        if ($recursion && is_dir($base . '/' . $entry)) {
+          $this->load_plugins($base . '/' . $entry);
+        }
         if (preg_match('/\.php$/', $entry)) {
-          require_once($config['path_plugins'] . '/' . $entry);
+          require_once($base . '/' . $entry);
         }
       }
       closedir($handle);
     }
 
-    return $report;
+    return TRUE;
   }
 
   /**
@@ -160,10 +170,18 @@ class Server {
    */
   public function receive_request() {
     // Get the route from the url. The route is the url.
-    $url_path = $_REQUEST['route'];
-    if ($this->set_route($url_path)) {
-      if (!$this->set_payload($_GET['payload'])) {
-        $this->set_payload($_POST['payload']);
+    $route = '/';
+    if (isset($_REQUEST['route'])) {
+      $route = $_REQUEST['route'];  
+    }
+
+    if ($this->set_route($route)) {
+      if (isset($_GET['payload'])) {
+        if (!$this->set_payload($_GET['payload'])) {
+          if (isset($_POST['payload'])) {
+            $this->set_payload($_POST['payload']);
+          }
+        }
       }
     }
     // Give plugins the opportunity to alter or set the route.
@@ -289,7 +307,7 @@ class Server {
    * @return bool $report
    *   TRUE if route was set, FALSE if the route was rejected as invalid.
    */
-  public function set_code($route) {
+  public function set_route($route) {
     $report = FALSE;
 
     // @todo make sure this code has a handler.

@@ -2,7 +2,9 @@
 DirectoryIndex server.php
 
 RewriteEngine on
+# Uncomment following if script resides in a subdirectory.
+RewriteBase /php-chat-script
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^(.*)$ index.php?route=$1 [L,QSA]
+RewriteRule ^(.*)$ server.php?route=$1 [L,QSA]
 
