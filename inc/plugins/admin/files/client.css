@@ -1,0 +1,35 @@
+html {margin:0px;padding:0px;}
+body {margin:0px;padding:0px;font-size:1.0em;line-height:1.05em;background-color:#000000;}
+
+#encap_div {position:absolute;top:0px;bottom:0px;left:0px;right:0px;overflow:hidden;background-color:#ffffff;}
+
+#title_div {position:absolute;top:0px;left:0px;height:1.0em;width:100%;}
+#title_div a {color:#000000;text-decoration:none;}
+  #title_bord {width:100%;height:100%;border-bottom:1px solid #aaaaaa;background-color:#e0e0e0;position:relative;font-size:0.75em;line-height:0.75em;}
+  #title_bord {background-image:-webkit-gradient(linear, left bottom, left top, color-stop(0, #E0E0E0), color-stop(1, #FFFFFF));}
+    #title_marg {position:absolute;right:0.5em;top:0.35em;text-align:right;}
+
+#mid_div {position:absolute;top:1.10em;left:0.1em;bottom:2.0em;right:0.1em;}
+  #mid_bord {position:absolute;top:0px;bottom:0px;left:0px;right:0px;}
+    #midl_div {position:absolute;left:0px;top:0px;bottom:0px;right:0px;overflow:hidden;}
+      #midl_top {position:absolute;top:0px;left:0px;right:0px;bottom:2.0em;overflow:hidden;}
+        #text_div {height:100%;width:100%;}
+        #text_div img {height:1em;border:none;}
+      #midl_bot {position:absolute;bottom:0px;left:0px;right:0px;height:2.0em;}
+        #text_input {position:absolute;left:0px;top:0px;bottom:0px;right:0px;border-top:1px solid #dddddd;}
+        #text_input input {width:100%;height:100%;font-size:1.25em;padding:0px;border:none;color:#666666;margin-left:0.25em;}
+        #text_input input:focus {outline:none;}
+
+#bot_div {position:absolute;bottom:0px;left:0px;height:2.0em;right:0px;background-color:#e0e0e0;}
+  #bot_bord {position:absolute;top:0px;bottom:0px;left:0px;right:0px;border-top:1px solid #999999;overflow:hidden;}
+    #link_div {position:absolute;top:0.5em;left:0.25em;right:0.25em;text-align:right;}
+    #link_div a {color:#000000;text-decoration:none;}
+
+#set_div {position:absolute;top:40%;left:10%;right:10%;height:4em;display:none;border:none;}
+  #setl_div {position:absolute;top:0px;bottom:3em;width:100%;color:#ffffff;font-size:1.25em;}
+  #setm_div {position:absolute;top:1em;bottom:0em;left:0px;height:3em;right:7.5em;}
+    #set_type {display:none;}
+    #set_input {width:100%;height:100%;padding:0px;border:1px solid #ffffff;font-size:3em;background-color:#e0e0e0;}
+  #setr_div {position:absolute;top:1em;bottom:0px;right:0px;width:7em;}
+  #setr_div img {height:3em;border:none;}
+

@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+  <title>PHP Chat Script Client</title>
+  <link href="inc/plugins/admin/files/client.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" src="inc/plugins/admin/files/dom-print.js"></script>
+  <script type="text/javascript" src="inc/plugins/admin/files/chat-client-msg.js"></script>
+  <script type="text/javascript" src="inc/plugins/admin/files/chat-client.js"></script>
+</head>
+<body>
+
+<div id="encap_div">
+  <div id="title_div">
+    <div id="title_bord">
+      <div id="title_marg">
+        <a href="http://www.phpchatscript.com" title="Go to the chat site">PHP Chat Script</a> |
+        <a href="git://github.com/delphian/php-chat-script.git" title="Clone the git repo">Git</a> |
+        <a href="https://github.com/delphian/php-chat-script/zipball/master" title="Download as zipball">Zip</a>
+      </div>
+    </div>
+  </div>
+  <div id="mid_div">
+    <div id="mid_bord">
+      <div id="midl_div">
+        <div id="midl_top">
+          <div id="text_div"></div>
+        </div>
+        <div id="midl_bot">
+          <div id="text_input"><input id="input_box" onkeypress="return clientInputKeystroke(event)" type="text" value="" /></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="bot_div">
+    <div id="bot_bord">
+      <div id="link_div">
+        (<a title="Decrease font size" href="#" onclick="clientInputFontDown()">-</a><a title="Increase font size" href="#" onclick="clientInputFontUp()">+</a>)
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
