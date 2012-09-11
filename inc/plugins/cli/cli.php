@@ -12,9 +12,9 @@
  * It is actually used so don't delete it unless you know what your doing.
  */
 
-class Admin extends ServerPlugin {
+class Cli extends ServerPlugin {
 
-  protected static $name = 'Admin';
+  protected static $name = 'Cli';
   protected static $codes = array(
     '__halt',
     '/',
@@ -66,7 +66,7 @@ class Admin extends ServerPlugin {
   // Load up the javascript bare bones interface.
   public function code_root() {
     // Load up the interface.
-    $client_file = file_get_contents('inc/plugins/admin/files/client.html');
+    $client_file = file_get_contents('inc/plugins/cli/files/client.html');
     $this->output = $client_file;
 
     $this->headers[] = 'Content-Type: text/html';
@@ -93,6 +93,6 @@ class Admin extends ServerPlugin {
 
 
 // Register our plugin.
-Server::register_plugin('Admin', Admin::get_codes());
+Server::register_plugin('Cli', Cli::get_codes());
 
 ?>
