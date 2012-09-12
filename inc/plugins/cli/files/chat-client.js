@@ -14,15 +14,16 @@ var my_font_size      = 1.0;
 function clientInput() {
   message = document.getElementById('input_box').value;
 
-  msg = message.split(' ');
+  var command   = message.split(' ')[0];
+  var remainder = message.split(' ').slice(1).join(' ');
 
-  if (msg[0] == '/route') {
-    var route = msg[1];
-    msg = msg.slice(2);
-    msg = msg.join(' ');
-    __sm(route, msg);
-  } else {
-    // Do what by default?
+  if (command == '/route') {
+    var route = message.split(' ')[1];
+    remainder = message.split(' ').slice(2).join(' ');
+    __sm(route, payload);
+  } else if (command.substring(0, 1) == "/") {
+    var payload = {code:command.substring(1),payload:remainder};
+    __sm('cli/set_message', payload);
   }
 
   document.getElementById('input_box').value = '';
@@ -78,7 +79,7 @@ function initChat() {
   document.getElementById('input_box').focus();
   
   // Call the send message function at interval to poll the server for updates.
-  my_int_id = setInterval("__sm('admin/get_message')", 5000);
+  my_int_id = setInterval("__sm('cli/get_message')", 5000);
 
   return;
 }

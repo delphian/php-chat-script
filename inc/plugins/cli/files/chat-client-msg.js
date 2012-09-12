@@ -71,7 +71,7 @@ function pmProcessed (message) {
     case 'NAC':
       // Server has nothing to report.
       break;
-    case 'msg':
+    case 'output':
       pmRmMsg(msg_obj);
       break;
     default:
@@ -95,7 +95,7 @@ function __sm(route, payload) {
 
 /* Remote client posts message in room. ----------------------------- */
 function pmRmMsg (message) {
-  printPlus("text_div", '<span class="cln_err">OK<br /></span>');
+  printPlus("text_div", '<span class="cln_err">'+message.payload+'<br /></span>');
   return 1;
 }
 

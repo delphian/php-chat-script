@@ -39,6 +39,9 @@ abstract class ServerPlugin {
   // Response sent to the client at end of server execution.
   protected $output = NULL;
 
+  // Payload set by the caller before receive_message() is invoked.
+  protected $payload = NULL;
+
   /**
    * Load up our class as a singleton. On the first time this function is called
    * assign the new class instantiated to our own static variable. Any other
@@ -107,6 +110,14 @@ abstract class ServerPlugin {
     // Call potential registered third party plugins.
     $this->invoke_all($code);
 
+    // @todo do we want to pass output and headers back up the chain?
+    if ($this->output) {
+      $server->set_output($this->output);
+    }
+    if (!empty($this->headers)) {
+      $server->set_headers($this->headers);
+    }
+
     return;
   }
 
@@ -122,21 +133,20 @@ abstract class ServerPlugin {
    */
   public function invoke_all($code) {
     $report  = TRUE;
-    $plugins = array();
 
-    if (!empty($this->plugins) && array_key_exists($code, $this->plugins)) {
-      $plugins = $this->plugins[$code];
-    }
+    $plugins = (!empty(self::$plugins[$code])) ? self::$plugins[$code] : NULL;    
 
-    if (!empty($plugins)) {
+    if (is_array($plugins)) {
       foreach($plugins as $plugin) {
-        $this->plugins_loaded[$plugin] = new $plugin();
-        $class =& $this->plugins_loaded[$plugin];
+        $class = $plugin::load();
+        $this->plugins_loaded[$class->get_name()] = $class;
         if ($report) {
-          $report = $class->receive_message($code, $this);
+          $class->set_payload($this->payload);
+          $report = $class->receive_message($route, $this);
         }
         else {
-          $class->receive_message($code, $this);
+          $class->set_payload($this->payload);
+          $class->receive_message($route, $this);
         }
       }
     }
@@ -164,9 +174,10 @@ abstract class ServerPlugin {
    * Persist $variables into permenant storage.
    */
   public function halt() {
-    $this->variables_write();
     // Call potential registered third party plugins.
-    $this->invoke_all('__halt');
+    $this->invoke_all('__pre_halt');
+
+    $this->variables_write();
 
     return;
   }
@@ -216,6 +227,13 @@ abstract class ServerPlugin {
   }
 
   /**
+   * Get property.
+   */
+  public function get_payload() {
+    return $this->$payload;
+  }
+
+  /**
    * Set our headers.
    *
    * @param array $headers
@@ -249,6 +267,28 @@ abstract class ServerPlugin {
 
     if (!isset($output) || is_string($output)) {
       $this->output = $output;
+      $report = TRUE;
+    }
+
+    return $report;
+  }
+
+  /**
+   * Set our payload.
+   *
+   * This is set by the calling class before receive_message() is invoked.
+   *
+   * @param mixed $payload
+   *   Idealy this is what was passed in by the external application.
+   *
+   * @return bool $report
+   *   TRUE if payload set, FALSE if the payload was rejected as invalid.
+   */
+  public function set_payload($payload) {
+    $report = FALSE;
+
+    if (!isset($payload)) {
+      $this->payload = $payload;
       $report = TRUE;
     }
 

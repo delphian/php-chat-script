@@ -204,7 +204,7 @@ class Server {
         $this->output = '0.4.8';
         break;
     }
-    // Call all plugin handles.
+    // Call all plugin handlers.
     $this->invoke_all($this->route);
   }
 
@@ -268,10 +268,13 @@ class Server {
     if (is_array($plugins)) {
       foreach($plugins as $plugin) {
         $class = $plugin::load();
+        $this->plugins_loaded[$class->get_name()] = $class;
         if ($report) {
+          $class->set_payload($this->payload);
           $report = $class->receive_message($route, $this);
         }
         else {
+          $class->set_payload($this->payload);
           $class->receive_message($route, $this);
         }
       }
@@ -286,7 +289,7 @@ class Server {
    */
   public function halt() {
     // Give plugins the opportunity to shut down gracefully.
-    $this->invoke_all('__halt');
+    $this->invoke_all('__pre_halt');
 
     $this->log(__CLASS__, __METHOD__);
     // Send out our headers.
@@ -295,6 +298,11 @@ class Server {
     }
     // Send out our output.
     print $this->output;
+
+    // Tell plugins they must halt NOW.
+    foreach($this->plugins_loaded as $plugin) {
+      $plugin->halt();
+    }
 
     return;
   }
@@ -339,6 +347,17 @@ class Server {
     }
 
     return $report;
+  }
+
+  /**
+   * Spit out our payload.
+   *
+   * @return mixed $this->payload
+   */
+  public function get_payload() {
+    $report = FALSE;
+
+    return $this->payload;
   }
 
   /**
