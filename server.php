@@ -17,8 +17,8 @@ $config = array(
 // Turn on all error reporting for a development environment.
 ini_set('error_reporting', E_ALL);
 
+require_once($config['path_inc'] . '/plugin.php');
 require_once($config['path_inc'] . '/server.php');
-require_once($config['path_inc'] . '/server_plugin.php');
 
 
 /**

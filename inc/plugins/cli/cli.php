@@ -12,66 +12,58 @@
  * It is actually used so don't delete it unless you know what your doing.
  */
 
-class Cli extends ServerPlugin {
+class Cli extends Plugin {
 
-  protected static $name = 'Cli';
-  protected static $codes = array(
+  protected static $routes = array(
     '/',
     'cli/get_message',
     'cli/set_message',
   );
 
-  /**
-   * Constructor.
-   */
-  public function __construct() {
-    parent::__construct();
-    return;
-  }
-
   // Main function to process a message.
-  public function receive_message(&$code, Server $server) {
-    switch($code) {
+  public function receive_message(&$route, $caller) {
+    switch($route) {
       case '/':
-        $this->code_root();
+        $this->route_root();
         break;
       case 'cli/set_message':
-        $this->code_set_message($server->get_payload());
+        $this->route_set_message();
         break;
       case 'cli/get_message':
-        $this->code_get_message();
+        $this->route_get_message();
         break;
     }
 
-    // Allow plugins to change what we have done. Final act of parent will be
-    // to set the current headers and output to the calling server.
-    parent::receive_message($code, $server);
+    // Overwrite callers output with ours.
+    if ($this->output) {
+      $caller->set_output($this->output);
+    }
 
     return;
   }
 
   // Load up the javascript bare bones interface.
-  public function code_root() {
+  public function route_root() {
     // Load up the interface.
     $client_file = file_get_contents('inc/plugins/cli/files/client.html');
-    $this->output = $client_file;
 
-    $this->headers[] = 'Content-Type: text/html';
-    $this->headers[] = 'Cache-Control: no-cache, must-revalidate';
-    $this->headers[] = 'Expires: Sat, 26 Jul 1997 05:00:00 GMT';
+    $this->output['body'] = $client_file;
+    $this->output['headers'][] = 'Content-Type: text/html';
+    $this->output['headers'][] = 'Cache-Control: no-cache, must-revalidate';
+    $this->output['headers'][] = 'Expires: Sat, 26 Jul 1997 05:00:00 GMT';
 
     return;
   }
 
-  public function code_get_message() {
+  public function route_get_message() {
     $response = array(
       'code' => 'NAC',
     );
-    $this->output = json_encode($response);
 
-    $this->headers[] = 'Content-Type: text/text';
-    $this->headers[] = 'Cache-Control: no-cache, must-revalidate';
-    $this->headers[] = 'Expires: Sat, 26 Jul 1997 05:00:00 GMT';
+    $this->output['body'] = json_encode($response);
+    $this->output['headers'][] = 'Content-Type: text/text';
+    $this->output['headers'][] = 'Cache-Control: no-cache, must-revalidate';
+    $this->output['headers'][] = 'Expires: Sat, 26 Jul 1997 05:00:00 GMT';
 
     return;
   }
@@ -79,8 +71,8 @@ class Cli extends ServerPlugin {
   /**
    * A command was sent to us from the client.
    */
-  public function code_set_message($payload) {
-    $input = json_decode($payload, TRUE);
+  public function route_set_message() {
+    $input = json_decode($this->payload, TRUE);
 
     switch ($input['code']) {
       case 'help':
@@ -105,10 +97,12 @@ class Cli extends ServerPlugin {
       'code'    => 'output',
       'payload' => 'Everybody wants help...',
     );
-    $this->output = json_encode($response);
-    $this->headers[] = 'Content-Type: text/text';
-    $this->headers[] = 'Cache-Control: no-cache, must-revalidate';
-    $this->headers[] = 'Expires: Sat, 26 Jul 1997 05:00:00 GMT';
+
+    $this->output['body'] = json_encode($response);
+    $this->output['headers'][] = 'Content-Type: text/text';
+    $this->output['headers'][] = 'Cache-Control: no-cache, must-revalidate';
+    $this->output['headers'][] = 'Expires: Sat, 26 Jul 1997 05:00:00 GMT';
+
     return;  
   }
 
@@ -121,16 +115,17 @@ class Cli extends ServerPlugin {
       'code'    => 'output',
       'payload' => $this->variables['say'],
     );
-    $this->output = json_encode($response);
-    $this->headers[] = 'Content-Type: text/text';
-    $this->headers[] = 'Cache-Control: no-cache, must-revalidate';
-    $this->headers[] = 'Expires: Sat, 26 Jul 1997 05:00:00 GMT';
+
+    $this->output['body'] = json_encode($response);
+    $this->output['headers'][] = 'Content-Type: text/text';
+    $this->output['headers'][] = 'Cache-Control: no-cache, must-revalidate';
+    $this->output['headers'][] = 'Expires: Sat, 26 Jul 1997 05:00:00 GMT';
     return;  
   }
 
 }
 
 // Register our plugin.
-Server::register_plugin('Cli', Cli::get_codes());
+Server::register_plugin('Cli', Cli::get_routes());
 
 ?>
