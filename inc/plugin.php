@@ -5,12 +5,38 @@
  *
  * Observer/Observed patterns for plugins and server.
  *
+ * 'Subject' class should be extended by objects wishing to be hooked by others.
+ * 'Plugin' class should be extended by objects wishing to hook and be hooked.
+ *
  * Copyright (c) 2012 "delphian" Bryan Hazelbaker
  * Licensed under the MIT license.
  * http://www.phpchatscript.com
  */
 
-abstract class Plugin {
+
+/**
+ * Extend this class if you want to hook into others and get updates.
+ *
+ * Plugins both hook into others and get hooked into themselves.
+ */
+abstract class Plugin extends Subject {
+  /**
+   * Main function callback to process a message we have registered for.
+   *
+   * Caller will always call your class' set_payload() to pass in parameters
+   * before receive_message() is called. Your receive_message() function should
+   * set $caller->output to the results of processing.
+   */
+  abstract public function receive_message(&$route, $caller);    
+}
+
+
+/**
+ * Extend this class if you want others to hook into you.
+ *
+ * A 'Server' only has others hook into it.
+ */
+abstract class Subject {
 
   // Every plugin should be a singleton.
   protected static $singletons = array();
@@ -50,7 +76,12 @@ abstract class Plugin {
    * time this function is called simply return the static variable if it
    * has a value. Always use this function to instantiate the class.
    *
+   * @param array $config
+   *   Information concerning our operating environment.
+   *
    * @return Server self::$singleton
+   *
+   * @see Subject::__construct()
    */
   public static function load($config) {
     $class = get_called_class();
@@ -90,10 +121,10 @@ abstract class Plugin {
    *
    * @param array $config
    *   Assocative array of strings containing configuration options.
-   *   - 'path_root'        string  Path to the base directory of script.
-   *   - 'path_inc'         string  Path to the include directory.
-   *   - 'path_plugins'     string  Path to the plugins directory.
-   *   - 'path_data'        string  Path to the data directory.
+   *   - path_root: (string) Path to the base directory of script.
+   *   - path_inc: (string) Path to the include directory.
+   *   - path_plugins: (string) Path to the plugins directory.
+   *   - path_data: (string) Path to the data directory.
    *
    * @return mixed [Plugin superclass]
    */
@@ -107,15 +138,6 @@ abstract class Plugin {
 
     return $this;  
   }
-
-  /**
-   * Main function callback to process a message we have registered for.
-   *
-   * Caller will always call your class' set_payload() to pass in parameters
-   * before receive_message() is called. Your receive_message() function should
-   * set $caller->output to the results of processing.
-   */
-  abstract public function receive_message(&$route, $caller);
 
   /**
    * Inform third party plugin that a message they have registered for has been
@@ -152,7 +174,12 @@ abstract class Plugin {
   }
 
   /**
-   * Manage limited variable retention for plugins.
+   * Read in variables for this plugin persisted in a text file.
+   *
+   * Text file contains a single json string keyed by class name.
+   * $this->variables will be filled with the same object it contained before
+   * being persisted during last execution. This is not intended to replace
+   * a database, but only to record minor runtime variables.
    */
   public function variables_read() {
     $path_data = $this->config['path_data'];
@@ -168,7 +195,9 @@ abstract class Plugin {
   }
 
   /**
-   * Write plugin variables to file.
+   * Write plugin variables to persistant storage.
+   *
+   * @see Subject::variables_read()
    */
   public function variables_write() {
     if (!empty($this->variables)) {

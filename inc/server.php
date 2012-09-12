@@ -27,7 +27,7 @@
  * @endcode
  */
 
-class Server extends Plugin {
+class Server extends Subject {
 
   // Routes are url paths. A route determines where a payload
   // will end up.
@@ -150,12 +150,6 @@ class Server extends Plugin {
 
     // Call all plugin handlers.
     $this->invoke_all($this->route);
-  }
-
-  // Main function to process a message.
-  public function receive_message(&$route, $caller) {
-    // We are the server, we don't receive messages like this.
-    return;
   }
 
   /**
