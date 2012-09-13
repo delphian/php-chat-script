@@ -48,13 +48,14 @@ class Server extends Subject {
 
   /**
    * Plugins may register themselves here to get a callback when the server
-   * encounters a route. All routes must be registered first. If the server
+   * encounters a route. All $routes must be registered first. If the server
    * receives a route for which there is no handler the server will abort.
    *
    * @param string $plugin_name
    *   The name of the class to instantiate for callback.
-   * @param array string $codes
-   *   When these routes are encountered the server will inform the callback.
+   * @param string array $routes
+   *   An array of strings containing which routes the requestor should be
+   *   notified on if received.
    *
    * @return bool $report
    *   TRUE on success, FALSE if there was any possible failure.
