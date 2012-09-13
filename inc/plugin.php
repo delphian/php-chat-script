@@ -98,8 +98,8 @@ abstract class Subject {
    *
    * @param string $plugin_name
    *   The name of the class to instantiate for callback.
-   * @param array string $routes
-   *   When these routes are encountered this plugin will inform the callback.
+   * @param string $routes
+   *   An array of routes to be notified on.
    *
    * @return bool $report
    *   TRUE on success, FALSE if there was any possible failure.
