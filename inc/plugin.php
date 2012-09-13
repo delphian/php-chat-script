@@ -93,13 +93,14 @@ abstract class Subject {
   }
 
   /**
-   * Other plugins may register themselves here to get a callback when this
-   * plugin encounters a route.
+   * Plugins may register themselves here to get a callback when this class
+   * processes a route. All @$routes must be registered first.
    *
    * @param string $plugin_name
    *   The name of the class to instantiate for callback.
-   * @param string $routes
-   *   An array of routes to be notified on.
+   * @param string array $routes
+   *   An array of strings containing which routes the requestor should be
+   *   notified on if received.
    *
    * @return bool $report
    *   TRUE on success, FALSE if there was any possible failure.
@@ -109,7 +110,7 @@ abstract class Subject {
 
     $routes = is_array($routes) ? $routes : array($routes);
     foreach($routes as $route) {
-      static::$plugins[$route][] = $plugin_name;
+      self::$plugins[$route][] = $plugin_name;
     }
 
     return $report;

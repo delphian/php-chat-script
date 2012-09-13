@@ -47,31 +47,6 @@ class Server extends Subject {
   }
 
   /**
-   * Plugins may register themselves here to get a callback when the server
-   * encounters a route. All $routes must be registered first. If the server
-   * receives a route for which there is no handler the server will abort.
-   *
-   * @param string $plugin_name
-   *   The name of the class to instantiate for callback.
-   * @param string array $routes
-   *   An array of strings containing which routes the requestor should be
-   *   notified on if received.
-   *
-   * @return bool $report
-   *   TRUE on success, FALSE if there was any possible failure.
-   */
-  public static function register_plugin($plugin_name, $routes) {
-    $report = TRUE;
-
-    $routes = is_array($routes) ? $routes : array($routes);
-    foreach($routes as $route) {
-      self::$plugins[$route][] = $plugin_name;
-    }
-
-    return $report;
-  }
-
-  /**
    * Load all php files in the plugin directory.
    *
    * This should be called by the static load method after the configuration
