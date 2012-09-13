@@ -38,14 +38,14 @@ abstract class Plugin extends Subject {
  */
 abstract class Subject {
 
-  // Every plugin should be a singleton.
+  /** Every plugin should be a singleton. */
   protected static $singletons = array();
 
-  // Configuration options.
+  /** Configuration options. */
   protected $config = NULL;
 
-  // This variable will be persistant and automatically loaded at instantiation.
-  // Massive data storage needs are not intended to be met by this object.
+  /** This variable will be persistant and automatically loaded at instantiation.
+      Massive data storage needs are not intended to be met by this object. */
   protected $variables = array();
 
   // Keep track of our route handlers. Plugins for plugins. This is declared
