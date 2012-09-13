@@ -44,30 +44,32 @@ abstract class Subject {
   /** Configuration options. */
   protected $config = NULL;
 
-  /** This variable will be persistant and automatically loaded at instantiation.
-      Massive data storage needs are not intended to be met by this object. */
+  /** This variable will be persistant and automatically loaded at 
+      instantiation. Massive data storage needs are not intended to be met by
+      this object. */
   protected $variables = array();
 
-  // Keep track of our route handlers. Plugins for plugins. This is declared
-  // static so we don't have to actually instantiate a subject for the observer
-  // to attatch itself.
+  /** Keep track of our route handlers. Plugins for plugins. This is declared
+      static so we don't have to actually instantiate a subject for the observer
+      to attatch itself. */
   protected static $plugins = NULL;
-  // Track which plugins actually got instantiated.
+  /** Track which plugins actually got instantiated. */
   protected $plugins_loaded = array();
-  // Weight determines in which order a plugin should be executed for routes
-  // that have been requestd by multiple plugins. Lower integers execute first.
+  /** Weight determines in which order a plugin should be executed for routes
+      that have been requestd by multiple plugins. Lower integers execute 
+      first. */
   protected $weight = 0;
-  // An array of strings that the plugin wants to process. This is declared
-  // static so their manipulation and registration will not require an
-  // instantiated class.
+  /** An array of strings that the plugin wants to process. This is declared
+      static so their manipulation and registration will not require an
+      instantiated class. */
   protected static $routes = array();
 
-  // Payload set by the caller before receive_message() is invoked. This is
-  // where the parameters to the observer are placed.
+  /** Payload set by the caller before receive_message() is invoked. This is
+      where the parameters to the observer are placed. */
   protected $payload = NULL;
-  // Response sent to the calling class at end of execution. When each plugin
-  // is finished executing it will set the $output property of its calling
-  // class.
+  /** Response sent to the calling class at end of execution. When each plugin
+      is finished executing it will set the $output property of its calling
+      class. */
   protected $output = NULL;
 
   /**
@@ -76,7 +78,7 @@ abstract class Subject {
    * time this function is called simply return the static variable if it
    * has a value. Always use this function to instantiate the class.
    *
-   * @param array $config
+   * @param mixed $config
    *   Information concerning our operating environment.
    *
    * @return Server self::$singleton
@@ -94,11 +96,11 @@ abstract class Subject {
 
   /**
    * Plugins may register themselves here to get a callback when this class
-   * processes a route. All @$routes must be registered first.
+   * processes a route.
    *
    * @param string $plugin_name
    *   The name of the class to instantiate for callback.
-   * @param string array $routes
+   * @param string $routes
    *   An array of strings containing which routes the requestor should be
    *   notified on if received.
    *
@@ -130,7 +132,7 @@ abstract class Subject {
    * @return mixed [Plugin superclass]
    */
   final public function __construct($config) {
-    // @todo throw error if instance already exists?
+    /** @todo throw error if instance already exists? */
     if (!isset($config)) {
       throw new Exception('Config must be specified when instantiating.');
     }
@@ -181,6 +183,8 @@ abstract class Subject {
    * $this->variables will be filled with the same object it contained before
    * being persisted during last execution. This is not intended to replace
    * a database, but only to record minor runtime variables.
+   *
+   * @return bool TRUE
    */
   public function variables_read() {
     $path_data = $this->config['path_data'];
@@ -192,7 +196,7 @@ abstract class Subject {
       }
     }
 
-    return;
+    return TRUE;
   }
 
   /**
@@ -240,6 +244,8 @@ abstract class Subject {
 
   /**
    * Get property.
+   *
+   * @return Subject::$routes
    */
   public static function get_routes() {
     return static::$routes;
@@ -247,6 +253,8 @@ abstract class Subject {
 
   /**
    * Get property.
+   *
+   * @return Subject::$payload
    */
   public function get_payload() {
     return $this->$payload;
