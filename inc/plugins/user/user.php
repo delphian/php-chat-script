@@ -33,47 +33,73 @@ class User extends Plugin {
   public function receive_message(&$route, $server) {
     switch($route) {
       case 'user/request/id':
-        $this->route_request_id($server->get_payload());
+        $this->route_request_id($this->payload);
         break;
       case 'user/request/login':
-        $this->route_request_login();
+        //$this->route_request_login();
         break;
     }
 
-    // Allow plugins to change what we have done. Final act of parent will be
-    // to set the current headers and output to the calling server.
-    parent::receive_message($route, $server);
+    // Overwrite callers output with ours.
+    if ($this->output) {
+      $caller->set_output($this->output);
+    }
 
     return;
   }
 
   /**
-   * A command was sent to us from the client.
+   * User is requesting a new identification.
+   *
+   * If an old identification number is provided then the old record will be
+   * updated, otherwise a new identification will be generated.
+   *
+   * @param mixed $payload
+   *   An optional associative array containing the old identification number:
+   *   - user_id: (string) The old client identification number to change.
+   *   - user_secret: (string) The secret password for this client.
+   *
+   * @return
+   *   A json encoded array:
+   *   - user_id: (string) The new client identification granted or 0 if
+   *                denied.
    */
   public function route_request_id($payload) {
     $input = json_decode($payload, TRUE);
 
-    if (isset($input['client_id'])) {
-    
+    if ($new_id = $this->request_id($input)) {
+      /** Format up our response. */
+      $response = array(
+        'user_id' => $new_id,
+      );
+      $this->output['body'] = json_encode($response);
     }
 
     return;
   }
 
   /**
-   * Login
+   * Create a new user or update the identification of an old user.
    */
-  public function route_request_login() {
-    $this->variables['say']++;  
-    $response = array(
-      'code'    => 'output',
-      'payload' => $this->variables['say'],
-    );
-    $this->output = json_encode($response);
-    $this->headers[] = 'Content-Type: text/text';
-    $this->headers[] = 'Cache-Control: no-cache, must-revalidate';
-    $this->headers[] = 'Expires: Sat, 26 Jul 1997 05:00:00 GMT';
-    return;  
+  public function request_id($old) {
+    $id = FALSE;
+
+    /** Update old identification. */
+    if (isset($old['client_id'])) {
+      // @todo Change old identification to new.
+    }
+    /** Generate new identification. */
+    else {
+      $new_id = mt_rand();
+      $this->variables['clients'][$new_id] = array(
+        'id'     => $new_id,
+        'time'   => time(),
+        'secret' => mt_rand(),
+      );
+      $id = $new_id;
+    }
+
+    return $id;
   }
 
 }

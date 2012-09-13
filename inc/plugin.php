@@ -26,6 +26,11 @@ abstract class Plugin extends Subject {
    * Caller will always call your class' set_payload() to pass in parameters
    * before receive_message() is called. Your receive_message() function should
    * set $caller->output to the results of processing.
+   *
+   * @param string $route
+   *   The url path or code constructued custom message.
+   * @param Subject $caller
+   *   Class that is forwarding us a message.
    */
   abstract public function receive_message(&$route, $caller);    
 }
@@ -304,7 +309,8 @@ abstract class Subject {
   /**
    * Set our payload.
    *
-   * This is set by the calling class before receive_message() is invoked.
+   * This is set by the calling class before Plugin::receive_message() is 
+   * invoked.
    *
    * @param mixed $payload
    *   Idealy this is what was passed in by the external application.
