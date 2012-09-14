@@ -1,5 +1,5 @@
 <?php
-
+// http://www.oocities.org/maurice_osborn/Serpo.htm
 /**
  * http://www.phpchatscript.com
  * 
