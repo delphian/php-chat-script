@@ -34,13 +34,6 @@ class Server extends Subject {
   private $route = NULL;
 
   /**
-   * Constructor. Load all our plugins from the plugin directory.
-   */
-  public function __construct($config = NULL) {
-    parent::__construct($config);
-  }
-
-  /**
    * Retrieve the route and payload from the submission.
    *
    * Hooks will be invoked to allow plugins to alter the route, alter the

@@ -21,14 +21,6 @@
  */
 abstract class Subject extends SingletonLoader {
 
-  /** Configuration options. */
-  protected $config = NULL;
-
-  /** This variable will be persistant and automatically loaded at 
-      instantiation. Massive data storage needs are not intended to be met by
-      this object. */
-  protected $variables = array();
-
   /** Keep track of our route handlers. Plugins for plugins. This is declared
       static so we don't have to actually instantiate a subject for the observer
       to attatch itself. */
@@ -80,29 +72,6 @@ abstract class Subject extends SingletonLoader {
   }
 
   /**
-   * All parameters for paths should be absolute and not include a trailing 
-   * slash.
-   *
-   * @param array $config
-   *   Assocative array of strings containing configuration options.
-   *   - path_root: (string) Path to the base directory of script.
-   *   - path_inc: (string) Path to the include directory.
-   *   - path_plugins: (string) Path to the plugins directory.
-   *   - path_data: (string) Path to the data directory.
-   *
-   * @return mixed [Plugin superclass]
-   */
-  public function __construct($config) {
-    /** @todo throw error if instance already exists? */
-    if (!isset($config)) {
-      throw new Exception('Config must be specified when instantiating.');
-    }
-    $this->config = $config;
-
-    return $this;  
-  }
-
-  /**
    * Inform third party plugin that a message they have registered for has been
    * received. After class is instantied it's set_payload() will be called
    * and then set_user(). Only after these variables of the class have been
@@ -121,7 +90,7 @@ abstract class Subject extends SingletonLoader {
 
     if (is_array($plugins) && !empty($plugins)) {
       foreach($plugins as $plugin) {
-        $class = $plugin::load($this->config);
+        $class = $plugin::load();
         $class_name = get_class($class);
         $this->plugins_loaded[$plugin] = $class;
         $class->set_payload($this->payload);
