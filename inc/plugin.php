@@ -19,7 +19,7 @@
  *
  * A 'Server' only has others hook into it.
  */
-abstract class Subject extends PersistentVariable {
+abstract class Subject extends SingletonLoader {
 
   /** Configuration options. */
   protected $config = NULL;
@@ -98,7 +98,6 @@ abstract class Subject extends PersistentVariable {
       throw new Exception('Config must be specified when instantiating.');
     }
     $this->config = $config;
-    parent::__construct($config);
 
     return $this;  
   }
@@ -254,6 +253,12 @@ abstract class Subject extends PersistentVariable {
  * Plugins both hook into others and get hooked into themselves.
  */
 abstract class Plugin extends Subject {
+
+  /** This variable will be persistant and automatically loaded at 
+      instantiation. Massive data storage needs are not intended to be met by
+      this object. */
+  protected $variables = array();
+
   /**
    * Main function callback to process a message we have registered for.
    *
@@ -266,7 +271,36 @@ abstract class Plugin extends Subject {
    * @param Subject $caller
    *   Class that is forwarding us a message.
    */
-  abstract public function receive_message(&$route, $caller);    
+  abstract public function receive_message(&$route, $caller);
+
+  /**
+   * @return mixed [Service superclass]
+   */
+  public function __construct() {
+    $name = get_called_class();
+    $this->variables = SimpleTextStorage::load()->read($name, 'variables');
+
+    return $this;  
+  }
+
+  /**
+   * Save any changes to our variables.
+   */
+  public function __destruct() {
+    // Persist our variables.
+    $name = get_called_class();
+    SimpleTextStorage::load()->write($name, 'variables', $this->variables);
+
+    return;
+  }
+
+  /**
+   * Get property.
+   */
+  public function get_variables() {
+    return $this->variables;
+  }
+
 }
 
 ?>
