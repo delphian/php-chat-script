@@ -10,7 +10,6 @@
 $config = array(
   'path_root'    => preg_replace('/\/[^\/]*$/', '', __FILE__),
   'path_inc'     => preg_replace('/\/[^\/]*$/', '', __FILE__) . '/inc',
-  'path_plugins' => preg_replace('/\/[^\/]*$/', '', __FILE__) . '/inc/plugins',
   'path_data'    => preg_replace('/\/[^\/]*$/', '', __FILE__) . '/data',
 );
 

@@ -110,7 +110,7 @@ class Server extends Subject {
    *   TRUE on success, throws error on failure.
    */
   public function log($class = NULL, $method = NULL) {
-    $file   = $this->config['path_data'] . '/server_log.txt';
+/*
     $output = array(
       'time'    => time(),
       'class'   => $class,
@@ -129,7 +129,7 @@ class Server extends Subject {
     } else {
       throw new Exception('Could not open variable file for writing.');
     }
-
+*/
     return TRUE;
   }
 
