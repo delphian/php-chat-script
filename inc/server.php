@@ -33,17 +33,9 @@ class Server extends Subject {
   // will end up.
   private $route = NULL;
 
-  /**
-   * @see Plugin::load()
-   */
-  public static function load($config) {
-    $singleton = parent::load($config);
-
-    if ($singleton) {
-      $singleton->load_plugins();
-    }
-
-    return $singleton;
+  public function __construct($config = NULL) {
+    parent::__construct($config);
+    $this->load_plugins();
   }
 
   /**

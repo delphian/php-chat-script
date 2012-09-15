@@ -15,36 +15,11 @@
 
 
 /**
- * Extend this class if you want to hook into others and get updates.
- *
- * Plugins both hook into others and get hooked into themselves.
- */
-abstract class Plugin extends Subject {
-  /**
-   * Main function callback to process a message we have registered for.
-   *
-   * Caller will always call your class' set_payload() to pass in parameters
-   * before receive_message() is called. Your receive_message() function should
-   * set $caller->output to the results of processing.
-   *
-   * @param string $route
-   *   The url path or code constructued custom message.
-   * @param Subject $caller
-   *   Class that is forwarding us a message.
-   */
-  abstract public function receive_message(&$route, $caller);    
-}
-
-
-/**
  * Extend this class if you want others to hook into you.
  *
  * A 'Server' only has others hook into it.
  */
-abstract class Subject {
-
-  /** Every plugin should be a singleton. */
-  protected static $singletons = array();
+abstract class Subject extends PersistentVariable {
 
   /** Configuration options. */
   protected $config = NULL;
@@ -76,28 +51,6 @@ abstract class Subject {
       is finished executing it will set the $output property of its calling
       class. */
   protected $output = NULL;
-
-  /**
-   * Load up our class as a singleton. On the first time this function is called
-   * assign the new class instantiated to our own static variable. Any other
-   * time this function is called simply return the static variable if it
-   * has a value. Always use this function to instantiate the class.
-   *
-   * @param mixed $config
-   *   Information concerning our operating environment.
-   *
-   * @return Server self::$singleton
-   *
-   * @see Subject::__construct()
-   */
-  public static function load($config) {
-    $class = get_called_class();
-    if (array_key_exists($class, self::$singletons) === FALSE) {
-      self::$singletons[$class] = new $class($config);
-    }
-
-    return self::$singletons[$class];
-  }
 
   /**
    * Plugins may register themselves here to get a callback when this class
@@ -136,13 +89,13 @@ abstract class Subject {
    *
    * @return mixed [Plugin superclass]
    */
-  final public function __construct($config) {
+  public function __construct($config) {
     /** @todo throw error if instance already exists? */
     if (!isset($config)) {
       throw new Exception('Config must be specified when instantiating.');
     }
     $this->config = $config;
-    $this->variables_read();
+    parent::__construct($config);
 
     return $this;  
   }
@@ -167,66 +120,12 @@ abstract class Subject {
         $class = $plugin::load($this->config);
         $class_name = get_class($class);
         $this->plugins_loaded[$plugin] = $class;
-        if ($report) {
-          $class->set_payload($this->payload);
-          $report = $class->receive_message($route, $this);
-        }
-        else {
-          $class->set_payload($this->payload);
-          $class->receive_message($route, $this);
-        }
+        $class->set_payload($this->payload);
+        $class->receive_message($route, $this);
       }
     }
 
     return $report;
-  }
-
-  /**
-   * Read in variables for this plugin persisted in a text file.
-   *
-   * Text file contains a single json string keyed by class name.
-   * $this->variables will be filled with the same object it contained before
-   * being persisted during last execution. This is not intended to replace
-   * a database, but only to record minor runtime variables.
-   *
-   * @return bool TRUE
-   */
-  public function variables_read() {
-    $path_data = $this->config['path_data'];
-    if (file_exists($path_data . '/variables.txt')) {
-      $name = get_called_class();
-      $file_array = json_decode(file_get_contents($path_data . '/variables.txt'), TRUE);
-      if (isset($file_array[$name])) {
-        $this->variables = $file_array[$name];
-      }
-    }
-
-    return TRUE;
-  }
-
-  /**
-   * Write plugin variables to persistant storage.
-   *
-   * @see Subject::variables_read()
-   */
-  public function variables_write() {
-    if (!empty($this->variables)) {
-      $path_data = $this->config['path_data'];
-      $name = get_called_class();
-      $file_array = array(); 
-      $file_array = json_decode(file_get_contents($path_data . '/variables.txt'), TRUE);
-      $file_array[$name] = $this->variables;
-      $handle = fopen($path_data . '/variables.txt', 'w');
-      if ($handle) {
-        $encoded = json_encode($file_array);
-        if (!$x = fwrite($handle, $encoded)) {
-          throw new Exception('Could not write to variables file.');
-        }
-        fclose($handle);
-      } else {
-        throw new Exception('Could not open variable file for writing.');
-      }
-    }
   }
 
   /**
@@ -235,9 +134,6 @@ abstract class Subject {
   public function halt() {
     // Give heads up to plugins that we are terminating operations.
     $this->invoke_all('__pre_halt');
-
-    // Persist our variables.
-    $this->variables_write();
 
     // Tell all instantiated plugins they must halt NOW.
     foreach($this->plugins_loaded as $plugin) {
@@ -270,13 +166,6 @@ abstract class Subject {
    */
   public function get_weight() {
     return $this->weight;
-  }
-
-  /**
-   * Get property.
-   */
-  public function get_variables() {
-    return $this->variables;
   }
 
   /**
@@ -329,6 +218,28 @@ abstract class Subject {
     return $report;
   }
 
+}
+
+
+/**
+ * Extend this class if you want to hook into others and get updates.
+ *
+ * Plugins both hook into others and get hooked into themselves.
+ */
+abstract class Plugin extends Subject {
+  /**
+   * Main function callback to process a message we have registered for.
+   *
+   * Caller will always call your class' set_payload() to pass in parameters
+   * before receive_message() is called. Your receive_message() function should
+   * set $caller->output to the results of processing.
+   *
+   * @param string $route
+   *   The url path or code constructued custom message.
+   * @param Subject $caller
+   *   Class that is forwarding us a message.
+   */
+  abstract public function receive_message(&$route, $caller);    
 }
 
 ?>
