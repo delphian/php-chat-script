@@ -1,5 +1,6 @@
 
 var my_client_id      = 0;
+var my_secret_key     = 0;
 var my_client_version = '0.9.42a';
 var my_server_version = '';
 var my_int_id         = 0;
@@ -77,7 +78,10 @@ function clientInputFontDown() {
 function initChat() {
   print("text_div", '<span class="cln_all">'+"Client Version : "+my_client_version+".</span><br />");
   document.getElementById('input_box').focus();
-  
+
+  /** Request unique client identification. */
+  pmRaw(__sm('cli/get_id'));
+
   // Call the send message function at interval to poll the server for updates.
   my_int_id = setInterval("__sm('cli/get_message')", 5000);
 

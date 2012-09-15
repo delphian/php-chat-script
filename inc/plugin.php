@@ -47,6 +47,9 @@ abstract class Subject extends PersistentVariable {
   /** Payload set by the caller before receive_message() is invoked. This is
       where the parameters to the observer are placed. */
   protected $payload = NULL;
+  /** User will be set by the caller before receive_message() is invoked. This
+      contains the authenticated user which is accessing the server. */
+  protected $user = NULL;
   /** Response sent to the calling class at end of execution. When each plugin
       is finished executing it will set the $output property of its calling
       class. */
@@ -102,7 +105,9 @@ abstract class Subject extends PersistentVariable {
 
   /**
    * Inform third party plugin that a message they have registered for has been
-   * received.
+   * received. After class is instantied it's set_payload() will be called
+   * and then set_user(). Only after these variables of the class have been
+   * populated will we call receive_message().
    *
    * @param string $route
    *   Execute all handlers that have registered for this route.
@@ -121,6 +126,7 @@ abstract class Subject extends PersistentVariable {
         $class_name = get_class($class);
         $this->plugins_loaded[$plugin] = $class;
         $class->set_payload($this->payload);
+        $class->set_user($this->user);
         $class->receive_message($route, $this);
       }
     }
@@ -213,6 +219,27 @@ abstract class Subject extends PersistentVariable {
     if (TRUE) {
       $this->payload = $payload;
       $report = TRUE;
+    }
+
+    return $report;
+  }
+
+  /**
+   * Set our user.
+   *
+   * @param SimpleUser $user
+   *   A SimpleUser instantiated class.
+   *
+   * @return
+   *   the SimpleUser instantiated class will be returnd on success, NULL
+   *   otherwise.
+   */
+  public function set_user($user) {
+    $report = NULL;
+
+    if (is_object($user) && (get_class($user) == 'SimpleUser')) {
+      $this->user = $user;
+      $report = $this->user;
     }
 
     return $report;

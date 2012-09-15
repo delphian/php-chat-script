@@ -16,8 +16,10 @@ class Cli extends Plugin {
 
   protected static $routes = array(
     '/',
+    '__user',
     'cli/get_message',
     'cli/set_message',
+    'cli/get_id',
   );
 
   // Main function to process a message.
@@ -26,11 +28,17 @@ class Cli extends Plugin {
       case '/':
         $this->route_root();
         break;
+      case 'cli/get_id':
+        $this->route_get_id();
+        break;
       case 'cli/set_message':
         $this->route_set_message();
         break;
       case 'cli/get_message':
         $this->route_get_message();
+        break;
+      case '__user':
+        $this->route__user($caller);
         break;
     }
 
@@ -42,10 +50,28 @@ class Cli extends Plugin {
     return;
   }
 
+  /**
+   * Set the logged in user based on credentials provided in the request.
+   */
+  public function route__user(Server $server) {
+    /** Setup our user if authentiction credentials are provided. */
+    if (isset($this->payload)) {
+      $payload = json_decode($this->payload, TRUE);
+      if (isset($payload['user'])) {
+        $user_id = $payload['user']['user_id'];
+        $secret  = $payload['user']['secret_key'];
+        if (SimpleUser::authenticate($user_id, $secret)) {
+          $user = new SimpleUser($user_id);
+          $server->set_user($user);
+        }
+      }
+    }
+  }
+
   // Load up the javascript bare bones interface.
   public function route_root() {
     // Load up the interface.
-    $client_file = file_get_contents('inc/plugins/cli/files/client.html');
+    $client_file = file_get_contents('inc/Cli/files/client.html');
 
     $this->output['body'] = $client_file;
     $this->output['headers'][] = 'Content-Type: text/html';
@@ -55,15 +81,36 @@ class Cli extends Plugin {
     return;
   }
 
+  /**
+   * Grant and report to client their new user identification.
+   *
+   * @return
+   *   Response to client will be associative array:
+   *   - code: 'user_id'.
+   *   - payload: (int) New unique user identification.
+   */
+  public function route_get_id() {
+    // Create new anonymous use.
+    $user = new SimpleUser(SimpleUser::create());
+    $response = array(
+      'code' => 'user_id',
+      'payload' => array(
+        'user_id'    => $user->get_user_id(),
+        'secret_key' => $user->get_secret_key(),
+      ),
+    );
+    $this->output['body'] = json_encode($response);
+    $this->headers_text();
+
+    return;
+  }
+
   public function route_get_message() {
     $response = array(
       'code' => 'NAC',
     );
-
     $this->output['body'] = json_encode($response);
-    $this->output['headers'][] = 'Content-Type: text/text';
-    $this->output['headers'][] = 'Cache-Control: no-cache, must-revalidate';
-    $this->output['headers'][] = 'Expires: Sat, 26 Jul 1997 05:00:00 GMT';
+    $this->headers_text();
 
     return;
   }
@@ -76,10 +123,10 @@ class Cli extends Plugin {
 
     switch ($input['code']) {
       case 'help':
-        $this->subcode_help();
+        $this->code_help();
         break;
       case 'say':
-        $this->subcode_say();
+        $this->code_say();
         break;
     }
 
@@ -92,16 +139,13 @@ class Cli extends Plugin {
   /**
    * Help
    */
-  public function subcode_help() {
+  public function code_help() {
     $response = array(
       'code'    => 'output',
       'payload' => 'Everybody wants help...',
     );
-
     $this->output['body'] = json_encode($response);
-    $this->output['headers'][] = 'Content-Type: text/text';
-    $this->output['headers'][] = 'Cache-Control: no-cache, must-revalidate';
-    $this->output['headers'][] = 'Expires: Sat, 26 Jul 1997 05:00:00 GMT';
+    $this->headers_text();
 
     return;  
   }
@@ -109,18 +153,31 @@ class Cli extends Plugin {
   /**
    * Say
    */
-  public function subcode_say() {
-    $this->variables['say']++;  
+  public function code_say() {
+    $user_id = 0;
+    if ($this->user) {
+      $user_id = $this->user->get_user_id();
+    }
+    $this->variables['say']++;
     $response = array(
       'code'    => 'output',
-      'payload' => $this->variables['say'],
+      'payload' => $this->variables['say'] . ' ' . $user_id,
     );
-
     $this->output['body'] = json_encode($response);
+    $this->headers_text();
+
+    return;  
+  }
+
+  /**
+   * Generate straight text output.
+   */
+  public function headers_text() {
     $this->output['headers'][] = 'Content-Type: text/text';
     $this->output['headers'][] = 'Cache-Control: no-cache, must-revalidate';
     $this->output['headers'][] = 'Expires: Sat, 26 Jul 1997 05:00:00 GMT';
-    return;  
+
+    return;
   }
 
 }

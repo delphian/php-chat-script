@@ -39,9 +39,7 @@ function ajaxFunction(url)
  * @return TRUE
  */
 function pmRaw (messages) {
-  var text = messages;
-
-  var main = text.split("\n");
+  var main = String(messages).split("\n");
   if (main instanceof Array) {
     for (y in main) {
       if (msg = main[y].replace("\n", '')) {
@@ -50,7 +48,7 @@ function pmRaw (messages) {
       }
     }
   } else {
-    pmProcessed(text);
+    pmProcessed(messages);
   }
 
   return true;
@@ -71,6 +69,11 @@ function pmProcessed (message) {
     case 'NAC':
       // Server has nothing to report.
       break;
+    case 'user_id':
+      my_client_id = msg_obj.payload.user_id;
+      my_secret_key = msg_obj.payload.secret_key;
+      printPlus("text_div", '<span class="cln_all">'+"Client identification : "+my_client_id+".</span><br />");
+      break;
     case 'output':
       pmRmMsg(msg_obj);
       break;
@@ -82,6 +85,16 @@ function pmProcessed (message) {
 
 /* Send a message to server. ---------------------------------------- */
 function __sm(route, payload) {
+
+  /** Insert our client credentials. */
+  if (my_client_id) {
+    if (typeof payload == 'undefined') {
+      payload = {};
+    }
+    payload.user = {};
+    payload.user.user_id = my_client_id;
+    payload.user.secret_key = my_secret_key;
+  }
 
   if (payload) {
     var url = route+"?payload="+JSON.stringify(payload);

@@ -29,63 +29,36 @@
 
 class Server extends Subject {
 
-  // Routes are url paths. A route determines where a payload
-  // will end up.
+  /** Routes are url paths. A route determines where a payload will end up.
+      This is the currentl url path that was requested of us. */
   private $route = NULL;
 
+  /**
+   * Constructor. Load all our plugins from the plugin directory.
+   */
   public function __construct($config = NULL) {
     parent::__construct($config);
-    $this->load_plugins();
   }
 
   /**
-   * Load all php files in the plugin directory.
+   * Retrieve the route and payload from the submission.
    *
-   * This should be called by the static load method after the configuration
-   * has been set.
-   *
-   * @param string $base (optional)
-   *   Directory to load all php files from. Primarily used for recursion.
-   *
-   * @return bool TRUE
-   */
-  public function load_plugins($base = NULL) {
-    $recursion = FALSE;
-    if (!isset($base)) {
-      $report = FALSE;
-      $base   = $this->config['path_plugins'];
-      $recursion = TRUE;
-    }
-
-    if ($handle = opendir($base)) {
-      while (false !== ($entry = readdir($handle))) {
-        if ($recursion && is_dir($base . '/' . $entry)) {
-          $this->load_plugins($base . '/' . $entry);
-        }
-        if (preg_match('/\.php$/', $entry)) {
-          require_once($base . '/' . $entry);
-        }
-      }
-      closedir($handle);
-    }
-
-    return TRUE;
-  }
-
-  /**
-   * Plugins should use the boot hook to set or alter the route or payload
-   * received by the server.
+   * Hooks will be invoked to allow plugins to alter the route, alter the
+   * payload, and alter the logged in user (if any).
    *
    * @return $this->route
    *   The current route, or NULL on failure.
    */
   public function receive_request() {
-    // Get the route from the url. The route is the url.
+    /** Get the route from the url. The route is the url. */
     $route = '/';
     if (isset($_REQUEST['route'])) {
       $route = $_REQUEST['route'];  
     }
+    /** Plugins may alter the route. */
+    $this->invoke_all('__route');
 
+    /** Grab our payload (parameters to the route handler). */
     if ($this->set_route($route)) {
       if (isset($_GET['payload'])) {
         if (!$this->set_payload($_GET['payload'])) {
@@ -95,8 +68,13 @@ class Server extends Subject {
         }
       }
     }
-    // Give plugins the opportunity to alter or set the route.
-    $this->invoke_all('__route');
+    /** Plugins may alter the payload. */
+    $this->invoke_all('__payload');
+
+    /** Its up to the plugins to set the user property. This property is
+        used to determine if a user is logged into the server and will contain
+        information about the user. */
+    $this->invoke_all('__user');
 
     return $this->route;
   }
@@ -116,7 +94,7 @@ class Server extends Subject {
         break;
     }
 
-    // Call all plugin handlers.
+    /** Call all plugin handlers. */
     $this->invoke_all($this->route);
   }
 
@@ -162,7 +140,7 @@ class Server extends Subject {
   public function halt() {
     parent::halt();
 
-    // Send out our headers.
+    /** Send out our headers. */
     if (isset($this->output['headers'])) {
       if (is_array($this->output['headers'])) {
         foreach ($this->output['headers'] as $header) {
@@ -173,7 +151,7 @@ class Server extends Subject {
         throw new Exception('Headers must be array');
       }
     }
-    // Send out our output.
+    /** Send out our output. */
     print $this->output['body'];
 
     return;
@@ -190,9 +168,7 @@ class Server extends Subject {
   public function set_route($route) {
     $report = FALSE;
 
-    // @todo make sure this code has a handler.
-    // @todo make sure the code is not prepended with 2 underscores. These are
-    // reserved for server messages to plugins.
+    /** @todo make sure this code has a handler? */
     if (is_string($route)) {
       $this->route = $route;
       $report = TRUE;

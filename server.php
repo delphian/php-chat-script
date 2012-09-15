@@ -17,11 +17,16 @@ $config = array(
 // Turn on all error reporting for a development environment.
 ini_set('error_reporting', E_ALL);
 
-require_once($config['path_inc'] . '/SingletonLoader.php');
+
+
+require_once($config['path_inc'] . '/SingletonLoader/SingletonLoader.php');
 require_once($config['path_inc'] . '/SimpleTextStorage/SimpleTextStorage.php');
+require_once($config['path_inc'] . '/SimpleUser/SimpleUser.php');
 require_once($config['path_inc'] . '/PersistentVariable.php');
 require_once($config['path_inc'] . '/plugin.php');
 require_once($config['path_inc'] . '/server.php');
+
+require_once($config['path_inc'] . '/Cli/Cli.php');
 
 /**
  * Begin running server.
