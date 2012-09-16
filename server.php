@@ -22,6 +22,7 @@ require_once($config['path_inc'] . '/SingletonLoader/SingletonLoader.php');
 require_once($config['path_inc'] . '/Observed/Observed.php');
 require_once($config['path_inc'] . '/SimpleTextStorage/SimpleTextStorage.php');
 require_once($config['path_inc'] . '/SimpleUser/SimpleUser.php');
+require_once($config['path_inc'] . '/Chat/Chat.php');
 require_once($config['path_inc'] . '/Plugin.php');
 require_once($config['path_inc'] . '/Server.php');
 
