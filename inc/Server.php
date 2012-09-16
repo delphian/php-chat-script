@@ -27,11 +27,40 @@
  * @endcode
  */
 
-class Server extends Subject {
+class Server extends Observed {
+
+  /** Keep track of our singletons based on their class names. */
+  protected static $singletons = array();
 
   /** Routes are url paths. A route determines where a payload will end up.
       This is the currentl url path that was requested of us. */
   private $route = NULL;
+
+  /** Payload set by the caller before receive_message() is invoked. This is
+      where the parameters to the observer are placed. */
+  protected $payload = NULL;
+  /** User will be set by the caller before receive_message() is invoked. This
+      contains the authenticated user which is accessing the server. */
+  protected $user = NULL;
+  /** Response sent to the calling class at end of execution. When each plugin
+      is finished executing it will set the $output property of its calling
+      class. */
+  protected $output = NULL;
+
+  /**
+   * Constructor. We will force the use of SingletonLoader::load() even if
+   * The requesting code tries to instantiate a new class by hand.
+   */
+  public function __construct() {
+    /** Retrieve the name of the concrete class being instantiated. */
+    $class = get_called_class();
+    /** If a singleton does not exist then create it. */
+    if (array_key_exists($class, self::$singletons) === FALSE) {
+      self::$singletons[$class] = $this;
+    }
+
+    return self::$singletons[$class];
+  }
 
   /**
    * Retrieve the route and payload from the submission.
@@ -151,6 +180,29 @@ class Server extends Subject {
   }
 
   /**
+   * Get property.
+   *
+   * @return Subject::$payload
+   */
+  public function get_payload() {
+    return $this->payload;
+  }
+
+  /**
+   * Get property.
+   */
+  public function get_output() {
+    return $this->output;
+  }
+
+  /**
+   * Get property.
+   */
+  public function get_user() {
+    return $this->user;
+  }
+
+  /**
    * Receive our route and make sure its safe.
    *
    * @param string $route
@@ -165,6 +217,70 @@ class Server extends Subject {
     if (is_string($route)) {
       $this->route = $route;
       $report = TRUE;
+    }
+
+    return $report;
+  }
+
+  /**
+   * Set our output.
+   *
+   * @param string $output
+   *   output sent to the browser.
+   *
+   * @return bool $report
+   *   TRUE if output set, FALSE if the output was rejected as invalid.
+   */
+  public function set_output($output) {
+    $report = FALSE;
+
+    if (TRUE) {
+      $this->output = $output;
+      $report = TRUE;
+    }
+
+    return $report;
+  }
+
+  /**
+   * Set our payload.
+   *
+   * This is set by the calling class before Plugin::receive_message() is 
+   * invoked.
+   *
+   * @param mixed $payload
+   *   Idealy this is what was passed in by the external application.
+   *
+   * @return bool $report
+   *   TRUE if payload set, FALSE if the payload was rejected as invalid.
+   */
+  public function set_payload($payload) {
+    $report = FALSE;
+
+    if (TRUE) {
+      $this->payload = $payload;
+      $report = TRUE;
+    }
+
+    return $report;
+  }
+
+  /**
+   * Set our user.
+   *
+   * @param SimpleUser $user
+   *   A SimpleUser instantiated class.
+   *
+   * @return
+   *   the SimpleUser instantiated class will be returnd on success, NULL
+   *   otherwise.
+   */
+  public function set_user($user) {
+    $report = NULL;
+
+    if (is_object($user) && (get_class($user) == 'SimpleUser')) {
+      $this->user = $user;
+      $report = $this->user;
     }
 
     return $report;

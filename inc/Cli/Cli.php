@@ -23,7 +23,10 @@ class Cli extends Plugin {
   );
 
   // Main function to process a message.
-  public function receive_message(&$route, $caller) {
+  public function receive_message(&$route, $observed) {
+    $this->payload = $observed->get_payload();
+    $this->user = $observed->get_user();
+
     switch($route) {
       case '/':
         $this->route_root();
@@ -38,13 +41,13 @@ class Cli extends Plugin {
         $this->route_get_message();
         break;
       case '__user':
-        $this->route__user($caller);
+        $this->route__user($observed);
         break;
     }
 
     // Overwrite callers output with ours.
     if ($this->output) {
-      $caller->set_output($this->output);
+      $observed->set_output($this->output);
     }
 
     return;

@@ -29,14 +29,30 @@ abstract class SingletonLoader {
    *
    * @return Server self::$singleton
    */
-  public static function load($config = NULL) {
+  public static function load() {
     $class = get_called_class();
     if (array_key_exists($class, self::$singletons) === FALSE) {
-      self::$singletons[$class] = new $class($config);
+      self::$singletons[$class] = new $class();
     }
 
     return self::$singletons[$class];
   }
+
+  /**
+   * Constructor. We will force the use of SingletonLoader::load() even if
+   * The requesting code tries to instantiate a new class by hand.
+   */
+  public function __construct() {
+    /** Retrieve the name of the concrete class being instantiated. */
+    $class = get_called_class();
+    /** If a singleton does not exist then create it. */
+    if (array_key_exists($class, self::$singletons) === FALSE) {
+      self::$singletons[$class] = $this;
+    }
+
+    return self::$singletons[$class];
+  }
+
 }
 
 ?>
