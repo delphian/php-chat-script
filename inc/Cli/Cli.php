@@ -58,7 +58,7 @@ class Cli extends Plugin {
     /** Iterate through all javascript paths and construct proper html. */
     $js_html = '';
     foreach($this->javascript as $js_path) {
-      $js_html .= "<script type=\"text/javascript\" src=\"{$jps_path}\"></script>\n";
+      $js_html .= "<script type=\"text/javascript\" src=\"{$js_path}\"></script>\n";
     }
     /** Replace existing javascript with ours. */
     $client_file = str_replace('<!-- Javascript -->', $js_html, $client_file);
