@@ -45,6 +45,9 @@ class ChatPlugin extends Plugin {
         case '__cli/command/help':
           $this->cli_command_help($variables);
           break;
+        case '__cli/javascript':
+          $this->cli_javascript();
+          break;
       }
     }
     /** Complain that we should have never been invoked without a valid user. */
@@ -84,6 +87,10 @@ class ChatPlugin extends Plugin {
     }
 
     return;
+  }
+
+  public function cli_javascript() {
+      
   }
 
   /**

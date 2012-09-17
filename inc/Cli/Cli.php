@@ -14,12 +14,8 @@
 
 class Cli extends Plugin {
 
-  protected static $routes = array(
-    '/',
-    'cli/get_message',
-    'cli/set_message',
-    'cli/get_id',
-  );
+  /** An array of all javascript paths to include into the cli client. */
+  protected $javascript = array();
 
   // Main function to process a message.
   public function receive_message(&$route, $observed) {
@@ -53,6 +49,9 @@ class Cli extends Plugin {
   public function route_root() {
     // Load up the interface.
     $client_file = file_get_contents('inc/Cli/files/client.html');
+
+    /** Allow plugins to change or add javascript. */
+    $this->invoke_all('__cli/javascript');
 
     $this->output['body'] = $client_file;
     $this->output['headers'][] = 'Content-Type: text/html';
@@ -163,9 +162,28 @@ class Cli extends Plugin {
     return;
   }
 
+  /**
+   * Set property.
+   */
+  public function set_javascript($javascript) {
+    $this->javascript = $javascript;
+  }
+
+  /**
+   * Get property.
+   */
+  public function get_javascript() {
+    return $this->javascript;
+  }
+
 }
 
-// Register our plugin.
-Server::register_plugin('Cli', Cli::get_routes());
+/** Register our plugin. */
+Server::register_plugin('Cli', array(
+  '/',
+  'cli/get_message',
+  'cli/set_message',
+  'cli/get_id',  
+));
 
 ?>
