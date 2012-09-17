@@ -138,16 +138,25 @@ class SimpleUser {
    *
    * This method should also be used to report which ids are logged in.
    *
+   * @param int $ping_user_id
+   *   (optional) Update this user identification's last access time with
+   *   the current time.
    * @return
    *   An array of all logged in user identifications.
    */
-  public static function purge() {
+  public static function purge($ping_user_id = NULL) {
     $logged_in = array();
 
     $users = SimpleTextStorage::load()->read('SimpleUser', 'users');
     foreach($users as $user_id => $data) {
+      /** Update specified user's last access time. */
+      if ($ping_user_id == $user_id) {
+        $user = new SimpleUser($user_id);
+        $user->save();
+        $logged_in[] = $user_id;
+      }
       /** Update records of users that have timed out. */
-      if ((time() - $data['time']) > 120) {
+      elseif ((time() - $data['time']) > 120) {
         /** Remove any records that have timed out and not registered. */
         if ($data['registered'] == FALSE) {
           self::delete($user_id);
@@ -180,8 +189,27 @@ class SimpleUser {
 
     $this->user_id    = $users[$user_id]['user_id'];
     $this->secret_key = $users[$user_id]['secret_key'];
+    $this->name       = $users[$user_id]['name'];
+    $this->time       = $users[$user_id]['time'];
+    $this->logged_in  = $users[$user_id]['logged_in'];
 
     return $this;
+  }
+
+  /**
+   * Save a instance of a user record.
+   */
+  public function save() {
+    $users = SimpleTextStorage::load()->read('SimpleUser', 'users');
+    $user_id = $this->user_id;
+
+    $users[$user_id]['user_id']    = $user_id;
+    $users[$user_id]['secret_key'] = $this->secret_key;
+    $users[$user_id]['name']       = $this->name;
+    $users[$user_id]['time']       = time();
+    $users[$user_id]['logged_in']  = $this->logged_in;
+    
+    SimpleTextStorage::load()->write('SimpleUser', 'users', $users);
   }
 
   /** Get property. */

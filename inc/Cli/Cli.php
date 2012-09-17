@@ -16,7 +16,6 @@ class Cli extends Plugin {
 
   protected static $routes = array(
     '/',
-    '__user',
     'cli/get_message',
     'cli/set_message',
     'cli/get_id',
@@ -40,9 +39,6 @@ class Cli extends Plugin {
       case 'cli/get_message':
         $this->route_get_message();
         break;
-      case '__user':
-        $this->route__user($observed);
-        break;
     }
 
     // Overwrite callers output with ours.
@@ -51,24 +47,6 @@ class Cli extends Plugin {
     }
 
     return;
-  }
-
-  /**
-   * Set the logged in user based on credentials provided in the request.
-   */
-  public function route__user(Server $server) {
-    /** Setup our user if authentiction credentials are provided. */
-    if (isset($this->payload)) {
-      $payload = json_decode($this->payload, TRUE);
-      if (isset($payload['user'])) {
-        $user_id = $payload['user']['user_id'];
-        $secret  = $payload['user']['secret_key'];
-        if (SimpleUser::authenticate($user_id, $secret)) {
-          $user = new SimpleUser($user_id);
-          $server->set_user($user);
-        }
-      }
-    }
   }
 
   // Load up the javascript bare bones interface.

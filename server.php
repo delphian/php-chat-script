@@ -28,6 +28,7 @@ require_once($config['path_inc'] . '/Server.php');
 
 require_once($config['path_inc'] . '/Cli/Cli.php');
 require_once($config['path_inc'] . '/Chat/ChatPlugin.php');
+require_once($config['path_inc'] . '/SimpleUser/SimpleUserPlugin.php');
 
 /**
  * Begin running server.

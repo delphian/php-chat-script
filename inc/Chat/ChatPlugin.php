@@ -102,6 +102,9 @@ class ChatPlugin extends Plugin {
   /**
    * Set chat message.
    *
+   * @param int $user_id
+   *   The unique user identification that is the source of the chat message.
+   *
    * Payload parameter is associative array of:
    * - to_user_id: Identification of user to send message to.
    * - message: The message itself to send.
@@ -109,7 +112,7 @@ class ChatPlugin extends Plugin {
   public function route_set_chat($user_id) {
     $input = json_decode($this->payload, TRUE);
 
-    $user_ids = SimpleUser::purge();
+    $user_ids = SimpleUser::purge($user_id);
     Chat::add($user_ids, $user_id, $input['payload']['message']);
 
     $response = array(
