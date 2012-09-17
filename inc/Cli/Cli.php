@@ -50,8 +50,18 @@ class Cli extends Plugin {
     // Load up the interface.
     $client_file = file_get_contents('inc/Cli/files/client.html');
 
+    $this->javascript[] = 'inc/Cli/files/dom-print.js';
+    $this->javascript[] = 'inc/Cli/files/chat-client-msg.js';
+    $this->javascript[] = 'inc/Cli/files/chat-client.js';
     /** Allow plugins to change or add javascript. */
     $this->invoke_all('__cli/javascript');
+    /** Iterate through all javascript paths and construct proper html. */
+    $js_html = '';
+    foreach($this->javascript as $js_path) {
+      $js_html .= "<script type=\"text/javascript\" src=\"{$jps_path}\"></script>\n";
+    }
+    /** Replace existing javascript with ours. */
+    $client_file = str_replace('<!-- Javascript -->', $js_html, $client_file);
 
     $this->output['body'] = $client_file;
     $this->output['headers'][] = 'Content-Type: text/html';

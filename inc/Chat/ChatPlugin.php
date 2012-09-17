@@ -89,7 +89,9 @@ class ChatPlugin extends Plugin {
 
   /** Add our javascript files to the command line interface. */
   public function cli_javascript($observed) {
-    $observed->set_javascript(array('tada!'));
+    $javascript = $observed->get_javascript();
+    $javascript[] = 'inc/Chat/files/ChatCli.js';
+    $observed->set_javascript($javascript);
   }
 
   /**
