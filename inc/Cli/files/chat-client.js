@@ -80,6 +80,7 @@ function clientInputFontDown() {
  */
 function initChat() {
   print("text_div", '<span class="cln_all">'+"Client Version : "+my_client_version+".</span><br />");
+  printPlus("text_div", '<span class="cln_all">Try <b>/help</b> if you get lost.</span><br />');
   document.getElementById('input_box').focus();
 
   /** Request unique client identification. */
