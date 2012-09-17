@@ -13,20 +13,22 @@
 
 class ChatPlugin extends Plugin {
 
-  protected static $routes = array(
-    'chat/set_chat',
-    'chat/get_chat',
-  );
-
   // Main function to process a message.
   public function receive_message(&$route, $observed) {
     $this->payload = $observed->get_payload();
+    $this->output = $observed->get_output();
     $this->user = $observed->get_user();
 
     $user_id = 0;
     if ($this->user) {
       $user_id = $this->user->get_user_id();
     }
+
+    /** Setup parameters. */
+    $variables = array(
+      'caller' => $observed,
+      'user_id' => $user_id,
+    );
 
     /** We will only process a route if we have a valid user. */
     if ($user_id) {
@@ -37,8 +39,11 @@ class ChatPlugin extends Plugin {
         case 'chat/set_chat':
           $this->route_set_chat($user_id);
           break;
-        case 'get_message':
+        case '__cli/get_message':
           $this->cli_get_message($user_id);
+          break;
+        case '__cli/command/help':
+          $this->cli_command_help($variables);
           break;
       }
     }
@@ -79,6 +84,20 @@ class ChatPlugin extends Plugin {
     }
 
     return;
+  }
+
+  /**
+   * Add our command to the CLI help text.
+   */
+  public function cli_command_help($variables) {
+    $output = json_decode($this->output['body'], TRUE);
+    $output['payload'] .= '<br /><b>/say</b> Announce something in chat.';
+
+    $response = array(
+      'code' => 'output',
+      'payload' => $output['payload'],
+    );
+    $this->output['body'] = json_encode($response);
   }
 
   /**
@@ -129,6 +148,7 @@ class ChatPlugin extends Plugin {
    * Generate straight text output.
    */
   public function headers_text() {
+    $this->output['headers'] = NULL;
     $this->output['headers'][] = 'Content-Type: text/text';
     $this->output['headers'][] = 'Cache-Control: no-cache, must-revalidate';
     $this->output['headers'][] = 'Expires: Sat, 26 Jul 1997 05:00:00 GMT';
@@ -144,7 +164,8 @@ Server::register_plugin('ChatPlugin', array(
   'chat/get_chat',
 ));
 Cli::register_plugin('ChatPlugin', array(
-  'get_message',
+  '__cli/get_message',
+  '__cli/command/help',
 ));
 
 ?>

@@ -15,14 +15,20 @@
 
 class SimpleUserPlugin extends Plugin {
 
-  // Main function to process a message.
+  /**
+   * Main callback used to process messages.
+   */
   public function receive_message(&$route, $observed) {
     $this->payload = $observed->get_payload();
+    $this->output = $observed->get_output();
     $this->user = $observed->get_user();
 
     switch($route) {
       case '__user':
         $this->route__user($observed);
+        break;
+      case '__cli/command/help':
+        $this->cli_command_help(NULL);
         break;
     }
 
@@ -53,12 +59,28 @@ class SimpleUserPlugin extends Plugin {
     }
   }
 
+  /**
+   * Add our commands to the CLI help text.
+   */
+  public function cli_command_help($variables) {
+    $output = json_decode($this->output['body'], TRUE);
+    $output['payload'] .= '<br /><b>/who</b> List users logged into server.';
+
+    $response = array(
+      'code' => 'output',
+      'payload' => $output['payload'],
+    );
+    $this->output['body'] = json_encode($response);
+  }
 
 }
 
 // Register our plugin.
 Server::register_plugin('SimpleUserPlugin', array(
   '__user',
+));
+Cli::register_plugin('SimpleUserPlugin', array(
+  '__cli/command/help',
 ));
 
 ?>

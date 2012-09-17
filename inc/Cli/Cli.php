@@ -93,7 +93,7 @@ class Cli extends Plugin {
     $this->output['body'] = json_encode($response);
     $this->headers_text();
 
-    $this->invoke_all('get_message');
+    $this->invoke_all('__cli/get_message');
 
     return;
   }
@@ -114,7 +114,7 @@ class Cli extends Plugin {
     }
 
     // Let plugins change what we have done.
-    $this->invoke_all($input['code']);
+    $this->invoke_all('__cli/command/' . $input['code']);
 
     return;
   }
