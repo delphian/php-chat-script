@@ -104,7 +104,7 @@ abstract class Plugin extends Observed {
    * @return Subject::$payload
    */
   public function get_payload() {
-    return $this->$payload;
+    return $this->payload;
   }
 
   /**

@@ -14,8 +14,8 @@
 class ChatPlugin extends Plugin {
 
   protected static $routes = array(
-    'chat/get_message',
-    'chat/set_message',
+    'chat/set_chat',
+    'chat/get_chat',
   );
 
   // Main function to process a message.
@@ -23,22 +23,33 @@ class ChatPlugin extends Plugin {
     $this->payload = $observed->get_payload();
     $this->user = $observed->get_user();
 
-    switch($route) {
-      case '/':
-        $this->route_root();
-        break;
-      case 'cli/get_id':
-        $this->route_get_id();
-        break;
-      case 'cli/set_message':
-        $this->route_set_message();
-        break;
-      case 'cli/get_message':
-        $this->route_get_message();
-        break;
-      case '__user':
-        $this->route__user($observed);
-        break;
+    $user_id = 0;
+    if ($this->user) {
+      $user_id = $this->user->get_user_id();
+    }
+
+    /** We will only process a route if we have a valid user. */
+    if ($user_id) {
+      switch($route) {
+        case 'chat/get_chat':
+          $this->route_get_chat($user_id);
+          break;
+        case 'chat/set_chat':
+          $this->route_set_chat($user_id);
+          break;
+        case 'get_message':
+          $this->cli_get_message($user_id);
+          break;
+      }
+    }
+    /** Complain that we should have never been invoked without a valid user. */
+    else {
+      $response = array(
+        'code'    => 'chat_invalid_user',
+        'payload' => NULL,
+      );
+      $this->output['body'] = json_encode($response);
+      $this->headers_text();      
     }
 
     // Overwrite callers output with ours.
@@ -49,123 +60,66 @@ class ChatPlugin extends Plugin {
     return;
   }
 
-  /**
-   * Set the logged in user based on credentials provided in the request.
-   */
-  public function route__user(Server $server) {
-    /** Setup our user if authentiction credentials are provided. */
-    if (isset($this->payload)) {
-      $payload = json_decode($this->payload, TRUE);
-      if (isset($payload['user'])) {
-        $user_id = $payload['user']['user_id'];
-        $secret  = $payload['user']['secret_key'];
-        if (SimpleUser::authenticate($user_id, $secret)) {
-          $user = new SimpleUser($user_id);
-          $server->set_user($user);
-        }
+  public function cli_get_message($user_id) {
+    $chat_msgs = Chat::peek(array($user_id));
+    $chat_msgs = $chat_msgs[$user_id];
+    Chat::delete(array($user_id));
+
+    if (!empty($chat_msgs)) {
+      $output = '';
+      foreach($chat_msgs as $msg) {
+        $output .= $msg['from_user_id'] . '> ' . $msg['chat'];
       }
+      $response = array(
+        'code'    => 'output',
+        'payload' => $output,
+      );
+      $this->output['body'] = json_encode($response);
+      $this->headers_text();
     }
-  }
-
-  // Load up the javascript bare bones interface.
-  public function route_root() {
-    // Load up the interface.
-    $client_file = file_get_contents('inc/Cli/files/client.html');
-
-    $this->output['body'] = $client_file;
-    $this->output['headers'][] = 'Content-Type: text/html';
-    $this->output['headers'][] = 'Cache-Control: no-cache, must-revalidate';
-    $this->output['headers'][] = 'Expires: Sat, 26 Jul 1997 05:00:00 GMT';
 
     return;
   }
 
   /**
-   * Grant and report to client their new user identification.
+   * Get chat messages.
+   */
+  public function route_get_chat($user_id) {
+    $chat_msgs = Chat::peek(array($user_id));
+    $chat_msgs = $chat_msgs[$user_id];
+    Chat::delete(array($user_id));
+
+    $response = array(
+      'code'    => 'chat_message',
+      'payload' => $chat_msgs,
+    );
+    $this->output['body'] = json_encode($response);
+    $this->headers_text();
+
+    return;
+  }
+
+  /**
+   * Set chat message.
    *
-   * @return
-   *   Response to client will be associative array:
-   *   - code: 'user_id'.
-   *   - payload: (int) New unique user identification.
+   * Payload parameter is associative array of:
+   * - to_user_id: Identification of user to send message to.
+   * - message: The message itself to send.
    */
-  public function route_get_id() {
-    // Create new anonymous use.
-    $user = new SimpleUser(SimpleUser::create());
-    $response = array(
-      'code' => 'user_id',
-      'payload' => array(
-        'user_id'    => $user->get_user_id(),
-        'secret_key' => $user->get_secret_key(),
-      ),
-    );
-    $this->output['body'] = json_encode($response);
-    $this->headers_text();
-
-    return;
-  }
-
-  public function route_get_message() {
-    $response = array(
-      'code' => 'NAC',
-    );
-    $this->output['body'] = json_encode($response);
-    $this->headers_text();
-
-    return;
-  }
-
-  /**
-   * A command was sent to us from the client.
-   */
-  public function route_set_message() {
+  public function route_set_chat($user_id) {
     $input = json_decode($this->payload, TRUE);
 
-    switch ($input['code']) {
-      case 'help':
-        $this->code_help();
-        break;
-      case 'say':
-        $this->code_say();
-        break;
-    }
+    $user_ids = SimpleUser::purge();
+    Chat::add($user_ids, $user_id, $input['payload']['message']);
 
-    // Let plugins change what we have done.
-    $this->invoke_all($input['code']);
+    $response = array(
+      'code'    => 'chat_message_received',
+      'payload' => $input['payload']['message'],
+    );
+    $this->output['body'] = json_encode($response);
+    $this->headers_text();
 
     return;
-  }
-
-  /**
-   * Help
-   */
-  public function code_help() {
-    $response = array(
-      'code'    => 'output',
-      'payload' => 'Everybody wants help...',
-    );
-    $this->output['body'] = json_encode($response);
-    $this->headers_text();
-
-    return;  
-  }
-
-  /**
-   * Say
-   */
-  public function code_say() {
-    $user_id = 0;
-    if ($this->user) {
-      $user_id = $this->user->get_user_id();
-    }
-    $this->variables['say']++;
-    $response = array(
-      'code'    => 'output',
-      'payload' => $this->variables['say'] . ' ' . $user_id,
-    );
-    $this->output['body'] = json_encode($response);
-    $this->headers_text();
-
-    return;  
   }
 
   /**
@@ -181,7 +135,13 @@ class ChatPlugin extends Plugin {
 
 }
 
-// Register our plugin.
-Server::register_plugin('ChatPlugin', ChatPlugin::get_routes());
+// Register our plugin for callback.
+Server::register_plugin('ChatPlugin', array(
+  'chat/set_chat',
+  'chat/get_chat',
+));
+Cli::register_plugin('ChatPlugin', array(
+  'get_message',
+));
 
 ?>

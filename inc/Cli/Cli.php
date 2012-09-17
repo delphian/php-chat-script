@@ -115,6 +115,8 @@ class Cli extends Plugin {
     $this->output['body'] = json_encode($response);
     $this->headers_text();
 
+    $this->invoke_all('get_message');
+
     return;
   }
 

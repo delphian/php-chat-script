@@ -128,7 +128,7 @@ class SimpleUser {
 
     $users = SimpleTextStorage::load()->read('SimpleUser', 'users');
     unset($users[$user_id]);
-    $result = SimpleTextStorge::load()->write('SimpleUser', 'users', $users);
+    $result = SimpleTextStorage::load()->write('SimpleUser', 'users', $users);
 
     return $result;
   }
@@ -146,20 +146,16 @@ class SimpleUser {
 
     $users = SimpleTextStorage::load()->read('SimpleUser', 'users');
     foreach($users as $user_id => $data) {
-      /** Remove anonymous users that have timed out. */
-      if (($data['registered'] == FALSE) && ((time() - $data['time']) > 120)) {
-        self::delete($user_id);
+      /** Update records of users that have timed out. */
+      if ((time() - $data['time']) > 120) {
+        /** Remove any records that have timed out and not registered. */
+        if ($data['registered'] == FALSE) {
+          self::delete($user_id);
+        }
+        /** @todo Update any registered users that have timed out. */
       }
-      /** Update logged in status of registered users. */
-      if ($data['logged_in'] == TRUE) {
-        if ((time() - $data['time']) > 120) {
-          $user = new SimpleUser($user_id);
-          $user->logged_in = FALSE;
-          $user->save();
-        }
-        else {
-          $logged_in[] = $user_id;
-        }
+      else {
+        $logged_in[] = $user_id;
       }
     }
 
