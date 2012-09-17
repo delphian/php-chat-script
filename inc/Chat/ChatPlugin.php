@@ -46,18 +46,16 @@ class ChatPlugin extends Plugin {
           $this->cli_command_help($variables);
           break;
         case '__cli/javascript':
-          $this->cli_javascript();
+          $this->cli_javascript($observed);
           break;
       }
     }
-    /** Complain that we should have never been invoked without a valid user. */
     else {
-      $response = array(
-        'code'    => 'chat_invalid_user',
-        'payload' => NULL,
-      );
-      $this->output['body'] = json_encode($response);
-      $this->headers_text();      
+      switch($route) {
+        case '__cli/javascript':
+          $this->cli_javascript($observed);
+          break;
+      }
     }
 
     // Overwrite callers output with ours.
@@ -89,8 +87,9 @@ class ChatPlugin extends Plugin {
     return;
   }
 
-  public function cli_javascript() {
-      
+  /** Add our javascript files to the command line interface. */
+  public function cli_javascript($observed) {
+    $observed->set_javascript(array('tada!'));
   }
 
   /**
@@ -173,6 +172,7 @@ Server::register_plugin('ChatPlugin', array(
 Cli::register_plugin('ChatPlugin', array(
   '__cli/get_message',
   '__cli/command/help',
+  '__cli/javascript',
 ));
 
 ?>
