@@ -30,6 +30,9 @@ class SimpleUserPlugin extends Plugin {
       case '__cli/command/help':
         $this->cli_command_help(NULL);
         break;
+      case '__cli/command/who':
+        $this->cli_command_who(NULL);
+        break;
     }
 
     // Overwrite callers output with ours.
@@ -73,14 +76,28 @@ class SimpleUserPlugin extends Plugin {
     $this->output['body'] = json_encode($response);
   }
 
+  /**
+   * List the users currently logged into the system.
+   */
+  public function cli_command_who($variables) {
+    $output = 'Your all alone. Its dark. Grues are making noise...';
+
+    $response = array(
+      'code' => 'output',
+      'payload' => $output,
+    );
+    $this->output['body'] = json_encode($response);
+  }
+
 }
 
-// Register our plugin.
+/** Hook into other functions. */
 Server::register_plugin('SimpleUserPlugin', array(
   '__user',
 ));
 Cli::register_plugin('SimpleUserPlugin', array(
   '__cli/command/help',
+  '__cli/command/who',
 ));
 
 ?>
