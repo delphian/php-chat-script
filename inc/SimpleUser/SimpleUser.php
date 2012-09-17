@@ -14,7 +14,13 @@
  * of inactivity.
  *
  * The associative array stored in SimpleTextStorage is:
- * - users: Associative array containing user information.
+ * - users: Associative array containing user informatio keyed by user id:
+ *   - user_id: (int) The unique user identification.
+ *   - secret_key: (int) Secret authetnication key only this user knows about.
+ *   - name: (string) Name of the user.
+ *   - time: (int) Unix time stamp. Last time this user accessed the system.
+ *   - registered: (bool) Is the user registered? If not they are anonymous.
+ *   - logged_in: (bool) Is registered user currently logged in.
  *
  * Copyright (c) 2012 "delphian" Bryan Hazelbaker
  * Licensed under the MIT license.
