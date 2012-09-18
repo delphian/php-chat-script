@@ -23,6 +23,7 @@ require_once('inc/SingletonLoader/SingletonLoader.php');
 require_once('inc/Observed/Observed.php');
 require_once('inc/SimpleTextStorage/SimpleTextStorage.php');
 require_once('inc/SimpleUser/SimpleUser.php');
+require_once('inc/SimplePage/SimplePage.php');
 require_once('inc/Chat/Chat.php');
 require_once('inc/Plugin.php');
 require_once('inc/Server.php');

@@ -79,6 +79,69 @@ class SimplePage extends Observed {
     SimpleTextStorage::load()->write('SimplePage', 'paths', $paths);
   }
 
+  /**
+   * Get property.
+   */
+  public function get_path() {
+    return $this->path;
+  }
+
+  /**
+   * Get property.
+   */
+  public function get_title() {
+    return $this->title;
+  }
+
+  /**
+   * Get property.
+   */
+  public function get_css() {
+    return $this->css;
+  }
+
+  /**
+   * Get property.
+   */
+  public function get_javascript() {
+    return $this->javascript;
+  }
+
+  /**
+   * Get property.
+   */
+  public function get_body() {
+    return $this->body;
+  }
+
+  /**
+   * Get property.
+   */
+  public function get_user_id() {
+    return $this->user_id;
+  }
+
+  /**
+   * Get property.
+   */
+  public function get_time_created() {
+    return $this->time_created;
+  }
+
+  /**
+   * Get property.
+   */
+  public function get_time_updated() {
+    return $this->time_updated;
+  }
+
+  /**
+   * Get property.
+   */
+  public function get_time_viewed() {
+    return $this->time_viewed;
+  }
+
 }
 
 ?>
