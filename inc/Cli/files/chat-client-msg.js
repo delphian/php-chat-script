@@ -1,3 +1,25 @@
+/**
+ * Generic message handler to process messages received from server.
+ *
+ * Third party javascript plugins will register themselves here to process
+ * custom messages from the server.
+ */
+var ProcessMessage = function() {
+  this.message = null;
+  this.handlers = new Array();
+}
+ProcessMessage.prototype.register = function(name) {
+  this.handlers.push(name);  
+}
+ProcessMessage.prototype.process = function(code) {
+  for (x in this.handlers) {
+    //alert(handler);
+    this.handlers[x].processMessage(code);
+  }
+}
+
+var PM = new ProcessMessage();
+
 
 /**
  *  Make a request to the server and send the response to a callback function.
