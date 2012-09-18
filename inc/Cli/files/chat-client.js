@@ -25,9 +25,6 @@ function clientInput() {
     __sm(route, payload);
   } else if (command == '/help') {
     __sm('__cli/command/help');
-  } else if (command.substring(0, 1) == "/") {
-    var payload = {code:command.substring(1),payload:remainder};
-    __sm('cli/set_message', payload);
   }
 
   document.getElementById('input_box').value = '';

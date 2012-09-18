@@ -17,6 +17,7 @@ ChatCli.prototype.serverMessage = function(message) {
 
   if (code == 'chat') {
     for (x in msg_obj.payload) {
+      user_id = msg_obj.payload[x].from_user_id;
       from = msg_obj.payload[x].from_user_name;
       msg  = msg_obj.payload[x].chat.message;
       if (msg_obj.payload[x].chat.type == 'say') {
@@ -38,12 +39,11 @@ ChatCli.prototype.inputMessage = function(message) {
   var command   = message.split(' ')[0];
   var remainder = message.split(' ').slice(1).join(' ');
 
-  if (command == '/say') {
-    var payload = {payload:{type:"say",message:remainder}};
-    __sm('chat/set_chat', payload);
-    printPlus("text_div", '<span class="cln_all"><b>'+from+'</b>: '+remainder+'</span><br />');
-  } else if (command == '/me') {
+  if (command == '/me') {
     var payload = {payload:{type:"emote",message:remainder}};
+    __sm('chat/set_chat', payload);
+  } else if (command.substring(0, 1) != "/") {
+    var payload = {payload:{type:"say",message:message}};
     __sm('chat/set_chat', payload);
   }
 
