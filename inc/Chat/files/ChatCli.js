@@ -26,6 +26,9 @@ ChatCli.prototype.serverMessage = function(message) {
       if (msg_obj.payload[x].chat.type == 'emote') {
         printPlus("text_div", '<span class="cln_all">* '+from+' '+msg+'</span><br />');
       }
+      if (msg_obj.payload[x].chat.type == 'image') {
+        printPlus("text_div", '<img src="'+msg+'" style="width:100%;height:100%;" /><br />');
+      }
     }
   }
 
@@ -41,6 +44,9 @@ ChatCli.prototype.inputMessage = function(message) {
 
   if (command == '/me') {
     var payload = {payload:{type:"emote",message:remainder}};
+    __sm('chat/set_chat', payload);
+  } else if (command == '/image') {
+    var payload = {payload:{type:"image",message:remainder}};
     __sm('chat/set_chat', payload);
   } else if (command.substring(0, 1) != "/") {
     var payload = {payload:{type:"say",message:message}};
