@@ -56,9 +56,39 @@ class SimplePage extends Observed {
   }
 
   /**
+   * Constructor.
+   *
+   * @param string $path
+   *   If provided then all class properties will be populated with data from
+   *   an existing page.
+   */
+  public function __construct($path = NULL) {
+    if ($path) {
+      if (!SimplePage::exists($path)) {
+        throw new Exception('Tried to instnatiated page that does not exist.');
+      }
+      $pages = SimpleTextStorage::load()->read('SimplePage', 'paths');
+      $this->set_path($pages[$path]['path']);
+      $this->set_title($pages[$path]['title']);
+      $this->set_css($pages[$path]['css']);
+      $this->set_javascript($pages[$path]['javascript']);
+      $this->set_body($pages[$path]['body']);
+      $this->set_user_id($pages[$path]['user_id']);
+      $this->set_time_created($pages[$path]['time_created']);
+      $this->set_time_updated($pages[$path]['time_updated']);
+      $this->set_time_viewed($pages[$path]['time_viewed']);
+      $this->invoke_all('__simplepage/construct/old');
+    }
+    else {
+      $this->invoke_all('__simplepage/construct/new');
+    }
+  }
+
+  /**
    * Save this page instance to the database.
    */
   public function save() {
+    /** Allow plugins to alter our data before saving. */
     $this->invoke_all('__simplepage/save');
     $pages = SimpleTextStorage::load()->read('SimplePage', 'paths');
     $path = $this->path;
