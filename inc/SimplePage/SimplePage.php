@@ -59,6 +59,7 @@ class SimplePage extends Observed {
    * Save this page instance to the database.
    */
   public function save() {
+    $this->invoke_all('__simplepage/save');
     $pages = SimpleTextStorage::load()->read('SimplePage', 'paths');
     $path = $this->path;
 
@@ -140,6 +141,69 @@ class SimplePage extends Observed {
    */
   public function get_time_viewed() {
     return $this->time_viewed;
+  }
+
+  /**
+   * Set property.
+   */
+  public function set_path($path) {
+    $this->path = $path;
+  }
+
+  /**
+   * Set property.
+   */
+  public function set_title($title) {
+    $this->title = $title;
+  }
+
+  /**
+   * Set property.
+   */
+  public function set_css($css) {
+    $this->css = $css;
+  }
+
+  /**
+   * Set property.
+   */
+  public function set_javascript($javascript) {
+    $this->javascript = $javascript;
+  }
+
+  /**
+   * Set property.
+   */
+  public function set_body($body) {
+    $this->body = $body;
+  }
+
+  /**
+   * Set property.
+   */
+  public function set_user_id($user_id) {
+    $this->user_id = $user_id;
+  }
+
+  /**
+   * Set property.
+   */
+  public function set_time_created($time_created) {
+    $this->time_created = $time_created;
+  }
+
+  /**
+   * Set property.
+   */
+  public function set_time_updated($time_updated) {
+    $this->time_updated = $time_updated;
+  }
+
+  /**
+   * Set property.
+   */
+  public function set_time_viewed($time_viewed) {
+    $this->time_viewed = $time_viewed;
   }
 
 }
