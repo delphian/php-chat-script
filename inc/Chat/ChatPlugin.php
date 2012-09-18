@@ -72,13 +72,9 @@ class ChatPlugin extends Plugin {
     Chat::delete(array($user_id));
 
     if (!empty($chat_msgs)) {
-      $output = '';
-      foreach($chat_msgs as $msg) {
-        $output .= $msg['from_user_id'] . '> ' . $msg['chat'];
-      }
       $response = array(
-        'code'    => 'output',
-        'payload' => $output,
+        'code'    => 'chat',
+        'payload' => $chat_msgs,
       );
       $this->output['body'] = json_encode($response);
       $this->headers_text();
@@ -140,7 +136,8 @@ class ChatPlugin extends Plugin {
     $input = json_decode($this->payload, TRUE);
 
     $user_ids = SimpleUser::purge($user_id);
-    Chat::add($user_ids, $user_id, $input['payload']['message']);
+
+    Chat::add($user_ids, $user_id, $input['payload']);
 
     $response = array(
       'code'    => 'chat_message_received',

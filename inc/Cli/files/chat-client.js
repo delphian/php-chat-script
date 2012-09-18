@@ -23,7 +23,10 @@ function clientInput() {
     remainder = message.split(' ').slice(2).join(' ');
     __sm(route, payload);
   } else if (command == '/say') {
-    var payload = {payload:{message:remainder}};
+    var payload = {payload:{type:"say",message:remainder}};
+    __sm('chat/set_chat', payload);
+  } else if (command == '/me') {
+    var payload = {payload:{type:"emote",message:remainder}};
     __sm('chat/set_chat', payload);
   } else if (command.substring(0, 1) == "/") {
     var payload = {code:command.substring(1),payload:remainder};

@@ -11,10 +11,10 @@ var ProcessMessage = function() {
 ProcessMessage.prototype.register = function(name) {
   this.handlers.push(name);  
 }
-ProcessMessage.prototype.process = function(code) {
+ProcessMessage.prototype.serverMessage = function(msg_obj) {
   for (x in this.handlers) {
     //alert(handler);
-    this.handlers[x].processMessage(code);
+    this.handlers[x].serverMessage(msg_obj);
   }
 }
 
@@ -86,6 +86,8 @@ function pmProcessed (message) {
   } catch(err) {
     var code = 0;
   }
+
+  PM.serverMessage(message);
 
   switch(code) {
     case 'NAC':
