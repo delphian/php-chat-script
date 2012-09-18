@@ -23,7 +23,7 @@ body {margin:0px;padding:0px;font-size:1.0em;line-height:1.05em;background-color
 #bot_div {position:absolute;bottom:0px;left:0px;height:2.0em;right:0px;background-color:#e0e0e0;}
   #bot_bord {position:absolute;top:0px;bottom:0px;left:0px;right:0px;border-top:1px solid #999999;overflow:hidden;}
     #link_div {position:absolute;top:0.5em;left:0.25em;right:0.25em;text-align:right;}
-    #link_div a {color:#000000;text-decoration:none;}
+    #link_div a {color:#000000;text-decoration:none;font-size:1.50em;}
 
 #set_div {position:absolute;top:40%;left:10%;right:10%;height:4em;display:none;border:none;}
   #setl_div {position:absolute;top:0px;bottom:3em;width:100%;color:#ffffff;font-size:1.25em;}
