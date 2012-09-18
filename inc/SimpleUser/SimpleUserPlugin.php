@@ -67,7 +67,7 @@ class SimpleUserPlugin extends Plugin {
    */
   public function cli_command_help($variables) {
     $output = json_decode($this->output['body'], TRUE);
-    $output['payload'] .= '<br /><b>/who</b> List users logged into server.';
+    $output['payload'] .= '<b>/who</b> List users logged into server.<br />';
 
     $response = array(
       'code' => 'output',
@@ -82,7 +82,7 @@ class SimpleUserPlugin extends Plugin {
   public function cli_command_who($variables) {
     $users = SimpleUser::purge();
     $response = array(
-      'code' => 'user_ids',
+      'code' => 'output',
       'payload' => $users,
     );
     $this->output['body'] = json_encode($response);

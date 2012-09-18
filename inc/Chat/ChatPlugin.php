@@ -95,7 +95,7 @@ class ChatPlugin extends Plugin {
    */
   public function cli_command_help($variables) {
     $output = json_decode($this->output['body'], TRUE);
-    $output['payload'] .= '<br /><b>/say</b> Announce something in chat.';
+    $output['payload'] .= 'Anything typed without a forward slash will be spoken in common chat.<br />';
 
     $response = array(
       'code' => 'output',
