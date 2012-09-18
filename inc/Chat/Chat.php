@@ -38,6 +38,7 @@ class Chat extends Observed {
    *   The chat itself.
    */
   public static function add($to_user_ids, $from_user_id, $chat) {
+    $user = new SimpleUser($from_user_id);
     /** Force the first parameter into an array. */
     $to_user_id = is_array($to_user_ids) ? $to_user_ids : array($to_user_ids);
     /** Load all existing chat messages waiting to be delivered. */
@@ -50,6 +51,7 @@ class Chat extends Observed {
         $chats[$to_user_id][] = array(
           'time' => time(),
           'from_user_id' => $from_user_id,
+          'from_user_name' => $user->get_name(),
           'chat' => $chat,
         );
       }

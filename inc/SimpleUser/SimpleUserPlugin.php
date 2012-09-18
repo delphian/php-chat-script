@@ -80,11 +80,10 @@ class SimpleUserPlugin extends Plugin {
    * List the users currently logged into the system.
    */
   public function cli_command_who($variables) {
-    $output = 'Your all alone. Its dark. Grues are making noise...';
-
+    $users = SimpleUser::purge();
     $response = array(
-      'code' => 'output',
-      'payload' => $output,
+      'code' => 'user_ids',
+      'payload' => $users,
     );
     $this->output['body'] = json_encode($response);
   }
@@ -98,6 +97,7 @@ Server::register_plugin('SimpleUserPlugin', array(
 Cli::register_plugin('SimpleUserPlugin', array(
   '__cli/command/help',
   '__cli/command/who',
+  '__cli/javascript',
 ));
 
 ?>

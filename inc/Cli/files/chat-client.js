@@ -9,7 +9,7 @@ var my_font_size      = 1.0;
 
 /**
  * Callback for when text has been entered into the input box.
- * 
+ *
  * Forward message to server via ajax.
  */
 function clientInput() {

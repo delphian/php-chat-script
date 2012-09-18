@@ -224,6 +224,11 @@ class SimpleUser {
   }
 
   /** Get property. */
+  public function get_name() {
+    return $this->name;
+  }
+
+  /** Get property. */
   public function get_secret_key() {
     return $this->secret_key;
   }

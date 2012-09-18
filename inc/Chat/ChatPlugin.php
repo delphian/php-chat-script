@@ -136,6 +136,7 @@ class ChatPlugin extends Plugin {
     $input = json_decode($this->payload, TRUE);
 
     $user_ids = SimpleUser::purge($user_id);
+    unset($user_ids[$user_id]);
 
     Chat::add($user_ids, $user_id, $input['payload']);
 
