@@ -14,6 +14,7 @@ var my_font_size      = 1.0;
  */
 function clientInput() {
   message = document.getElementById('input_box').value;
+  PM.inputMessage(message);
 
   var command   = message.split(' ')[0];
   var remainder = message.split(' ').slice(1).join(' ');
@@ -22,12 +23,8 @@ function clientInput() {
     var route = message.split(' ')[1];
     remainder = message.split(' ').slice(2).join(' ');
     __sm(route, payload);
-  } else if (command == '/say') {
-    var payload = {payload:{type:"say",message:remainder}};
-    __sm('chat/set_chat', payload);
-  } else if (command == '/me') {
-    var payload = {payload:{type:"emote",message:remainder}};
-    __sm('chat/set_chat', payload);
+  } else if (command == '/help') {
+    __sm('__cli/command/help');
   } else if (command.substring(0, 1) == "/") {
     var payload = {code:command.substring(1),payload:remainder};
     __sm('cli/set_message', payload);

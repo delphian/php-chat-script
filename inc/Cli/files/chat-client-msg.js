@@ -6,15 +6,23 @@
  */
 var ProcessMessage = function() {
   this.message = null;
-  this.handlers = new Array();
+  this.handlersServer = new Array();
+  this.handlersInput = new Array();
 }
-ProcessMessage.prototype.register = function(name) {
-  this.handlers.push(name);  
+ProcessMessage.prototype.registerServer = function(name) {
+  this.handlersServer.push(name);  
+}
+ProcessMessage.prototype.registerInput = function(name) {
+  this.handlersInput.push(name);  
 }
 ProcessMessage.prototype.serverMessage = function(msg_obj) {
-  for (x in this.handlers) {
-    //alert(handler);
-    this.handlers[x].serverMessage(msg_obj);
+  for (x in this.handlersServer) {
+    this.handlersServer[x].serverMessage(msg_obj);
+  }
+}
+ProcessMessage.prototype.inputMessage = function(msg_obj) {
+  for (x in this.handlersInput) {
+    this.handlersInput[x].inputMessage(msg_obj);
   }
 }
 
@@ -102,7 +110,7 @@ function pmProcessed (message) {
       pmRmMsg(msg_obj);
       break;
     default:
-      printPlus("text_div", '<span class="cln_err">'+message+'<br /></span>');
+      //printPlus("text_div", '<span class="cln_err">'+message+'<br /></span>');
   }
   return;
 }

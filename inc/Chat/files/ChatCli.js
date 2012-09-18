@@ -35,11 +35,21 @@ ChatCli.prototype.serverMessage = function(message) {
  * Process commands entered on the command line.
  */
 ChatCli.prototype.inputMessage = function(message) {
+  var command   = message.split(' ')[0];
+  var remainder = message.split(' ').slice(1).join(' ');
 
+  if (command == '/say') {
+    var payload = {payload:{type:"say",message:remainder}};
+    __sm('chat/set_chat', payload);
+  } else if (command == '/me') {
+    var payload = {payload:{type:"emote",message:remainder}};
+    __sm('chat/set_chat', payload);
+  }
 
   return;
 }
 
 chatCli = new ChatCli();
-PM.register(chatCli);
+PM.registerServer(chatCli);
+PM.registerInput(chatCli);
 
