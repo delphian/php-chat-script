@@ -111,6 +111,20 @@ class SimplePage extends Observed {
   }
 
   /**
+   * Format all properties as a single json string.
+   *
+   * @return string|NULL
+   *   A json formated string of class' properties or NULL if unavailable.
+   */
+  public function json() {
+    $json_string = NULL;
+
+    $json_string = json_encode(get_class_vars($this));
+
+    return $json_string;
+  }
+
+  /**
    * Get property.
    */
   public function get_path() {
