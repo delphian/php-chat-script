@@ -116,7 +116,7 @@ class SimplePage extends Observed {
    * @return string|NULL
    *   A json formated string of class' properties or NULL if unavailable.
    */
-  public function json() {
+  public function make_json() {
     $json_string = NULL;
 
     $json_string = json_encode(get_class_vars($this));

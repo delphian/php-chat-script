@@ -2,7 +2,6 @@
 
 /**
  * @file
- *
  * Simple chat functionality.
  *
  * http://www.phpchatscript.com
