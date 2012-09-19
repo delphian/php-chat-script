@@ -35,8 +35,14 @@ class SimplePagePlugin extends Plugin {
         case 'simplepage/page/get':
           $this->route_simplepage_page_get($observed);
           break;
-        case '__cli/javascript':
-          $this->cli_javascript($observed);
+        case 'simplepage/page/new':
+          $this->route_simplepage_page_new($observed);
+          break;
+        case 'simplepage/page/list':
+          $this->route_simplepage_page_list($observed);
+          break;
+        case 'simplepage/help':
+          $this->route_simplepage_help($observed);
           break;
         case '__cli/command/help':
           $this->cli_command_help($observed);
@@ -45,6 +51,11 @@ class SimplePagePlugin extends Plugin {
     }
     else {
       /** Do nothing for the moment. */
+      switch($route) {
+        case '__cli/javascript':
+          $this->cli_javascript($observed);
+          break;
+      }
     }
 
     // Overwrite callers output with ours.
@@ -55,6 +66,24 @@ class SimplePagePlugin extends Plugin {
     return;
   }
 
+  /**
+   * Describe our command line help.
+   */
+  public function route_simplepage_help($observed) {
+    $help_text  = '<b>/simplepage help</b> This command.<br />';
+    $help_text .= '<b>/simplepage new <i>{path}</i></b> Create a new page.<br />';
+    $help_text .= '<b>/simplepage list</b> List all existing pages by path.<br />';
+    $response = array(
+      'code' => 'output',
+      'payload' => $help_text,
+    );
+    $this->output['body'] = json_encode($response);
+    $this->headers_text();
+  }
+
+  /**
+   * Return page information to requester.
+   */
   public function route_simplepage_page_get($observed) {
     $path = $observed->payload['simplepage']['path'];
     if (SimplePage::exists($path)) {
@@ -110,7 +139,6 @@ class SimplePagePlugin extends Plugin {
    */
   public function cli_command_help($variables) {
     $output = json_decode($this->output['body'], TRUE);
-    $output['payload'] .= 'Anything typed without a forward slash will be spoken in common chat.<br />';
     $output['payload'] .= '<b>/simplepage</b> Perform page related functions.<br />';
 
     $response = array(
@@ -137,9 +165,13 @@ class SimplePagePlugin extends Plugin {
 // Register our plugin for callback.
 Server::register_plugin('SimplePagePlugin', array(
   'simplepage/page/get',
+  'simplepage/page/new',
+  'simplepage/page/list',
+  'simplepage/help',
+));
+Cli::register_plugin('SimplePagePlugin', array(
   '__cli/javascript',
   '__cli/command/help',
 ));
-
 
 ?>

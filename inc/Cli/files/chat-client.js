@@ -23,7 +23,7 @@ function clientInput() {
     var route = message.split(' ')[1];
     remainder = message.split(' ').slice(2).join(' ');
     __sm(route, payload);
-  } else if (command == '/help') {
+  } else if (message == '/help') {
     __sm('__cli/command/help');
   }
 

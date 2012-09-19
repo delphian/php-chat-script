@@ -94,6 +94,7 @@ class ChatPlugin extends Plugin {
    */
   public function cli_command_help($variables) {
     $output = json_decode($this->output['body'], TRUE);
+
     $output['payload'] .= 'Anything typed without a forward slash will be spoken in common chat.<br />';
     $output['payload'] .= '<b>/me</b> performs an action.<br />';
     $output['payload'] .= '<b>/image {url}</b> Loads a full size image into the chat.<br />';
