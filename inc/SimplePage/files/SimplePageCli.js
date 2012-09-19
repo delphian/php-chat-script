@@ -6,6 +6,7 @@ var SimplePageCli = function() {
  * Process messages received from the server.
  */
 SimplePageCli.prototype.serverMessage = function(message) {
+  var handled = false;
   try {
     var msg_obj = eval("(" + message + ")");
     if (msg_obj.hasOwnProperty("code")) {
@@ -25,9 +26,10 @@ SimplePageCli.prototype.serverMessage = function(message) {
     } else {
       printPlus('text_div', '<span>Unknown SimplePage message received.</span>');
     }
+    handled = true;
   }
 
-  return;
+  return handled;
 };
 
 /**

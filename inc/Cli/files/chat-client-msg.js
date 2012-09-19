@@ -15,10 +15,18 @@ ProcessMessage.prototype.registerServer = function(name) {
 ProcessMessage.prototype.registerInput = function(name) {
   this.handlersInput.push(name);  
 }
+/**
+ * Invoke all plugins that have requested access to raw server messages.
+ *
+ * @return bool
+ *   true if a handler claimed ownership of the message, false otherwise.
+ */
 ProcessMessage.prototype.serverMessage = function(msg_obj) {
+  var handled = false;
   for (x in this.handlersServer) {
-    this.handlersServer[x].serverMessage(msg_obj);
+    handled = Math.max(this.handlersServer[x].serverMessage(msg_obj), handled);
   }
+  return handled;
 }
 ProcessMessage.prototype.inputMessage = function(msg_obj) {
   for (x in this.handlersInput) {
@@ -95,23 +103,29 @@ function pmProcessed (message) {
     var code = 0;
   }
 
-  PM.serverMessage(message);
+  var handled = PM.serverMessage(message);
 
   switch(code) {
     case 'NAC':
       // Server has nothing to report.
+      handled = true;
       break;
     case 'user_id':
       my_client_id = msg_obj.payload.user_id;
       my_secret_key = msg_obj.payload.secret_key;
       printPlus("text_div", '<span class="cln_all">'+"Client identification : "+my_client_id+".</span><br />");
+      handled = true;
       break;
     case 'output':
       pmRmMsg(msg_obj);
+      handled = true;
       break;
-    default:
-      //printPlus("text_div", '<span class="cln_err">'+message+'<br /></span>');
   }
+
+  if (handled == false) {
+    printPlus("text_div", '<span class="cln_err">'+message+'<br /></span>');
+  }
+
   return;
 }
 

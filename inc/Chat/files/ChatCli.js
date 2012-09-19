@@ -6,6 +6,7 @@ var ChatCli = function() {
  * Process messages received from the server.
  */
 ChatCli.prototype.serverMessage = function(message) {
+  var handled = false;
   try {
     var msg_obj = eval("(" + message + ")");
     if (msg_obj.hasOwnProperty("code")) {
@@ -30,9 +31,10 @@ ChatCli.prototype.serverMessage = function(message) {
         printPlus("text_div", '<img src="'+msg+'" style="width:100%;height:100%;" /><br />');
       }
     }
+    handled = true;
   }
 
-  return;
+  return handled;
 };
 
 /**
