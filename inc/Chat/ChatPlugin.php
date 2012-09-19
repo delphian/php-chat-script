@@ -143,8 +143,11 @@ class ChatPlugin extends Plugin {
     Chat::add($user_ids, $user_id, $input['payload']);
 
     $response = array(
-      'code'    => 'chat_message_received',
-      'payload' => $input['payload']['message'],
+      'code'    => 'chat',
+      'payload' => array(
+        'code' => 'set_chat',
+        'payload' => $input['payload']['message'],
+      ),
     );
     $this->output['body'] = json_encode($response);
     $this->headers_text();
