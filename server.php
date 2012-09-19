@@ -32,6 +32,7 @@ require_once('inc/Server.php');
 require_once('inc/Cli/Cli.php');
 require_once('inc/Chat/ChatPlugin.php');
 require_once('inc/SimpleUser/SimpleUserPlugin.php');
+require_once('inc/SimplePage/SimplePagePlugin.php');
 
 /**
  * Begin running server.

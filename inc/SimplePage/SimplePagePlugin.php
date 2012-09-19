@@ -65,7 +65,7 @@ class SimplePagePlugin extends Plugin {
         'payload' => array(
           'code' => 'page_get',
           'payload' => get_class_vars($page),
-        );
+        ),
       );
       $this->output['body'] = json_encode($response);
       $this->headers_text();
@@ -74,10 +74,34 @@ class SimplePagePlugin extends Plugin {
     return;
   }
 
+  /**
+   * Create a new page, set the title, and save to database.
+   */
+  public function route_simplepage_page_new($observed) {
+    $path = $observed->payload['simplepage']['path'];
+    if (!SimplePage::exists($path)) {
+      $page = new SimplePage($path);
+      $page->set_path($path);
+      $page->save();
+      $response = array(
+        'code'    => 'simplepage',
+        'payload' => array(
+          'code' => 'page_new',
+          'payload' => TRUE,
+        ),
+      );
+      $this->output['body'] = json_encode($response);
+      $this->headers_text();
+    }
+
+    return;
+  }
+
+
   /** Add our javascript files to the command line interface. */
   public function cli_javascript($observed) {
     $javascript = $observed->get_javascript();
-    // $javascript[] = 'inc/SimplePage/files/SimplePageCli.js';
+    $javascript[] = 'inc/SimplePage/files/SimplePageCli.js';
     $observed->set_javascript($javascript);
   }
 
