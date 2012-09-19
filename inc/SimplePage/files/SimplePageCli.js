@@ -1,5 +1,6 @@
 var SimplePageCli = function() {
   this.message = null;
+  this.pages = new Array();
 };
 
 /**
@@ -25,6 +26,14 @@ SimplePageCli.prototype.serverMessage = function(message) {
       }
     } else if (msg_obj.payload.code == 'help') {
       printPlus('text_div', '<div class="cli-info">'+msg_obj.payload.payload+'</div>');
+    } else if (msg_obj.payload.code == 'page_list') {
+      if (msg_obj.payload.payload.length) {
+        for (x in msg_obj.payload.payload) {
+          printPlus('text_div', '<div class="cli-info">'+msg_obj.payload.payload[x]+'</div>');
+        }
+      } else {
+        printPlus('text_div', '<div class="cli-warning">No pages exist yet.</div>');
+      }
     } else {
       printPlus('text_div', '<span class="cli-warning">Unknown SimplePage message received.</span><br />');
     }
@@ -53,7 +62,7 @@ SimplePageCli.prototype.inputMessage = function(message) {
     var remainder   = remainder.split(' ').slice(1).join(' ');
 
     if (sub_command == 'new') {
-      var payload = {payload:{simpletest:{code:"new",path:remainder}}};
+      var payload = {payload:{simplepage:{code:"new",path:remainder}}};
       __sm('simplepage/page/new', payload);
     }
     if (sub_command == 'list') {

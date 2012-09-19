@@ -47,12 +47,28 @@ class SimplePage extends Observed {
   public static function exists($path) {
     $path_exists = FALSE;
 
-    $paths = SimpleTextStorage::load()->read('SimplePage', 'paths');
-    if (array_key_exists($path, $paths)) {
+    $pages = SimpleTextStorage::load()->read('SimplePage', 'paths');
+    if (is_array($pages) && array_key_exists($path, $pages)) {
       $path_exists = $path;
     }
 
     return $path_exists;
+  }
+
+  /**
+   * Fetch a list of all paths used by pages.
+   *
+   * @return array
+   *   An array of path strings used by pages.
+   */
+  public static function fetch_paths() {
+    $keys = array();
+    $pages = SimpleTextStorage::load()->read('SimplePage', 'paths');
+    if (is_array($pages)) {
+      $keys = array_keys($pages);
+    }
+
+    return $keys;
   }
 
   /**
@@ -107,7 +123,7 @@ class SimplePage extends Observed {
     $pages[$path]['time_updated'] = $this->time_updated;
     $pages[$path]['time_viewed'] = $this->time_viewed;
 
-    SimpleTextStorage::load()->write('SimplePage', 'paths', $paths);
+    SimpleTextStorage::load()->write('SimplePage', 'paths', $pages);
   }
 
   /**

@@ -67,6 +67,22 @@ class SimplePagePlugin extends Plugin {
   }
 
   /**
+   * List all active routes used by pages.
+   */
+  public function route_simplepage_page_list($observed) {
+    $list = SimplePage::fetch_paths();
+    $response = array(
+      'code' => 'simplepage',
+      'payload' => array(
+        'code' => 'page_list',
+        'payload' => $list,
+      ),
+    );
+    $this->output['body'] = json_encode($response);
+    $this->headers_text();
+  }
+
+  /**
    * Describe our command line help.
    */
   public function route_simplepage_help($observed) {
@@ -110,8 +126,11 @@ class SimplePagePlugin extends Plugin {
    * Create a new page, set the title, and save to database.
    */
   public function route_simplepage_page_new($observed) {
-    $path = $observed->payload['simplepage']['path'];
-    if (!SimplePage::exists($path)) {
+    $payload = $observed->get_payload();
+    $payload = json_decode($payload, TRUE);
+    $path = $payload['payload']['simplepage']['path'];
+    $path = preg_replace('/(^a-zA-Z_-\.\/)/', $path);
+    if (strlen($path) && !SimplePage::exists($path)) {
       $page = new SimplePage($path);
       $page->set_path($path);
       $page->save();
@@ -119,7 +138,7 @@ class SimplePagePlugin extends Plugin {
         'code'    => 'simplepage',
         'payload' => array(
           'code' => 'page_new',
-          'payload' => TRUE,
+          'payload' => $path,
         ),
       );
       $this->output['body'] = json_encode($response);
