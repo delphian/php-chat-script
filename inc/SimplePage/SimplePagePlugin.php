@@ -74,8 +74,11 @@ class SimplePagePlugin extends Plugin {
     $help_text .= '<b>/simplepage new <i>{path}</i></b> Create a new page.<br />';
     $help_text .= '<b>/simplepage list</b> List all existing pages by path.<br />';
     $response = array(
-      'code' => 'output',
-      'payload' => $help_text,
+      'code' => 'simplepage',
+      'payload' => array(
+        'code' => 'help',
+        'payload' => $help_text,
+      ),
     );
     $this->output['body'] = json_encode($response);
     $this->headers_text();
@@ -90,7 +93,7 @@ class SimplePagePlugin extends Plugin {
       $page = new SimplePage($path);
       $page_array = $page->make_array();
       $response = array(
-        'code'    => 'simplepage',
+        'code' => 'simplepage',
         'payload' => array(
           'code' => 'page_get',
           'payload' => get_class_vars($page),

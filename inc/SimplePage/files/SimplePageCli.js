@@ -19,12 +19,14 @@ SimplePageCli.prototype.serverMessage = function(message) {
   if (code == 'simplepage') {
     if (msg_obj.payload.code == 'page_new') {
       if (msg_obj.payload.result == true) {
-        printPlus('text_div', '<span>Page created.</span>');
+        printPlus('text_div', '<span class="cli-success">Page created.</span><br />');
       } else {
-        printPlus('text_div', '<span>Page not created.</span>');
+        printPlus('text_div', '<span class="cli-warning">Page not created.</span><br />');
       }
+    } else if (msg_obj.payload.code == 'help') {
+      printPlus('text_div', '<div class="cli-info">'+msg_obj.payload.payload+'</div>');
     } else {
-      printPlus('text_div', '<span>Unknown SimplePage message received.</span>');
+      printPlus('text_div', '<span class="cli-warning">Unknown SimplePage message received.</span><br />');
     }
     handled = true;
   }

@@ -123,7 +123,7 @@ function pmProcessed (message) {
   }
 
   if (handled == false) {
-    printPlus("text_div", '<span class="cln_err">'+message+'<br /></span>');
+    printPlus("text_div", '<span class="cli-failure">'+message+'<br /></span>');
   }
 
   return;

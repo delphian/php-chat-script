@@ -22,10 +22,10 @@ ChatCli.prototype.serverMessage = function(message) {
       from = msg_obj.payload[x].from_user_name;
       msg  = msg_obj.payload[x].chat.message;
       if (msg_obj.payload[x].chat.type == 'say') {
-        printPlus("text_div", '<span class="cln_all"><b>'+from+'</b>: '+msg+'</span><br />');
+        printPlus("text_div", '<span class="cli-normal"><b>'+from+'</b>: '+msg+'</span><br />');
       }
       if (msg_obj.payload[x].chat.type == 'emote') {
-        printPlus("text_div", '<span class="cln_all">* '+from+' '+msg+'</span><br />');
+        printPlus("text_div", '<span class="cli-normal">* '+from+' '+msg+'</span><br />');
       }
       if (msg_obj.payload[x].chat.type == 'image') {
         printPlus("text_div", '<img src="'+msg+'" style="width:100%;height:100%;" /><br />');
