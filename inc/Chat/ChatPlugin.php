@@ -41,6 +41,9 @@ class ChatPlugin extends Plugin {
         case 'chat/join':
           $this->route_chat_join($observed);
           break;
+        case 'chat/nick':
+          $this->route_chat_nick($observed);
+          break;
         case '__cli/get_message':
           $this->cli_get_message($user_id);
           break;
@@ -90,6 +93,22 @@ class ChatPlugin extends Plugin {
     $javascript = $observed->get_javascript();
     $javascript[] = 'inc/Chat/files/ChatCli.js';
     $observed->set_javascript($javascript);
+  }
+
+  /**
+   * Process nick name change request.
+   */
+  public function route_chat_nick($observed) {
+    $input = json_decode($this->payload, TRUE);
+    $user_id = $observed->get_user()->get_user_id();
+    $user_ids = SimpleUser::purge($user_id);
+    unset($user_ids[$user_id]);
+
+    $message = array(
+      'type' => 'nick',
+      'message' => $input['payload']['message'],
+    );
+    Chat::add($user_ids, $user_id, $message);
   }
 
   /**
@@ -193,6 +212,7 @@ Server::register_plugin('ChatPlugin', array(
   'chat/set_chat',
   'chat/get_chat',
   'chat/join',
+  'chat/nick',
 ));
 Cli::register_plugin('ChatPlugin', array(
   '__cli/get_message',
