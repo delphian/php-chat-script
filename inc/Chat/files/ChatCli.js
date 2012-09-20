@@ -36,7 +36,7 @@ ChatCli.prototype.serverMessage = function(message) {
       } else if (msg_obj.payload[x].chat.type == 'image') {
         printPlus("text_div", '<img src="'+msg+'" style="width:100%;height:100%;" /><br />');
       } else {
-        printPlus("text_div", '<div class="cli-warning">Received unknown chat message.</div>');
+        printPlus("text_div", '<div class="cli-warning">Received unknown chat message:'+message+'</div>');
       }
     }
     handled = true;
