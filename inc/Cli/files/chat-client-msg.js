@@ -8,12 +8,19 @@ var ProcessMessage = function() {
   this.message = null;
   this.handlersServer = new Array();
   this.handlersInput = new Array();
+  this.handlersRunOnce = new Array();
 }
 ProcessMessage.prototype.registerServer = function(name) {
   this.handlersServer.push(name);  
 }
 ProcessMessage.prototype.registerInput = function(name) {
   this.handlersInput.push(name);  
+}
+/**
+ * Plugins can register to execute setup code to run once after id is obtained.
+ */
+ProcessMessage.prototype.registerRunOnce = function(name) {
+  this.handlersRunOnce.push(name);
 }
 /**
  * Invoke all plugins that have requested access to raw server messages.
@@ -27,6 +34,14 @@ ProcessMessage.prototype.serverMessage = function(msg_obj) {
     handled = Math.max(this.handlersServer[x].serverMessage(msg_obj), handled);
   }
   return handled;
+}
+/**
+ * Execute plugin setup code after client id has been received.
+ */
+ProcessMessage.prototype.runOnce = function(msg_obj) {
+  for (x in this.handlersRunOnce) {
+    this.handlersRunOnce[x].runOnce();
+  }
 }
 ProcessMessage.prototype.inputMessage = function(msg_obj) {
   for (x in this.handlersInput) {
@@ -114,6 +129,7 @@ function pmProcessed (message) {
       my_client_id = msg_obj.payload.user_id;
       my_secret_key = msg_obj.payload.secret_key;
       printPlus("text_div", '<span class="cln_all">'+"Client identification : "+my_client_id+".</span><br />");
+      PM.runOnce();
       handled = true;
       break;
     case 'output':

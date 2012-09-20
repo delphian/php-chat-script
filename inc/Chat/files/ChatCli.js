@@ -3,6 +3,14 @@ var ChatCli = function() {
 };
 
 /**
+ * Run once commands after the client receives it's identification.
+ */
+ChatCli.prototype.runOnce = function() {
+  var payload = {type:"join",message:my_client_id};
+  __sm('chat/join', payload);
+}
+
+/**
  * Process messages received from the server.
  */
 ChatCli.prototype.serverMessage = function(message) {
@@ -23,12 +31,12 @@ ChatCli.prototype.serverMessage = function(message) {
       msg  = msg_obj.payload[x].chat.message;
       if (msg_obj.payload[x].chat.type == 'say') {
         printPlus("text_div", '<span class="cli-normal"><b>'+from+'</b>: '+msg+'</span><br />');
-      }
-      if (msg_obj.payload[x].chat.type == 'emote') {
+      } else if (msg_obj.payload[x].chat.type == 'emote') {
         printPlus("text_div", '<span class="cli-normal">* '+from+' '+msg+'</span><br />');
-      }
-      if (msg_obj.payload[x].chat.type == 'image') {
+      } else if (msg_obj.payload[x].chat.type == 'image') {
         printPlus("text_div", '<img src="'+msg+'" style="width:100%;height:100%;" /><br />');
+      } else {
+        printPlus("text_div", '<div class="cli-warning">Received unknown chat message.</div>');
       }
     }
     handled = true;
@@ -61,4 +69,5 @@ ChatCli.prototype.inputMessage = function(message) {
 chatCli = new ChatCli();
 PM.registerServer(chatCli);
 PM.registerInput(chatCli);
+PM.registerRunOnce(chatCli);
 

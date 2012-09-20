@@ -38,6 +38,9 @@ class ChatPlugin extends Plugin {
         case 'chat/set_chat':
           $this->route_set_chat($user_id);
           break;
+        case 'chat/join':
+          $this->route_chat_join($observed);
+          break;
         case '__cli/get_message':
           $this->cli_get_message($user_id);
           break;
@@ -87,6 +90,22 @@ class ChatPlugin extends Plugin {
     $javascript = $observed->get_javascript();
     $javascript[] = 'inc/Chat/files/ChatCli.js';
     $observed->set_javascript($javascript);
+  }
+
+  /**
+   * Process join request from client.
+   */
+  public function route_chat_join($observed) {
+    $user_id = $observed->get_user()->get_user_id();
+    $user_ids = SimpleUser::purge($user_id);
+    unset($user_ids[$user_id]);
+
+    $message = array(
+      'type' => 'join',
+      'message' => $user_id,
+    );
+
+    Chat::add($user_ids, $user_id, $message);
   }
 
   /**
@@ -173,6 +192,7 @@ class ChatPlugin extends Plugin {
 Server::register_plugin('ChatPlugin', array(
   'chat/set_chat',
   'chat/get_chat',
+  'chat/join',
 ));
 Cli::register_plugin('ChatPlugin', array(
   '__cli/get_message',
