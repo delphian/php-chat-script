@@ -34,7 +34,8 @@ ChatCli.prototype.serverMessage = function(message) {
       } else if (msg_obj.payload[x].chat.type == 'emote') {
         printPlus("text_div", '<span class="cli-normal">* '+from+' '+msg+'</span><br />');
       } else if (msg_obj.payload[x].chat.type == 'image') {
-        printPlus("text_div", '<img src="'+msg+'" style="width:100%;height:100%;" /><br />');
+        //printPlus("text_div", '<img src="'+msg+'" style="width:100%;height:100%;" /><br />');
+        this.showImage(msg);
       } else {
         printPlus("text_div", '<div class="cli-warning">Received unknown chat message:'+message+'</div>');
       }
@@ -44,6 +45,26 @@ ChatCli.prototype.serverMessage = function(message) {
 
   return handled;
 };
+
+ChatCli.prototype.showImage = function(image) {
+  if (document.getElementById("cli_image") == null) {
+    var img = new Image();
+    img.id = "cli_image";
+    img.style.border = "0.25em solid #333333";
+    img.style.position = "absolute";
+    img.style.right = "0.5em";
+    img.style.top = "1.5em";
+    img.style.width = "25%";
+    img.style.display = "block";
+    document.getElementById("encap_div").appendChild(img);
+  }
+  document.getElementById("cli_image").src = image;
+  this.imageSkew(document.getElementById("cli_image"));
+}
+
+ChatCli.prototype.imageSkew = function(img) {
+  img.style.transform = "rotate(7deg)";
+}
 
 /**
  * Process commands entered on the command line.
