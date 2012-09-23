@@ -42,9 +42,11 @@ class GitHubPlugin extends Plugin {
    * Set the logged in user based on credentials provided in the request.
    */
   public function route__route(Server $server) {
-    $payload = json_decode($_REQUEST['payload'], TRUE);
-    if (isset($payload['commits'][0]['message'])) {
-      $server->set_route('github/ping');
+    if (isset($_REQUEST['payload'])) {
+      $payload = json_decode($_REQUEST['payload'], TRUE);
+      if (isset($payload['commits'][0]['message'])) {
+        $server->set_route('github/ping');
+      }
     }
   }
 
