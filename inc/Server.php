@@ -75,18 +75,17 @@ class Server extends Observed {
     /** Get the route from the url. The route is the url. */
     $route = '/';
     if (isset($_REQUEST['route'])) {
-      $route = $_REQUEST['route'];  
+      $route = $_REQUEST['route'];
     }
+    $this->set_route($route);
     /** Plugins may alter the route. */
     $this->invoke_all('__route');
 
     /** Grab our payload (parameters to the route handler). */
-    if ($this->set_route($route)) {
-      if (isset($_GET['payload'])) {
-        if (!$this->set_payload($_GET['payload'])) {
-          if (isset($_POST['payload'])) {
-            $this->set_payload($_POST['payload']);
-          }
+    if (isset($_GET['payload'])) {
+      if (!$this->set_payload($_GET['payload'])) {
+        if (isset($_POST['payload'])) {
+          $this->set_payload($_POST['payload']);
         }
       }
     }

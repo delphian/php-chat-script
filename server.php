@@ -33,6 +33,7 @@ require_once('inc/Cli/Cli.php');
 require_once('inc/Chat/ChatPlugin.php');
 require_once('inc/SimpleUser/SimpleUserPlugin.php');
 require_once('inc/SimplePage/SimplePagePlugin.php');
+require_once('inc/GitHub/GitHubPlugin.php');
 
 /**
  * Begin running server.
