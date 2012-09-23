@@ -7,9 +7,18 @@ var ChatCli = function() {
  * Run once commands after the client receives it's identification.
  */
 ChatCli.prototype.runOnce = function() {
+  var images = new Array();
+  images.push('/php-chat-script/inc/Chat/files/PinkiePie/pinkie-pie-1.jpg');
+  images.push('/php-chat-script/inc/Chat/files/PinkiePie/pinkie-pie-2.png');
+  images.push('/php-chat-script/inc/Chat/files/PinkiePie/pinkie-pie-3.png');
+  images.push('/php-chat-script/inc/Chat/files/PinkiePie/pinkie-pie-4.jpg');
+  images.push('/php-chat-script/inc/Chat/files/PinkiePie/pinkie-pie-5.png');
+
+  var index = Math.floor((Math.random()*5)+1);
+
   var payload = {type:"join",message:my_client_id};
   __sm('chat/join', payload);
-  this.inputMessage('/image http://www.gamesprays.com/files/resource_media/preview/pinkie-pie-2-4905_preview.png');
+  this.inputMessage('/image '+images[index]);
 }
 
 /**
@@ -64,14 +73,12 @@ ChatCli.prototype.showImage = function(image) {
     img.style.top = "1.5em";
     img.style.width = "25%";
     img.style.display = "block";
+    img.style.opacity = "0";
+    img.style.background = "-webkit-linear-gradient(top, rgba(255,255,255,0), rgba(255,255,255, 1))";
     document.getElementById("encap_div").appendChild(img);
   }
   document.getElementById("cli_image").src = image;
-  this.imageSkew(document.getElementById("cli_image"));
-}
-
-ChatCli.prototype.imageSkew = function(img) {
-  img.style.transform = "rotate(7deg)";
+  fadeIn('cli_image', 0);
 }
 
 /**
@@ -96,6 +103,27 @@ ChatCli.prototype.inputMessage = function(message) {
   }
 
   return;
+}
+
+function fadeIn(objId, opacity) {
+  obj = document.getElementById(objId);
+  if (opacity <= 100) {
+    setOpacity(obj, opacity);
+    opacity += 10;
+    window.setTimeout("fadeIn('"+objId+"',"+opacity+")", 100);
+  }
+}
+
+function setOpacity(obj, opacity) {
+  opacity = (opacity == 100)?99.999:opacity;
+  // IE/Win
+  obj.style.filter = "alpha(opacity:"+opacity+")";
+  // Safari<1.2, Konqueror
+  obj.style.KHTMLOpacity = opacity/100;
+  // Older Mozilla and Firefox
+  obj.style.MozOpacity = opacity/100;
+  // Safari 1.2, newer Firefox and Mozilla, CSS3
+  obj.style.opacity = opacity/100;
 }
 
 chatCli = new ChatCli();
