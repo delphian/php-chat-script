@@ -44,6 +44,10 @@ class GitHubPlugin extends Plugin {
   public function route__route(Server $server) {
     if (isset($_REQUEST['payload'])) {
       $payload = json_decode($_REQUEST['payload'], TRUE);
+      if (isset($payload['commits'])) {
+        $user_ids = SimpleUser::purge();
+        Chat::add($user_ids, 0, 'Got a ping from GitHub.');
+      }
       if (isset($payload['commits'][0]['message'])) {
         $server->set_route('github/ping');
       }
@@ -56,7 +60,7 @@ class GitHubPlugin extends Plugin {
   public function route_github_ping(Server $server) {
     $user_ids = SimpleUser::purge();
 
-    Chat::add($user_ids, 0, 'Git a ping from GitHub.');
+    Chat::add($user_ids, 0, 'Got a ping from GitHub.');
   }
 
 }
