@@ -62,6 +62,7 @@ class GitHubPlugin extends Plugin {
 /** Hook into other functions. */
 Server::register_plugin('GitHubPlugin', array(
   '__route',
+  'github/ping',
 ));
 
 ?>
