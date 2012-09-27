@@ -132,6 +132,7 @@ class SimpleUserPlugin extends Plugin {
 Server::register_plugin('SimpleUserPlugin', array(
   '__user',
   'api/simpleuserplugin/list/ids',
+  /** @todo we need to hook into wildcards. */
 ));
 Cli::register_plugin('SimpleUserPlugin', array(
   '__cli/command/help',

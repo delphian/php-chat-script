@@ -73,6 +73,8 @@ abstract class Observed {
     $report = TRUE;
 
     $plugins = (!empty(static::$plugins[$route])) ? static::$plugins[$route] : NULL;    
+    /** @todo Remove one url path element and search again. */
+
 
     if (is_array($plugins) && !empty($plugins)) {
       foreach($plugins as $plugin) {

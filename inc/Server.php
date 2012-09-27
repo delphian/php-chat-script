@@ -35,6 +35,10 @@ class Server extends Observed {
   /** Routes are url paths. A route determines where a payload will end up.
       This is the currentl url path that was requested of us. */
   private $route = NULL;
+  
+  /** Arguments are the individual elmeents of the url route deliniated by
+      forward slashes. */
+  private $args = array();
 
   /** Payload set by the caller before receive_message() is invoked. This is
       where the parameters to the observer are placed. */
@@ -84,6 +88,8 @@ class Server extends Observed {
     $this->set_route($route);
     /** Plugins may alter the route. */
     $this->invoke_all('__route');
+    /** Setup our url path arguments based on the route. */
+    $this->set_args();
 
     /** Grab our payload (parameters to the route handler). */
     if (isset($_GET['payload'])) {
@@ -211,6 +217,13 @@ class Server extends Observed {
   }
 
   /**
+   * Get property.
+   */
+  public function get_args() {
+    return $this->args;
+  }
+
+  /**
    * Receive our route and make sure its safe.
    *
    * @param string $route
@@ -292,6 +305,13 @@ class Server extends Observed {
     }
 
     return $report;
+  }
+
+  /**
+   * Parse the route into individual elements.
+   */
+  public function set_args() {
+    $this->args = explode('/', $this->route);
   }
 
   /**
