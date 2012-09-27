@@ -33,6 +33,9 @@ class SimpleUserPlugin extends Plugin {
       case '__cli/command/who':
         $this->cli_command_who(NULL);
         break;
+      case '__cli/javascript':
+        $this->cli_javascript($observed);
+        break;
       case 'api/simpleuserplugin/list/ids':
         $this->route_api_user_list_ids($observed);
         break;
@@ -86,6 +89,15 @@ class SimpleUserPlugin extends Plugin {
       'ids'  => $users,
     );
     $server->add_json_output(__CLASS__, $response);
+  }
+
+  /** 
+   * Add our javascript files to the command line interface.
+   */
+  public function cli_javascript($observed) {
+    $javascript = $observed->get_javascript();
+    $javascript[] = 'inc/SimpleUser/files/SimpleUserCli.js';
+    $observed->set_javascript($javascript);
   }
 
   /**
