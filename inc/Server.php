@@ -177,7 +177,12 @@ class Server extends Observed {
       }
     }
     /** Send out our output. */
-    print $this->output['body'];
+    if (!empty($this->json_output)) {
+      print json_encode($this->json_output);
+    }
+    else {
+      print $this->output['body'];
+    }
 
     return;
   }
