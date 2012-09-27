@@ -33,6 +33,9 @@ class SimpleUserPlugin extends Plugin {
       case '__cli/command/who':
         $this->cli_command_who(NULL);
         break;
+      case 'api/user/list/ids':
+        $this->route_api_user_list_ids($observed);
+        break;
     }
 
     // Overwrite callers output with ours.
@@ -75,7 +78,7 @@ class SimpleUserPlugin extends Plugin {
    *   - type: (string) 'user_list_ids'
    *   - ids: Array of integers. Each element is a user identification.
    */
-  public function route_user_list_ids(Server $server) {
+  public function route_api_user_list_ids(Server $server) {
     $user_ids = array();
     $users = SimpleUser::purge();
     if (!empty($users)) {
@@ -119,6 +122,7 @@ class SimpleUserPlugin extends Plugin {
 /** Hook into other functions. */
 Server::register_plugin('SimpleUserPlugin', array(
   '__user',
+  'api/user/list/ids',
 ));
 Cli::register_plugin('SimpleUserPlugin', array(
   '__cli/command/help',
