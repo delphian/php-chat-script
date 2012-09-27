@@ -45,6 +45,12 @@ class SimpleUserPlugin extends Plugin {
 
   /**
    * Set the logged in user based on credentials provided in the request.
+   *
+   * Input post associative array:
+   * - payload: Associative array:
+   *   - user: Associative array:
+   *     - user_id: (int) Unique user identification.
+   *     - secret_key: (int) Secret password.
    */
   public function route__user(Server $server) {
     /** Setup our user if authentiction credentials are provided. */
@@ -60,6 +66,26 @@ class SimpleUserPlugin extends Plugin {
         }
       }
     }
+  }
+
+  /**
+   * Report a list of all user identifications.
+   *
+   * - Associative array of single message:
+   *   - type: (string) 'user_list_ids'
+   *   - ids: Array of integers. Each element is a user identification.
+   */
+  public function route_user_list_ids(Server $server) {
+    $user_ids = array();
+    $users = SimpleUser::purge();
+    if (!empty($users)) {
+      $user_ids = array_get_keys($users);
+    }
+    $response = array(
+      'type' => 'user_list_ids',
+      'ids'  => $user_ids,
+    );
+    $server->add_json_output(__CLASS__, $response);
   }
 
   /**
