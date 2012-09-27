@@ -82,7 +82,7 @@ class SimpleUserPlugin extends Plugin {
     $user_ids = array();
     $users = SimpleUser::purge();
     if (!empty($users)) {
-      $user_ids = array_get_keys($users);
+      $user_ids = array_keys($users);
     }
     $response = array(
       'type' => 'user_list_ids',
