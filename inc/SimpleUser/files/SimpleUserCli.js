@@ -7,7 +7,7 @@ var SimpleUserCli = function() {
  */
 SimpleUserCli.prototype.runOnce = function() {
   var payload = {};
-  __sm('api/simpleuserplugin/list/ids', payload);
+  __sm('api/simpleuserplugin/list/id', payload);
 }
 
 /**
@@ -24,21 +24,23 @@ SimpleUserCli.prototype.serverMessage = function(message) {
     var sup = 0;
   }
 
-//  if (sup) {
-//    for (x in msg_obj.payload) {
-//      user_id = msg_obj.payload[x].from_user_id;
-//      from = msg_obj.payload[x].from_user_name;
-//      msg  = msg_obj.payload[x].chat.message;
-//      if (msg_obj.payload[x].chat.type == 'say') {
-//      } else if (msg_obj.payload[x].chat.type == 'nick') {
-//        printPlus('text_div', '<div class="cli-normal">'+this.clients[user_id].name+' is now known as '+msg+'</div>');
-//        this.clients[user_id] = {name:msg};
-//      } else {
-//        printPlus("text_div", '<div class="cli-warning">Received unknown chat message:'+message+'</div>');
-//      }
-//    }
-//    handled = true;
-//  }
+  if (sup) {
+    for (x in sup) {
+      type = sup[x].type;
+      if (type == 'api_list_ids') {
+        for (y in sup[x].ids) {
+          printPlus('text_div', '<div class="cli-info">SimpleUser:'+sup[x].ids[y]+'</div>');
+        }
+      } else if (type == 'api_list_id') {
+        for (y in sup[x].user) {
+          printPlus('text_div', '<div class="cli-info">SimpleUser:'+y+':'+sup[x].user[y]+'</div>');
+        }
+      } else {
+        printPlus("text_div", '<div class="cli-warning">Received unknown SimpleUser message:'+message+'</div>');
+      }
+    }
+    handled = true;
+  }
 
   return handled;
 };
