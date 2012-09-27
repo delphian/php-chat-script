@@ -229,6 +229,16 @@ class SimpleUser {
   }
 
   /** Get property. */
+  public function get_logged_in() {
+    return $this->logged_in;
+  }
+
+  /** Get property. */
+  public function get_time() {
+    return $this->time;
+  }
+
+  /** Get property. */
   public function get_secret_key() {
     return $this->secret_key;
   }

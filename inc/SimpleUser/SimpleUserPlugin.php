@@ -23,22 +23,20 @@ class SimpleUserPlugin extends Plugin {
     $this->output = $observed->get_output();
     $this->user = $observed->get_user();
 
-    switch($route) {
-      case '__user':
-        $this->route__user($observed);
-        break;
-      case '__cli/command/help':
-        $this->cli_command_help(NULL);
-        break;
-      case '__cli/command/who':
-        $this->cli_command_who(NULL);
-        break;
-      case '__cli/javascript':
-        $this->cli_javascript($observed);
-        break;
-      case 'api/simpleuserplugin/list/ids':
-        $this->route_api_user_list_ids($observed);
-        break;
+    if ($route == '__user') {
+      $this->route__user($observed);
+    }
+    elseif ($route == '__cli/command/help') {
+      $this->cli_command_help(NULL);
+    }
+    elseif ($route == '__cli/command/who') {
+      $this->cli_command_who(NULL);
+    }
+    elseif ($route == '__cli/javascript') {
+      $this->cli_javascript($observed);
+    }
+    elseif (preg_match('@api/simpleuserplugin/list/id.*@', $route, $matches)) {
+      $this->route_api_user_list_id($observed);
     }
 
     // Overwrite callers output with ours.
@@ -76,18 +74,29 @@ class SimpleUserPlugin extends Plugin {
 
   /**
    * Report a list of all user identifications.
-   *
-   * - Associative array of single message:
-   *   - type: (string) 'user_list_ids'
-   *   - ids: Array of integers. Each element is a user identification.
    */
-  public function route_api_user_list_ids(Server $server) {
-    $user_ids = array();
-    $users = SimpleUser::purge();
-    $response = array(
-      'type' => 'user_list_ids',
-      'ids'  => $users,
-    );
+  public function route_api_user_list_id(Server $server) {
+    $args = $server->get_args();
+    if (isset($args[4])) {
+      $user = new SimpleUser($args[4]);
+      $response = array(
+        'type' => 'api_list_id',
+        'user' => array(
+          'user_id'   => $user->get_user_id(),
+          'name'      => $user->get_name(),
+          'time'      => $user->get_time(),
+          'logged_in' => $user->get_logged_in(),
+        ),
+      );
+    }
+    else {
+      $user_ids = array();
+      $users = SimpleUser::purge();
+      $response = array(
+        'type' => 'api_list_ids',
+        'ids'  => $users,
+      );
+    }
     $server->add_json_output(__CLASS__, $response);
   }
 
@@ -131,8 +140,7 @@ class SimpleUserPlugin extends Plugin {
 /** Hook into other functions. */
 Server::register_plugin('SimpleUserPlugin', array(
   '__user',
-  'api/simpleuserplugin/list/ids',
-  /** @todo we need to hook into wildcards. */
+  'api/simpleuserplugin/list/id',
 ));
 Cli::register_plugin('SimpleUserPlugin', array(
   '__cli/command/help',

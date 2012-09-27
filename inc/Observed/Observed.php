@@ -71,10 +71,21 @@ abstract class Observed {
    */
   public function invoke_all($route) {
     $report = TRUE;
+    $nroute = $route;
+    $plugins = NULL;
 
-    $plugins = (!empty(static::$plugins[$route])) ? static::$plugins[$route] : NULL;    
     /** @todo Remove one url path element and search again. */
-
+    while (!$plugins && strlen($nroute)) {
+      $plugins = (!empty(static::$plugins[$nroute])) ? static::$plugins[$nroute] : NULL;
+      if (!$plugins) {
+        $args = explode('/', $nroute);
+        array_pop($args);
+        $nroute = (!empty($args)) ? implode('/', $args) : NULL;
+#        if ($route != '__payload' && $route != '__pre_halt') {
+#          exit("{$route}:{$nroute}");
+#        }
+      }
+    }
 
     if (is_array($plugins) && !empty($plugins)) {
       foreach($plugins as $plugin) {
