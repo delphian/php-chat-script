@@ -46,6 +46,10 @@ class Server extends Observed {
       is finished executing it will set the $output property of its calling
       class. */
   protected $output = NULL;
+  /** Response sent to the client at end of execution. This array will be json
+      encoded before being output. If this value is not empty then the above
+      $output variable will be ignored in favore of $json_output. */
+  protected $json_output = NULL;
 
   /**
    * Constructor. We will force the use of SingletonLoader::load() even if
@@ -283,6 +287,29 @@ class Server extends Observed {
     }
 
     return $report;
+  }
+
+  /**
+   * Append another message into the json array.
+   *
+   * @param string $class
+   *   The name of the class that is appending output.
+   * @param array $message
+   *   The structure to append as a message.
+   *
+   * @return
+   *   (bool) TRUE. Always returns TRUE. An exception will be thrown on failure.
+   */
+  public function add_json_output($class, $message) {
+    if (!class_exists($class)) {
+      throw new Exception('Specified class does not exist');
+    }
+    if (empty($message)) {
+      throw new Exception('Empty message is not allowed.');
+    }
+    $this->json_output[$class][] = $message;
+
+    return TRUE;
   }
 
 }
