@@ -27,7 +27,7 @@
  * http://www.phpchatscript.com
  */
 
-class SimpleUser {
+class SimpleUser extends Observed {
 
   /** The unique user identification. This is first created by a registration
       process and the value will not change for the life of the user. */
@@ -236,6 +236,7 @@ class SimpleUser {
     if (preg_match('/[a-zA-Z0-9_\- ]+/', $name)) {
       $this->name = $name;
       $set = TRUE;
+      $this->invoke_all('__' . __CLASS__ . '/' . __FUNCTION__);
     }
     return $set;
   }
