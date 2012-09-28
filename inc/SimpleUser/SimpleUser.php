@@ -42,6 +42,8 @@ class SimpleUser {
   protected $time = NULL;
   /** Switch to indicate if the user is currently logged in or not. */
   protected $logged_in = NULL;
+  /** Swithc indicating this account is registered and therefore persistent. */
+  protected $registered = NULL;
 
   /**
    * Determine if a user identification exists or not.
@@ -198,6 +200,7 @@ class SimpleUser {
     $this->name       = $users[$user_id]['name'];
     $this->time       = $users[$user_id]['time'];
     $this->logged_in  = $users[$user_id]['logged_in'];
+    $this->registered = $users[$user_id]['registered'];
 
     return $this;
   }
@@ -243,6 +246,10 @@ class SimpleUser {
     return $this->secret_key;
   }
 
+  /** Get property. */
+  public function get_registered() {
+    return $this->registered;
+  }
 }
 
 ?>
