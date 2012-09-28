@@ -217,8 +217,27 @@ class SimpleUser {
     $users[$user_id]['name']       = $this->name;
     $users[$user_id]['time']       = time();
     $users[$user_id]['logged_in']  = $this->logged_in;
+    $users[$user_id]['registered'] = $this->registered;
     
     SimpleTextStorage::load()->write('SimpleUser', 'users', $users);
+  }
+
+  /**
+   * Set the name property.
+   *
+   * @param string $name
+   *   New value to set name to.
+   *
+   * @return
+   *   (bool) TRUE if the name was set, FALSE if the name was rejected.
+   */
+  public function set_name($name) {
+    $set = FALSE;
+    if (preg_match('/[a-zA-Z0-9_\- ]+/', $name)) {
+      $this->name = $name;
+      $set = TRUE;
+    }
+    return $set;
   }
 
   /** Get property. */
