@@ -193,34 +193,29 @@ class Server extends Observed {
     return;
   }
 
-  /**
-   * Get property.
-   *
-   * @return Subject::$payload
-   */
+  /** Get property. */
   public function get_payload() {
     return $this->payload;
   }
 
-  /**
-   * Get property.
-   */
+  /** Get property. */
   public function get_output() {
     return $this->output;
   }
 
-  /**
-   * Get property.
-   */
+  /** Get property. */
   public function get_user() {
     return $this->user;
   }
 
-  /**
-   * Get property.
-   */
+  /** Get property. */
   public function get_args() {
     return $this->args;
+  }
+
+  /** Get property. */
+  public function get_route() {
+    return $this->route;
   }
 
   /**
@@ -299,7 +294,7 @@ class Server extends Observed {
   public function set_user($user) {
     $report = NULL;
 
-    if (is_object($user) && (get_class($user) == 'SimpleUser')) {
+    if (is_object($user) && (get_class($user) == 'User')) {
       $this->user = $user;
       $report = $this->user;
     }

@@ -156,6 +156,8 @@ function __sm(route, payload) {
   } else {
     var url = route;
   }
+  //printPlus("text_div", '<div class="cli-failure">OUT:'+url+'</div>');
+
   ajaxFunction(url);
 
   return;

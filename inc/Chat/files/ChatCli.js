@@ -12,7 +12,7 @@ ChatCli.prototype.runOnce = function() {
   images.push('/php-chat-script/inc/Chat/files/PinkiePie/pinkie-pie-2.png');
   images.push('/php-chat-script/inc/Chat/files/PinkiePie/pinkie-pie-3.png');
   images.push('/php-chat-script/inc/Chat/files/PinkiePie/pinkie-pie-4.jpg');
-  images.push('/php-chat-script/inc/Chat/files/PinkiePie/pinkie-pie-5.png');
+  images.push('/php-chat-script/inc/Chat/files/PinkiePie/pinkie-pie-5.jpg');
 
   var index = Math.floor((Math.random()*5)+1);
 

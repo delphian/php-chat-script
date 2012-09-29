@@ -116,7 +116,7 @@ class ChatPlugin extends Plugin {
    */
   public function route_chat_join($observed) {
     $user_id = $observed->get_user()->get_user_id();
-    $user_ids = SimpleUser::purge($user_id);
+    $user_ids = User::purge($user_id);
     unset($user_ids[$user_id]);
 
     $message = array(
@@ -176,7 +176,7 @@ class ChatPlugin extends Plugin {
   public function route_set_chat($user_id) {
     $input = json_decode($this->payload, TRUE);
 
-    $user_ids = SimpleUser::purge($user_id);
+    $user_ids = User::purge($user_id);
     unset($user_ids[$user_id]);
 
     Chat::add($user_ids, $user_id, $input['payload']);

@@ -38,7 +38,7 @@ class Chat extends Observed {
    *   The chat itself.
    */
   public static function add($to_user_ids, $from_user_id, $chat) {
-    $user = new SimpleUser($from_user_id);
+    $user = new User($from_user_id);
     /** Force the first parameter into an array. */
     $to_user_id = is_array($to_user_ids) ? $to_user_ids : array($to_user_ids);
     /** Load all existing chat messages waiting to be delivered. */
@@ -47,7 +47,7 @@ class Chat extends Observed {
         iterated user's chat queue. */
     foreach($to_user_ids as $to_user_id) {
       /** Do not enter a chat message to a user that does not exist. */
-      if (SimpleUser::exists($to_user_id)) {
+      if (User::exists($to_user_id)) {
         $chats[$to_user_id][] = array(
           'time' => time(),
           'from_user_id' => $from_user_id,

@@ -22,7 +22,7 @@ if (!file_exists('.htaccess')) {
 require_once('inc/SingletonLoader/SingletonLoader.php');
 require_once('inc/Observed/Observed.php');
 require_once('inc/SimpleTextStorage/SimpleTextStorage.php');
-require_once('inc/SimpleUser/SimpleUser.php');
+require_once('inc/User/User.php');
 require_once('inc/SimplePage/SimplePage.php');
 require_once('inc/Chat/Chat.php');
 require_once('inc/Plugin.php');
@@ -31,7 +31,7 @@ require_once('inc/Server.php');
 /** Include our plugins. */
 require_once('inc/Cli/Cli.php');
 require_once('inc/Chat/ChatPlugin.php');
-require_once('inc/SimpleUser/SimpleUserPlugin.php');
+require_once('inc/User/UserApi.php');
 require_once('inc/SimplePage/SimplePagePlugin.php');
 require_once('inc/GitHub/GitHubPlugin.php');
 

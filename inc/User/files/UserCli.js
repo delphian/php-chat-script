@@ -1,24 +1,25 @@
-var SimpleUserCli = function() {
+var UserApiCli = function() {
   this.users = new Array();
 };
 
 /**
  * Run once commands after the client receives it's identification.
  */
-SimpleUserCli.prototype.runOnce = function() {
+UserApiCli.prototype.runOnce = function() {
   var payload = {};
-  __sm('api/simpleuserplugin/list/id', payload);
+  /** Request a list of all current users. */
+  __sm('api/user/list/id', payload);
 }
 
 /**
  * Process messages received from the server.
  */
-SimpleUserCli.prototype.serverMessage = function(message) {
+UserApiCli.prototype.serverMessage = function(message) {
   var handled = false;
   try {
     var msg_obj = eval("(" + message + ")");
-    if (msg_obj.hasOwnProperty("SimpleUserPlugin")) {
-      var sup = msg_obj.SimpleUserPlugin;
+    if (msg_obj.hasOwnProperty("UserApi")) {
+      var sup = msg_obj.UserApi;
     }
   } catch(err) {
     var sup = 0;
@@ -29,11 +30,11 @@ SimpleUserCli.prototype.serverMessage = function(message) {
       type = sup[x].type;
       if (type == 'api_list_ids') {
         for (y in sup[x].ids) {
-          printPlus('text_div', '<div class="cli-info">SimpleUser:'+sup[x].ids[y]+'</div>');
+          printPlus('text_div', '<div class="cli-info">UserApi:'+sup[x].ids[y]+'</div>');
         }
       } else if (type == 'api_list_id') {
         for (y in sup[x].user) {
-          printPlus('text_div', '<div class="cli-info">SimpleUser:'+y+':'+sup[x].user[y]+'</div>');
+          printPlus('text_div', '<div class="cli-info">UserApi:'+y+':'+sup[x].user[y]+'</div>');
         }
       } else if (type == 'api_request_id') {
         my_client_id = sup[x].user.user_id;
@@ -53,7 +54,7 @@ SimpleUserCli.prototype.serverMessage = function(message) {
 /**
  * Process commands entered on the command line.
  */
-SimpleUserCli.prototype.inputMessage = function(message) {
+UserApiCli.prototype.inputMessage = function(message) {
   var command   = message.split(' ')[0];
   var remainder = message.split(' ').slice(1).join(' ');
 
@@ -74,8 +75,8 @@ SimpleUserCli.prototype.inputMessage = function(message) {
   return;
 }
 
-simpleUserCli = new SimpleUserCli();
-PM.registerServer(simpleUserCli);
-PM.registerInput(simpleUserCli);
-PM.registerRunOnce(simpleUserCli);
+userApiCli = new UserApiCli();
+PM.registerServer(userApiCli);
+PM.registerInput(userApiCli);
+PM.registerRunOnce(userApiCli);
 

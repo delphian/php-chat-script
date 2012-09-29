@@ -27,7 +27,7 @@
  * http://www.phpchatscript.com
  */
 
-class SimpleUser extends Observed {
+class User extends Observed {
 
   /** The unique user identification. This is first created by a registration
       process and the value will not change for the life of the user. */
@@ -57,7 +57,7 @@ class SimpleUser extends Observed {
   public static function exists($user_id) {
     $user_exists = FALSE;
 
-    $users = SimpleTextStorage::load()->read('SimpleUser', 'users');
+    $users = SimpleTextStorage::load()->read('User', 'users');
     if (array_key_exists($user_id, $users)) {
       $user_exists = $user_id;
     }
@@ -79,7 +79,7 @@ class SimpleUser extends Observed {
   public static function authenticate($user_id, $secret_key) {
     $authentic = FALSE;
 
-    $users = SimpleTextStorage::load()->read('SimpleUser', 'users');
+    $users = SimpleTextStorage::load()->read('User', 'users');
     if (array_key_exists($user_id, $users)) {
       if ($users[$user_id]['secret_key'] == $secret_key) {
         $authentic = TRUE;
@@ -112,9 +112,9 @@ class SimpleUser extends Observed {
       'logged_in' => FALSE,
     );
     /** Save new record directly to the database. */
-    $users = SimpleTextStorage::load()->read('SimpleUser', 'users');
+    $users = SimpleTextStorage::load()->read('User', 'users');
     $users[$user_id] = $record;
-    SimpleTextStorage::load()->write('SimpleUser', 'users', $users);
+    SimpleTextStorage::load()->write('User', 'users', $users);
 
     return $user_id;
   }
@@ -134,9 +134,9 @@ class SimpleUser extends Observed {
       throw new Exception('User id does not exist');
     }
 
-    $users = SimpleTextStorage::load()->read('SimpleUser', 'users');
+    $users = SimpleTextStorage::load()->read('User', 'users');
     unset($users[$user_id]);
-    $result = SimpleTextStorage::load()->write('SimpleUser', 'users', $users);
+    $result = SimpleTextStorage::load()->write('User', 'users', $users);
 
     return $result;
   }
@@ -155,11 +155,11 @@ class SimpleUser extends Observed {
   public static function purge($ping_user_id = NULL) {
     $logged_in = array();
 
-    $users = SimpleTextStorage::load()->read('SimpleUser', 'users');
+    $users = SimpleTextStorage::load()->read('User', 'users');
     foreach($users as $user_id => $data) {
       /** Update specified user's last access time. */
       if ($ping_user_id == $user_id) {
-        $user = new SimpleUser($user_id);
+        $user = new User($user_id);
         $user->save();
         $logged_in[] = $user_id;
       }
@@ -185,15 +185,15 @@ class SimpleUser extends Observed {
    * @param int $user_id
    *   Unique user identificaiton must exist.
    *
-   * @return SimpleUserStorage
-   *   Instance of SimpleUserStorage on success, exception thrown on failure.
+   * @return
+   *   Instance of User on success, exception thrown on failure.
    */
   public function __construct($user_id) {
-    if (!SimpleUser::exists($user_id)) {
+    if (!User::exists($user_id)) {
       throw new Exception('User must exist to be instantiated.');
     }
 
-    $users = SimpleTextStorage::load()->read('SimpleUser', 'users');
+    $users = SimpleTextStorage::load()->read('User', 'users');
 
     $this->user_id    = $users[$user_id]['user_id'];
     $this->secret_key = $users[$user_id]['secret_key'];
@@ -209,7 +209,7 @@ class SimpleUser extends Observed {
    * Save a instance of a user record.
    */
   public function save() {
-    $users = SimpleTextStorage::load()->read('SimpleUser', 'users');
+    $users = SimpleTextStorage::load()->read('User', 'users');
     $user_id = $this->user_id;
 
     $users[$user_id]['user_id']    = $user_id;
@@ -219,7 +219,7 @@ class SimpleUser extends Observed {
     $users[$user_id]['logged_in']  = $this->logged_in;
     $users[$user_id]['registered'] = $this->registered;
     
-    SimpleTextStorage::load()->write('SimpleUser', 'users', $users);
+    SimpleTextStorage::load()->write('User', 'users', $users);
   }
 
   /**
