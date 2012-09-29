@@ -193,9 +193,37 @@ class Server extends Observed {
     return;
   }
 
-  /** Get property. */
+  /**
+   * Get payload property.
+   *
+   * Often the payload is a json encoded string containing an associative array.
+   * If parameters are passed into function they will be treated as keys into
+   * this array, the value of which will be returned instead of the entire
+   * payload. If more than one parameter is passed they will all be interpreted
+   * as nested keys, subsequent parameters being nested keys of the previous.
+   *
+   * Example to retrieve $payload['user']['id']:
+   * @code
+   *   $server->get_payload('user', 'id');
+   * @endcode
+   */
   public function get_payload() {
-    return $this->payload;
+    $payload = $this->payload;
+    if ($num = func_num_args()) {
+      $x = 0;
+      $payload = json_decode($payload, TRUE);
+      while ($x < $num) {
+        $arg = func_get_arg($x);
+        if (is_array($payload)) {
+          $payload = (array_key_exists($arg, $payload)) ? $payload[$arg] : NULL;
+        }
+        else {
+          $payload = NULL;
+        }
+        $x++;
+      }
+    }
+    return $payload;
   }
 
   /** Get property. */

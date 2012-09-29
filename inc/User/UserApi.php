@@ -29,6 +29,7 @@ class UserApi extends Plugin {
       '__user',
       self::$rp . 'list/id',
       self::$rp . 'request/id',
+      self::$rp . 'register',
     ));
     /** Hook into the command line interface. */
     Cli::register_plugin(__CLASS__, array(
@@ -55,6 +56,9 @@ class UserApi extends Plugin {
     }
     elseif ($route == self::$rp . 'request/id') {
       $this->route_api_user_request_id($observed);
+    }
+    elseif ($route == self::$rp . 'register') {
+      $this->route_api_user_register($observed);
     }
 
     // Overwrite callers output with ours.
@@ -103,6 +107,38 @@ class UserApi extends Plugin {
       'user' => array(
         'user_id' => $user->get_user_id(),
         'secret_key' => $user->get_secret_key(),
+      ),
+    );
+    $server->add_json_output(__CLASS__, $response);
+  }
+
+  /**
+   * Register a user.
+   *
+   * A user must first be authenticated with an anonymous user identification.
+   * Request must provide email address and an updated password. These will be
+   * used for login requests later on.
+   *
+   * Format request:
+   * - payload: Associative array:
+   *   - userapi: Associative array:
+   *     - register: Associative array:
+   *       - email: (string) Valid email address.
+   *       - password: (string) New password that user should remember.
+   */
+  public function route_api_user_register(Server $server) {
+    $user = $server->get_user();
+    $email = $server->get_payload('userapi', 'register', 'email');
+    $password = $server->get_payload('userapi', 'register', 'password');
+
+    $registerd = FALSE;
+    $msg = "Email:{$email} Password:{$password} >> Not implemented yet!";
+
+    $response = array(
+      'type' => 'api_register',
+      'success' => array(
+        'value' => $registered,
+        'message' => $msg,
       ),
     );
     $server->add_json_output(__CLASS__, $response);

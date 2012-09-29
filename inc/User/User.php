@@ -120,6 +120,7 @@ class User extends Observed {
       'time' => time(),
       'registered' => FALSE,
       'logged_in' => FALSE,
+      'email' => FALSE,
     );
     /** Save new record directly to the database. */
     $users = SimpleTextStorage::load()->read('User', 'users');
@@ -211,6 +212,7 @@ class User extends Observed {
     $this->time       = $users[$user_id]['time'];
     $this->logged_in  = $users[$user_id]['logged_in'];
     $this->registered = $users[$user_id]['registered'];
+    $this->email      = $users[$user_id]['email'];
 
     return $this;
   }
@@ -228,6 +230,7 @@ class User extends Observed {
     $users[$user_id]['time']       = time();
     $users[$user_id]['logged_in']  = $this->logged_in;
     $users[$user_id]['registered'] = $this->registered;
+    $users[$user_id]['email']      = $this->email;
     
     SimpleTextStorage::load()->write('User', 'users', $users);
   }
