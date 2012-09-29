@@ -58,7 +58,14 @@ UserApiCli.prototype.inputMessage = function(message) {
   var command   = message.split(' ')[0];
   var remainder = message.split(' ').slice(1).join(' ');
 
-//  if (command == '/me') {
+  if (command == '/user') {
+    var subcommand = remainder.split(' ')[0];
+    if (subcommand == 'register') {
+      var email   = remainder.split(' ')[1];
+      var pass    = remainder.split(' ')[2];
+      var payload = {api:{user:{register:{email:email,password:pass}}}}
+      __sm('api/user/register', payload);
+    }    
 //    var payload = {payload:{type:"emote",message:remainder}};
 //    __sm('chat/set_chat', payload);
 //  } else if (command == '/nick') {
@@ -70,7 +77,7 @@ UserApiCli.prototype.inputMessage = function(message) {
 //  } else if (command.substring(0, 1) != "/") {
 //    var payload = {payload:{type:"say",message:message}};
 //    __sm('chat/set_chat', payload);
-//  }
+  }
 
   return;
 }

@@ -127,12 +127,30 @@ class UserApi extends Plugin {
    *       - password: (string) New password that user should remember.
    */
   public function route_api_user_register(Server $server) {
+    $registered = FALSE;
+    $msg = '';
     $user = $server->get_user();
-    $email = $server->get_payload('userapi', 'register', 'email');
-    $password = $server->get_payload('userapi', 'register', 'password');
+    $email = $server->get_payload('api', 'user', 'register', 'email');
+    $password = $server->get_payload('api', 'user', 'register', 'password');
 
-    $registerd = FALSE;
-    $msg = "Email:{$email} Password:{$password} >> Not implemented yet!";
+    if (!$user) {
+      $msg = 'Invalid access';
+    }
+    else if (!$email || $user->set_email($email) != $email) {
+      $msg = "Bad email:{$email}";
+    }
+    else if (!$password || $user->set_password($password) != $password) {
+      $msg = "Bad password:{$password}";
+    }
+    else {
+      $user->set_registered(TRUE);
+      if ($user->save()) {
+        $registered = TRUE;
+      }
+      else {
+        $msg = "Unable to register.";
+      }
+    }
 
     $response = array(
       'type' => 'api_register',

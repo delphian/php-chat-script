@@ -219,6 +219,11 @@ class User extends Observed {
 
   /**
    * Save a instance of a user record.
+   *
+   * @todo return something more useful.
+   *
+   * @return
+   *  Always returns TRUE.
    */
   public function save() {
     $users = SimpleTextStorage::load()->read('User', 'users');
@@ -231,8 +236,27 @@ class User extends Observed {
     $users[$user_id]['logged_in']  = $this->logged_in;
     $users[$user_id]['registered'] = $this->registered;
     $users[$user_id]['email']      = $this->email;
-    
+
     SimpleTextStorage::load()->write('User', 'users', $users);
+
+    return TRUE;
+  }
+
+  /**
+   * Set property.
+   *
+   * @param string $password
+   *   New value to set property to.
+   *
+   * @return
+   *   The value of the propety after operation.
+   */
+  public function set_password($password) {
+    if (preg_match('/[a-z0-9_\-]{3,}/i', $password)) {
+      $this->password = $password;
+      $this->invoke_all('__' . __CLASS__ . '/' . __FUNCTION__);
+    }
+    return $this->password;
   }
 
   /**
@@ -242,16 +266,14 @@ class User extends Observed {
    *   New value to set name to.
    *
    * @return
-   *   (bool) TRUE if the name was set, FALSE if the name was rejected.
+   *   The value of the propety after operation.
    */
   public function set_name($name) {
-    $set = FALSE;
-    if (preg_match('/[a-zA-Z0-9_\- ]+/', $name)) {
+    if (preg_match('/[a-zA-Z0-9_\- ]{3,}/', $name)) {
       $this->name = $name;
       $this->invoke_all('__' . __CLASS__ . '/' . __FUNCTION__);
-      $set = TRUE;
     }
-    return $set;
+    return $this->name;
   }
 
   /**
@@ -261,16 +283,29 @@ class User extends Observed {
    *   The email to save.
    *
    * @return
-   *   (string) the current email if set, (bool) FALSE if it was rejected.
+   *   The value of the propety after operation.
    */
   public function set_email($email) {
-    $set = FALSE;
     if (preg_match('/[a-z0-9_\-\.]@[a-z0-9_\-\.]/i', $email)) {
       $this->email = $email;
       $this->invoke_all('__' . __CLASS__ . '/' . __FUNCTION__);
-      $set = $this->email;
     }
-    return $set;
+    return $this->email;
+  }
+
+  /**
+   * Set property.
+   *
+   * @param bool $registered
+   *   New value to set property to.
+   *
+   * @return
+   *   The value of the propety after operation.
+   */
+  public function set_registered($registered) {
+    $this->registered = ($registered) ? TRUE : FALSE;
+    $this->invoke_all('__' . __CLASS__ . '/' . __FUNCTION__);
+    return $this->registered;
   }
 
   /** Get property. */
