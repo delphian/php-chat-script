@@ -42,8 +42,18 @@ class User extends Observed {
   protected $time = NULL;
   /** Switch to indicate if the user is currently logged in or not. */
   protected $logged_in = NULL;
-  /** Swithc indicating this account is registered and therefore persistent. */
+  /** Switch indicating this account is registered and therefore persistent. */
   protected $registered = NULL;
+  
+  /**
+   * All remaining fields are only used for registered users.
+   */
+   
+  /** Email address, required for registration. A combination of email address
+      and secret_key are used to authenticate a registered user. This should
+      not be confused with regulary user authentication, which only confirms
+      that the current requestor has at least an anonymous user id. */
+  protected $email = NULL;
 
   /**
    * Determine if a user identification exists or not.
@@ -235,8 +245,27 @@ class User extends Observed {
     $set = FALSE;
     if (preg_match('/[a-zA-Z0-9_\- ]+/', $name)) {
       $this->name = $name;
-      $set = TRUE;
       $this->invoke_all('__' . __CLASS__ . '/' . __FUNCTION__);
+      $set = TRUE;
+    }
+    return $set;
+  }
+
+  /**
+   * Set the email property.
+   *
+   * @param string $email
+   *   The email to save.
+   *
+   * @return
+   *   (string) the current email if set, (bool) FALSE if it was rejected.
+   */
+  public function set_email($email) {
+    $set = FALSE;
+    if (preg_match('/[a-z0-9_\-\.]@[a-z0-9_\-\.]/i', $email)) {
+      $this->email = $email;
+      $this->invoke_all('__' . __CLASS__ . '/' . __FUNCTION__);
+      $set = $this->email;
     }
     return $set;
   }
@@ -270,6 +299,12 @@ class User extends Observed {
   public function get_registered() {
     return $this->registered;
   }
+  
+  /** Get property. */
+  public function get_email() {
+    return $this->email;
+  }
+
 }
 
 ?>
