@@ -73,7 +73,7 @@ function ajaxFunction(url)
         pmRaw(xmlhttp.responseText);
       } else {
         clearInterval(my_int_id);
-        alert("Problem retrieving XML data: ("+xmlhttp.status+") (" + xmlhttp.statusText+")");
+        alert("Problem retrieving XML data: ("+xmlhttp.status+") (" + xmlhttp.statusText+") Request: ("+url+")");
       }
     }
   }
@@ -123,13 +123,6 @@ function pmProcessed (message) {
   switch(code) {
     case 'NAC':
       // Server has nothing to report.
-      handled = true;
-      break;
-    case 'user_id':
-      my_client_id = msg_obj.payload.user_id;
-      my_secret_key = msg_obj.payload.secret_key;
-      printPlus("text_div", '<span class="cln_all">'+"Client identification : "+my_client_id+".</span><br />");
-      PM.runOnce();
       handled = true;
       break;
     case 'output':

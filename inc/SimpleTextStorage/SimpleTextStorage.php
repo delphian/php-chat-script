@@ -41,7 +41,7 @@ class SimpleTextStorage extends SingletonLoader {
     
     /** Create the data directory if it does not exist. */
     if (!is_dir($this->path_data)) {
-      if (!mkdir($this->path_data, 755)) {
+      if (!mkdir($this->path_data, 0755)) {
         throw new Exception('Data directory not found and unable to create.');
       }    
     }

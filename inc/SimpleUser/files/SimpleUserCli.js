@@ -35,6 +35,11 @@ SimpleUserCli.prototype.serverMessage = function(message) {
         for (y in sup[x].user) {
           printPlus('text_div', '<div class="cli-info">SimpleUser:'+y+':'+sup[x].user[y]+'</div>');
         }
+      } else if (type == 'api_request_id') {
+        my_client_id = sup[x].user.user_id;
+        my_secret_key = sup[x].user.secret_key;
+        printPlus("text_div", '<span class="cli-info">'+"Client identification : "+my_client_id+".</span><br />");
+        PM.runOnce();        
       } else {
         printPlus("text_div", '<div class="cli-warning">Received unknown SimpleUser message:'+message+'</div>');
       }

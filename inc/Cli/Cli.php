@@ -26,9 +26,6 @@ class Cli extends Plugin {
       case '/':
         $this->route_root();
         break;
-      case 'cli/get_id':
-        $this->route_get_id();
-        break;
       case 'cli/set_message':
         $this->route_set_message();
         break;
@@ -67,30 +64,6 @@ class Cli extends Plugin {
     $this->output['headers'][] = 'Content-Type: text/html';
     $this->output['headers'][] = 'Cache-Control: no-cache, must-revalidate';
     $this->output['headers'][] = 'Expires: Sat, 26 Jul 1997 05:00:00 GMT';
-
-    return;
-  }
-
-  /**
-   * Grant and report to client their new user identification.
-   *
-   * @return
-   *   Response to client will be associative array:
-   *   - code: 'user_id'.
-   *   - payload: (int) New unique user identification.
-   */
-  public function route_get_id() {
-    // Create new anonymous use.
-    $user = new SimpleUser(SimpleUser::create());
-    $response = array(
-      'code' => 'user_id',
-      'payload' => array(
-        'user_id'    => $user->get_user_id(),
-        'secret_key' => $user->get_secret_key(),
-      ),
-    );
-    $this->output['body'] = json_encode($response);
-    $this->headers_text();
 
     return;
   }
@@ -192,8 +165,7 @@ class Cli extends Plugin {
 Server::register_plugin('Cli', array(
   '/',
   'cli/get_message',
-  'cli/set_message',
-  'cli/get_id',  
+  'cli/set_message', 
 ));
 
 ?>

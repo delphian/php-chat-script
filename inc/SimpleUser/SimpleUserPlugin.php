@@ -38,6 +38,9 @@ class SimpleUserPlugin extends Plugin {
     elseif (preg_match('@api/simpleuserplugin/list/id.*@', $route, $matches)) {
       $this->route_api_user_list_id($observed);
     }
+    elseif ($route == 'api/user/request/id') {
+      $this->route_api_user_request_id($observed);
+    }
 
     // Overwrite callers output with ours.
     if ($this->output) {
@@ -70,6 +73,22 @@ class SimpleUserPlugin extends Plugin {
         }
       }
     }
+  }
+
+  /**
+   * Grant and report to client their new user identification.
+   */
+  public function route_api_user_request_id(Server $server) {
+    /** Create new anonymous user. */
+    $user = new SimpleUser(SimpleUser::create());
+    $response = array(
+      'type' => 'api_request_id',
+      'user' => array(
+        'user_id' => $user->get_user_id(),
+        'secret_key' => $user->get_secret_key(),
+      ),
+    );
+    $server->add_json_output(__CLASS__, $response);
   }
 
   /**
@@ -141,6 +160,7 @@ class SimpleUserPlugin extends Plugin {
 Server::register_plugin('SimpleUserPlugin', array(
   '__user',
   'api/simpleuserplugin/list/id',
+  'api/user/request/id',
 ));
 Cli::register_plugin('SimpleUserPlugin', array(
   '__cli/command/help',
