@@ -95,6 +95,9 @@ class SimpleUserPlugin extends Plugin {
    * Report a list of all user identifications.
    */
   public function route_api_user_list_id(Server $server) {
+    if (!$server->get_user()) {
+      exit('Jesus I know, and Paul I\'ve heard of, but who are you?');
+    }
     $args = $server->get_args();
     if (isset($args[4])) {
       $user = new SimpleUser($args[4]);
