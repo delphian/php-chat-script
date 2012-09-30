@@ -137,7 +137,7 @@ class UserApi extends Plugin {
 
     $response = array(
       'type' => 'api_login',
-      'user' => user_array,
+      'user' => $user_array,
     );
     $server->add_json_output(__CLASS__, $response);    
   }

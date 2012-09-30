@@ -65,7 +65,13 @@ UserApiCli.prototype.inputMessage = function(message) {
       var pass    = remainder.split(' ')[2];
       var payload = {api:{user:{register:{email:email,password:pass}}}}
       __sm('api/user/register', payload);
-    }    
+    }
+    else if (subcommand = 'login') {
+      var email   = remainder.split(' ')[1];
+      var pass    = remainder.split(' ')[2];
+      var payload = {api:{user:{login:{email:email,password:pass}}}}
+      __sm('api/user/login', payload);
+    }
 //    var payload = {payload:{type:"emote",message:remainder}};
 //    __sm('chat/set_chat', payload);
 //  } else if (command == '/nick') {
