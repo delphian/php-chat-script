@@ -119,12 +119,20 @@ class UserApi extends Plugin {
    * Request must provide email address and an updated password. These will be
    * used for login requests later on.
    *
-   * Format request:
+   * JSON encoded request:
    * - payload: Associative array:
-   *   - userapi: Associative array:
-   *     - register: Associative array:
-   *       - email: (string) Valid email address.
-   *       - password: (string) New password that user should remember.
+   *   - api: Associative array:
+   *     - user: Associative array:
+   *       - register: Associative array:
+   *         - email: (string) Valid email address.
+   *         - password: (string) New password that user should remember.
+   *
+   * JSON encoded response:
+   * - __CLASS__: Associative array:
+   *   - type: (string) 'api_register'.
+   *   - success: Associative array:
+   *     - value: (bool) TRUE on sucessful registration, FALSE otherwise.
+   *     - message: (string) Mostly used as an error message.
    */
   public function route_api_user_register(Server $server) {
     $registered = FALSE;
@@ -175,10 +183,11 @@ class UserApi extends Plugin {
       $response = array(
         'type' => 'api_list_id',
         'user' => array(
-          'user_id'   => $user->get_user_id(),
-          'name'      => $user->get_name(),
-          'time'      => $user->get_time(),
-          'logged_in' => $user->get_logged_in(),
+          'user_id'    => $user->get_user_id(),
+          'name'       => $user->get_name(),
+          'time'       => $user->get_time(),
+          'logged_in'  => $user->get_logged_in(),
+          'registered' => $user->get_registered(),
         ),
       );
     }
