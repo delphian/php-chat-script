@@ -30,6 +30,7 @@ class UserApi extends Plugin {
       self::$rp . 'list/id',
       self::$rp . 'request/id',
       self::$rp . 'register',
+      self::$rp . 'login',
     ));
     /** Hook into the command line interface. */
     Cli::register_plugin(__CLASS__, array(
@@ -51,14 +52,17 @@ class UserApi extends Plugin {
     elseif ($route == '__cli/javascript') {
       $this->cli_javascript($observed);
     }
-    elseif (preg_match('@' . self::$rp . 'list/id.*@', $route, $matches)) {
+    elseif (preg_match('@'.self::$rp.'list/id.*@', $route, $matches)) {
       $this->route_api_user_list_id($observed);
     }
-    elseif ($route == self::$rp . 'request/id') {
+    elseif ($route == self::$rp.'request/id') {
       $this->route_api_user_request_id($observed);
     }
-    elseif ($route == self::$rp . 'register') {
+    elseif ($route == self::$rp.'register') {
       $this->route_api_user_register($observed);
+    }
+    elseif ($route == self::$rp.'login') {
+      $this->route_api_user_login($observed);
     }
 
     // Overwrite callers output with ours.
@@ -94,6 +98,48 @@ class UserApi extends Plugin {
         }
       }
     }
+  }
+
+  /**
+   * Report the user identification associated with an email and password.
+   *
+   * JSON encoded request:
+   * - payload: Associative array:
+   *   - api: Associative array:
+   *     - user: Associative array:
+   *       - login: Associative array:
+   *         - email: (string) Valid email address.
+   *         - password: (string) New password that user should remember.
+   *
+   * JSON encoded response of associative array:
+   * - __CLASS__: Associative array:
+   *   - type: (string) 'api_login'
+   *   - user: NULL on failure or Associative array:
+   *     - user_id: (int) User id associated with email and password.
+   *     - secret_key: (mixed) Password.
+   */
+  public function route_api_user_login(Server $server) {
+    $user = $server->get_user();
+    $email = $server->get_payload('api', 'user', 'login', 'email');
+    $password = $server->get_payload('api', 'user', 'login', 'password');
+
+    $user_id = User::login($email, $password);
+    if ($user_id) {
+      $user = new User($user_id);
+      $user_array = array(
+        'user_id' => $user->get_user_id(),
+        'secret_key' => $user->get_secret_key(),
+      );
+    }
+    else {
+      $user_array = FALSE;
+    }
+
+    $response = array(
+      'type' => 'api_login',
+      'user' => user_array,
+    );
+    $server->add_json_output(__CLASS__, $response);    
   }
 
   /**
