@@ -7,8 +7,8 @@ var UserApiCli = function() {
  */
 UserApiCli.prototype.runOnce = function() {
   var payload = {};
-  /** Request a list of all current users. */
-  __sm('api/user/list/id', payload);
+  /** Request a list of all online users. */
+  __sm('api/user/list/online', payload);
 }
 
 /**

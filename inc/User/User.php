@@ -180,6 +180,7 @@ class User extends Observed {
       $user = new User($user_id);
       /** Update specified user's last access time. */
       if ($ping_user_id == $user_id) {
+        $user->set_time(time());
         $user->save();
       }
       /** Update records of users that have timed out. */
@@ -255,7 +256,7 @@ class User extends Observed {
     $users[$user_id]['user_id']    = $user_id;
     $users[$user_id]['secret_key'] = $this->secret_key;
     $users[$user_id]['name']       = $this->name;
-    $users[$user_id]['time']       = time();
+    $users[$user_id]['time']       = $this->time;
     $users[$user_id]['online']     = $this->online;
     $users[$user_id]['registered'] = $this->registered;
     $users[$user_id]['email']      = $this->email;
@@ -288,6 +289,11 @@ class User extends Observed {
   /** Set property. */
   public function set_online($value) {
     $this->online = (isset($value)) ? TRUE : FALSE;
+  }
+
+  /** Set property. */
+  public function set_time($value) {
+    $this->time = $value;
   }
 
   /**

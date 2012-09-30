@@ -27,10 +27,13 @@ class UserApi extends Plugin {
     /** Hook into the server. */
     Server::register_plugin(__CLASS__, array(
       '__user',
-      self::$rp . 'list/id',
-      self::$rp . 'request/id',
-      self::$rp . 'register',
-      self::$rp . 'login',
+      self::$rp.'list/all',
+      self::$rp.'list/online',
+      self::$rp.'list/registered',
+      self::$rp.'list',
+      self::$rp.'request/id',
+      self::$rp.'register',
+      self::$rp.'login',
     ));
     /** Hook into the command line interface. */
     Cli::register_plugin(__CLASS__, array(
@@ -45,15 +48,23 @@ class UserApi extends Plugin {
     $this->payload = $observed->get_payload();
     $this->output = $observed->get_output();
     $this->user = $observed->get_user();
-
     if ($route == '__user') {
       $this->route__user($observed);
     }
     elseif ($route == '__cli/javascript') {
       $this->cli_javascript($observed);
     }
-    elseif (preg_match('@'.self::$rp.'list/id.*@', $route, $matches)) {
-      $this->route_api_user_list_id($observed);
+    elseif ($route == self::$rp.'list/all') {
+      $this->route_api_user_list_all($observed);
+    }
+    elseif ($route == self::$rp.'list/registered') {
+      $this->route_api_user_list_registered($observed);
+    }
+    elseif ($route == self::$rp.'list/online') {
+      $this->route_api_user_list_online($observed);
+    }
+    elseif (preg_match('@'.self::$rp.'list/([0-9]+)@', $route, $matches)) {
+      $this->route_api_user_list_id($observed, $matches[1]);
     }
     elseif ($route == self::$rp.'request/id') {
       $this->route_api_user_request_id($observed);
@@ -148,6 +159,9 @@ class UserApi extends Plugin {
   public function route_api_user_request_id(Server $server) {
     /** Create new anonymous user. */
     $user = new User(User::create());
+    $user->set_online(TRUE);
+    $user->set_time(time());
+    $user->save();
     $response = array(
       'type' => 'api_request_id',
       'user' => array(
@@ -217,34 +231,71 @@ class UserApi extends Plugin {
   }
 
   /**
-   * Report a list of all user identifications.
+   * Report user information for a specific user account.
    */
-  public function route_api_user_list_id(Server $server) {
-    if ($server->get_user() == NULL) {
-      exit('Jesus I know, and Paul I\'ve heard of, but who are you?');
-    }
-    $args = $server->get_args();
-    if (isset($args[4])) {
-      $user = new User($args[4]);
-      $response = array(
-        'type' => 'api_list_id',
-        'user' => array(
-          'user_id'    => $user->get_user_id(),
-          'name'       => $user->get_name(),
-          'time'       => $user->get_time(),
-          'logged_in'  => $user->get_logged_in(),
-          'registered' => $user->get_registered(),
-        ),
-      );
-    }
-    else {
-      $user_ids = array();
-      $users = User::purge();
-      $response = array(
-        'type' => 'api_list_ids',
-        'ids'  => $users,
-      );
-    }
+  public function route_api_user_list_id(Server $server, $id) {
+    $user = new User($id);
+    $response = array(
+      'type' => 'api_list_id',
+      'user' => array(
+        'user_id'    => $user->get_user_id(),
+        'name'       => $user->get_name(),
+        'time'       => $user->get_time(),
+        'online'     => $user->get_online(),
+        'registered' => $user->get_registered(),
+      ),
+    );
+    $server->add_json_output(__CLASS__, $response);
+  }
+
+  /**
+   * Report a list of user identifications that are online right now.
+   *
+   * JSON encoded response:
+   * - __CLASS__: Associative array:
+   *   - type: (string) 'api_list_online'.
+   *   - ids: (array) Array of integer user identifications that are online.
+   */
+  public function route_api_user_list_online(Server $server) {
+    $users = User::purge($server->get_user()->get_user_id(), 'online');
+    $response = array(
+      'type' => 'api_list_online',
+      'ids'  => $users,
+    );
+    $server->add_json_output(__CLASS__, $response);
+  }
+
+  /**
+   * Report a list of all user identifications.
+   *
+   * JSON encoded response:
+   * - __CLASS__: Associative array:
+   *   - type: (string) 'api_list_online'.
+   *   - ids: (array) Array of integers of all user identifications.
+   */
+  public function route_api_user_list_all(Server $server) {
+    $users = User::purge($server->get_user()->get_user_id(), 'all');
+    $response = array(
+      'type' => 'api_list_all',
+      'ids'  => $users,
+    );
+    $server->add_json_output(__CLASS__, $response);
+  }
+
+  /**
+   * Report a list of user identifications that are registered.
+   *
+   * JSON encoded response:
+   * - __CLASS__: Associative array:
+   *   - type: (string) 'api_list_online'.
+   *   - ids: (array) Array of integers of all registered user identifications.
+   */
+  public function route_api_user_list_registered(Server $server) {
+    $users = User::purge($server->get_user()->get_user_id(), 'registered');
+    $response = array(
+      'type' => 'api_list_registered',
+      'ids'  => $users,
+    );
     $server->add_json_output(__CLASS__, $response);
   }
 
