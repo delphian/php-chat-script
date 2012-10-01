@@ -54,6 +54,8 @@ class User extends Observed {
       not be confused with regulary user authentication, which only confirms
       that the current requestor has at least an anonymous user id. */
   protected $email = NULL;
+  /** Switch to denote administrators. */
+  protected $admin = NULL;
 
   /**
    * Determine if a user identification exists or not.
@@ -395,6 +397,11 @@ class User extends Observed {
   /** Get property. */
   public function get_email() {
     return $this->email;
+  }
+
+  /** Get property. */
+  public function get_admin() {
+    return $this->admin;
   }
 
 }

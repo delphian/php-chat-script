@@ -36,13 +36,13 @@ UserApiCli.prototype.serverMessage = function(message) {
         for (y in sup[x].user) {
           printPlus('text_div', '<div class="cli-info">UserApi:'+y+':'+sup[x].user[y]+'</div>');
         }
-      } else if (type == 'api_request_id') {
+      } else if (type == 'api_request') {
         my_client_id = sup[x].user.user_id;
         my_secret_key = sup[x].user.secret_key;
         printPlus("text_div", '<span class="cli-info">'+"Client identification : "+my_client_id+".</span><br />");
         PM.runOnce();        
       } else {
-        printPlus("text_div", '<div class="cli-warning">Received unknown SimpleUser message:'+message+'</div>');
+        printPlus("text_div", '<div class="cli-warning">Received unknown User message:'+message+'</div>');
       }
     }
     handled = true;
@@ -63,26 +63,25 @@ UserApiCli.prototype.inputMessage = function(message) {
     if (subcommand == 'register') {
       var email   = remainder.split(' ')[1];
       var pass    = remainder.split(' ')[2];
-      var payload = {api:{user:{register:{email:email,password:pass}}}}
+      var payload = {api:{user:{register:{email:email,password:pass}}}};
       __sm('api/user/register', payload);
     }
-    else if (subcommand = 'login') {
+    else if (subcommand == 'login') {
       var email   = remainder.split(' ')[1];
       var pass    = remainder.split(' ')[2];
-      var payload = {api:{user:{login:{email:email,password:pass}}}}
+      var payload = {api:{user:{login:{email:email,password:pass}}}};
       __sm('api/user/login', payload);
     }
-//    var payload = {payload:{type:"emote",message:remainder}};
-//    __sm('chat/set_chat', payload);
-//  } else if (command == '/nick') {
-//    var payload = {payload:{type:"nick",message:remainder}};
-//    __sm('chat/nick', payload);
-//  } else if (command == '/image') {
-//    var payload = {payload:{type:"image",message:remainder}};
-//    __sm('chat/set_chat', payload);
-//  } else if (command.substring(0, 1) != "/") {
-//    var payload = {payload:{type:"say",message:message}};
-//    __sm('chat/set_chat', payload);
+    else if (subcommand == 'list') {
+      var type    = remainder.split(' ')[1];
+      var payload = {};
+      __sm('api/user/list/'+type, payload)
+    }
+    else if (subcommand == 'update') {
+      var id = remainder.split(' ')[1];
+      var payload = {};
+      __sm('api/user/update/'+id, payload);
+    }
   }
 
   return;

@@ -82,7 +82,7 @@ function initChat() {
   document.getElementById('input_box').focus();
 
   /** Request unique client identification. */
-  pmRaw(__sm('api/user/request/id'));
+  pmRaw(__sm('api/user/request'));
 
   // Call the send message function at interval to poll the server for updates.
   my_int_id = setInterval("__sm('cli/get_message')", 5000);

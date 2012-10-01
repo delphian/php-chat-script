@@ -31,13 +31,15 @@ class UserApi extends Plugin {
       self::$rp.'list/online',
       self::$rp.'list/registered',
       self::$rp.'list',
-      self::$rp.'request/id',
+      self::$rp.'request',
       self::$rp.'register',
       self::$rp.'login',
+      self::$rp.'update',
     ));
     /** Hook into the command line interface. */
     Cli::register_plugin(__CLASS__, array(
       '__cli/javascript',
+      '__cli/command/help',
     ));    
   }
 
@@ -48,11 +50,15 @@ class UserApi extends Plugin {
     $this->payload = $observed->get_payload();
     $this->output = $observed->get_output();
     $this->user = $observed->get_user();
+
     if ($route == '__user') {
       $this->route__user($observed);
     }
     elseif ($route == '__cli/javascript') {
       $this->cli_javascript($observed);
+    }
+    elseif ($route == '__cli/command/help') {
+      $this->cli_command_help($observed);
     }
     elseif ($route == self::$rp.'list/all') {
       $this->route_api_user_list_all($observed);
@@ -66,14 +72,17 @@ class UserApi extends Plugin {
     elseif (preg_match('@'.self::$rp.'list/([0-9]+)@', $route, $matches)) {
       $this->route_api_user_list_id($observed, $matches[1]);
     }
-    elseif ($route == self::$rp.'request/id') {
-      $this->route_api_user_request_id($observed);
+    elseif ($route == self::$rp.'request') {
+      $this->route_api_user_request($observed);
     }
     elseif ($route == self::$rp.'register') {
       $this->route_api_user_register($observed);
     }
     elseif ($route == self::$rp.'login') {
       $this->route_api_user_login($observed);
+    }
+    elseif (preg_match('@'.self::$rp.'update/([0-9]+)@', $route, $matches)) {
+      $this->route_api_user_update($observed, $matches[1]);
     }
 
     // Overwrite callers output with ours.
@@ -109,6 +118,51 @@ class UserApi extends Plugin {
         }
       }
     }
+  }
+
+  /**
+   * Modify an existing user record.
+   *
+   * JSON encoded response:
+   * - __CLASS__: Associative array:
+   *   - type: (string) 'api_update'.
+   *   - success: (array) Associative array:
+   *     - value:   (bool) TRUE if updated, FALSE if update failed.
+   *     - message: (string) Error message, if any.
+   */
+  public function route_api_user_update(Server $server, $id) {
+    $msg = NULL;
+    $updated = FALSE;
+    /** Allow current user to update their own information or allow
+        administrators to update anything. */
+    if (($id == $server->get_user()->get_user_id()) || ($server->get_user()->get_admin())) {
+      $email    = $server->get_payload('api', 'user', 'update', 'email');
+      $password = $server->get_payload('api', 'user', 'update', 'password');
+      $name     = $server->get_payload('api', 'user', 'update', 'name');
+      $user = new User($id);
+      if (!$user) {
+        $msg = 'Invalid user identification';
+      }
+      elseif ($name && ($user->set_name($name) != $name)) {
+        $msg = 'Invalid name';
+      }
+      else {
+        $user->save();
+        $updated = TRUE;
+      }
+    }
+    else {
+      $msg = 'Not authorized';
+    }
+    /** Send response to requestor. */
+    $response = array(
+      'type' => 'api_update',
+      'success' => array(
+        'value' => $updated,
+        'message' => $msg,
+      ),
+    );
+    $server->add_json_output(__CLASS__, $response);
   }
 
   /**
@@ -155,15 +209,22 @@ class UserApi extends Plugin {
 
   /**
    * Grant and report to client their new user identification.
+   *
+   * JSON encoded response:
+   * - __CLASS__: Associative array:
+   *   - type: (string) 'api_request'.
+   *   - user: (array) Associative array:
+   *     - user_id:    (int) Unique user identification.
+   *     - secret_key: (mixed) Password.
    */
-  public function route_api_user_request_id(Server $server) {
+  public function route_api_user_request(Server $server) {
     /** Create new anonymous user. */
     $user = new User(User::create());
     $user->set_online(TRUE);
     $user->set_time(time());
     $user->save();
     $response = array(
-      'type' => 'api_request_id',
+      'type' => 'api_request',
       'user' => array(
         'user_id' => $user->get_user_id(),
         'secret_key' => $user->get_secret_key(),
@@ -204,10 +265,10 @@ class UserApi extends Plugin {
     if (!$user) {
       $msg = 'Invalid access';
     }
-    else if (!$email || $user->set_email($email) != $email) {
+    elseif (!$email || $user->set_email($email) != $email) {
       $msg = "Bad email:{$email}";
     }
-    else if (!$password || $user->set_password($password) != $password) {
+    elseif (!$password || $user->set_password($password) != $password) {
       $msg = "Bad password:{$password}";
     }
     else {
@@ -306,6 +367,24 @@ class UserApi extends Plugin {
     $javascript = $observed->get_javascript();
     $javascript[] = 'inc/User/files/UserCli.js';
     $observed->set_javascript($javascript);
+  }
+
+  /**
+   * Add our commands to the CLI help text.
+   */
+  public function cli_command_help($variables) {
+    $output = json_decode($this->output['body'], TRUE);
+
+    $output['payload'] .= '<b>/user list {all|online|registered|#}</b> Show a list of user ids<br />';
+    $output['payload'] .= '<b>/user login {email} {password}</b> Login to registered account.<br />';
+    $output['payload'] .= '<b>/user register {email} {password}</b> Register for an account.<br />';
+    $output['payload'] .= '<b>/user update {user id} {property}={value}.<br />';
+
+    $response = array(
+      'code' => 'output',
+      'payload' => $output['payload'],
+    );
+    $this->output['body'] = json_encode($response);
   }
 
 }
