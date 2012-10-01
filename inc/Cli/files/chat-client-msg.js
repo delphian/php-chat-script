@@ -9,6 +9,7 @@ var ProcessMessage = function() {
   this.handlersServer = new Array();
   this.handlersInput = new Array();
   this.handlersRunOnce = new Array();
+  this.handlersOutput = new Array();
 }
 ProcessMessage.prototype.registerServer = function(name) {
   this.handlersServer.push(name);  
@@ -21,6 +22,12 @@ ProcessMessage.prototype.registerInput = function(name) {
  */
 ProcessMessage.prototype.registerRunOnce = function(name) {
   this.handlersRunOnce.push(name);
+}
+/**
+ * Plugins can register to change or alter the outbound client message.
+ */
+ProcessMessage.prototype.registerOutput = function(name) {
+  this.handlersOutput.push(name);
 }
 /**
  * Invoke all plugins that have requested access to raw server messages.
@@ -46,6 +53,11 @@ ProcessMessage.prototype.runOnce = function(msg_obj) {
 ProcessMessage.prototype.inputMessage = function(msg_obj) {
   for (x in this.handlersInput) {
     this.handlersInput[x].inputMessage(msg_obj);
+  }
+}
+ProcessMessage.prototype.outputMessage = function(msg_obj) {
+  for (x in this.handlersOutput) {
+    this.handlersOutput[x].outputMessage(msg_obj);
   }
 }
 
@@ -141,14 +153,25 @@ function pmProcessed (message) {
 /* Send a message to server. ---------------------------------------- */
 function __sm(route, payload) {
 
+  /** Allow plugins to alter or append the outbound message. */
+  PM.outputMessage(route, payload);
+
   /** Insert our client credentials. */
   if (my_client_id) {
     if (typeof payload == 'undefined') {
       payload = {};
     }
-    payload.user = {};
-    payload.user.user_id = my_client_id;
-    payload.user.secret_key = my_secret_key;
+    if (typeof payload.api == 'undefined') {
+      payload.api = {};
+    }
+    if (typeof payload.api.user == 'undefined') {
+      payload.api.user = {};
+    }
+    if (typeof payload.api.user.auth == 'undefined') {
+      payload.api.user.auth = {};
+    }
+    payload.api.user.auth.user_id = my_client_id;
+    payload.api.user.auth.secret_key = my_secret_key;
   }
 
   if (payload) {

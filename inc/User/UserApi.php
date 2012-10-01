@@ -94,27 +94,32 @@ class UserApi extends Plugin {
   }
 
   /**
-   * Set the logged in user based on credentials provided in the request.
+   * Tell the server who the request is being made by.
    *
-   * Input post associative array:
+   * Set the logged in user based on credentials provided in the request. All
+   * requests should include this if they want to be received by the server as
+   * an authenticated (having a user account, even if anonymous) request. Most
+   * Api calls will require they be made from a user (again, even if anonymous).
+   *
+   * JSON encoded request:
    * - payload: Associative array:
    *   - user: Associative array:
    *     - user_id: (int) Unique user identification.
    *     - secret_key: (int) Secret password.
+   *
+   * @see route_api_user_request()
    */
   public function route__user(Server $server) {
     /** Setup our user if authentiction credentials are provided. */
-    if (isset($this->payload)) {
-      $payload = json_decode($this->payload, TRUE);
-      if (isset($payload['user'])) {
-        $user_id = $payload['user']['user_id'];
-        $secret  = $payload['user']['secret_key'];
-        if (User::authenticate($user_id, $secret)) {
-          User::purge($user_id);
-          $user = new User($user_id);
-          if (!$server->set_user($user)) {
-            throw new Exception('Can not set user property on server.');
-          }
+    $user_id = $server->get_payload('api', 'user', 'auth', 'user_id');
+    $secret  = $server->get_payload('api', 'user', 'auth', 'secret_key');
+    if ($user_id && $secret) {
+      if (User::authenticate($user_id, $secret)) {
+        User::purge($user_id);
+        $user = new User($user_id);
+        /** Set the current request's user. */
+        if (!$server->set_user($user)) {
+          throw new Exception('Can not set user property on server.');
         }
       }
     }

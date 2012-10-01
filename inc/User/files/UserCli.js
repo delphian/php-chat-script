@@ -87,8 +87,16 @@ UserApiCli.prototype.inputMessage = function(message) {
   return;
 }
 
+/**
+ * Alter or append the message from the client to the server.
+ */
+UserApiCli.prototype.outputMessage = function(route, payload) {
+
+}
+
 userApiCli = new UserApiCli();
 PM.registerServer(userApiCli);
 PM.registerInput(userApiCli);
 PM.registerRunOnce(userApiCli);
+PM.registerOutput(userApiCli);
 
