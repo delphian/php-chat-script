@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file
+ * @file UserApi.php
  *
  * Provides an API for javascript applications to access the User services.
  *
@@ -11,6 +11,19 @@
  * Licensed under the MIT license.
  */
 
+/**
+ * @class UserApi
+ *
+ * @ingroup WebApi
+ *
+ * Provides a http based API for remote clients to utilize user services.
+ *
+ * Routes:
+ * - __user: @see UserApi::route__user()
+ * - api/user/list/all:
+ * - api/user/list/online:
+ * - api/user/request: @see UserApi::route_api_user_request()
+ */
 class UserApi extends Plugin {
 
   /** Route prefix to be used to access this api. Placing this into a central
@@ -101,6 +114,8 @@ class UserApi extends Plugin {
    * an authenticated (having a user account, even if anonymous) request. Most
    * Api calls will require they be made from a user (again, even if anonymous).
    *
+   * Route: __user
+   *
    * JSON encoded request:
    * - payload: Associative array:
    *   - user: Associative array:
@@ -126,20 +141,39 @@ class UserApi extends Plugin {
   }
 
   /**
-   * Modify an existing user record.
+   * Modify the properties of an existing user record.
+   *
+   * @param Server $server
+   *   Server that received this route.
+   * @param int $id
+   *   Unique user identification to modify properties on.
+   *
+   * Route: /api/user/update/{user_id}
+   *
+   * JSON encoded request:
+   * - payload: Associative array:
+   *   - api: Associative array:
+   *     - user: Associative array for user specific requests.
+   *       - update: Associative array of properties that should be updated. Array
+   *         keys should be set to the property name to update.
+   *         - email: (string)
+   *         - password: (string)
+   *         - name: (string)
    *
    * JSON encoded response:
-   * - __CLASS__: Associative array:
+   * - UserApi: Associative array:
    *   - type: (string) 'api_update'.
    *   - success: (array) Associative array:
    *     - value:   (bool) TRUE if updated, FALSE if update failed.
    *     - message: (string) Error message, if any.
+   *
+   * @ingroup Route
    */
   public function route_api_user_update(Server $server, $id) {
     $msg = NULL;
     $updated = FALSE;
-    /** Allow current user to update their own information or allow
-        administrators to update anything. */
+    // Allow current user to update their own information or allow
+    // administrators to update anything.
     if (($id == $server->get_user()->get_user_id()) || ($server->get_user()->get_admin())) {
       $email    = $server->get_payload('api', 'user', 'update', 'email');
       $password = $server->get_payload('api', 'user', 'update', 'password');
@@ -159,7 +193,7 @@ class UserApi extends Plugin {
     else {
       $msg = 'Not authorized';
     }
-    /** Send response to requestor. */
+    // Send response to requestor.
     $response = array(
       'type' => 'api_update',
       'success' => array(
@@ -182,11 +216,13 @@ class UserApi extends Plugin {
    *         - password: (string) New password that user should remember.
    *
    * JSON encoded response of associative array:
-   * - __CLASS__: Associative array:
+   * - UserApi: Associative array:
    *   - type: (string) 'api_login'
    *   - user: NULL on failure or Associative array:
    *     - user_id: (int) User id associated with email and password.
    *     - secret_key: (mixed) Password.
+   *
+   * @ingroup Route
    */
   public function route_api_user_login(Server $server) {
     $user = $server->get_user();

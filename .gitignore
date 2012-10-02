@@ -2,3 +2,5 @@ data/*
 inc/data/*
 inc/*/data/*
 inc/config.inc
+.doxygen
+docs/*
