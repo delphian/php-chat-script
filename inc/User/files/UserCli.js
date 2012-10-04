@@ -79,7 +79,12 @@ UserApiCli.prototype.inputMessage = function(message) {
     }
     else if (subcommand == 'update') {
       var id = remainder.split(' ')[1];
-      var payload = {};
+      var remainder = message.split(' ').slice(3).join(' ');
+      var key = remainder.split('=')[0];
+      var value = remainder.split('=')[1];
+      var pairs = {};
+      pairs[key] = value;
+      var payload = {api:{user:{update:pairs}}};
       __sm('api/user/update/'+id, payload);
     }
   }

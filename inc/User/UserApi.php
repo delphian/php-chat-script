@@ -107,32 +107,38 @@ class UserApi extends Plugin {
   }
 
   /**
-   * Tell the server who the request is being made by.
+   * Set the user variable on the Server
    *
    * Set the logged in user based on credentials provided in the request. All
-   * requests should include this if they want to be received by the server as
-   * an authenticated (having a user account, even if anonymous) request. Most
-   * Api calls will require they be made from a user (again, even if anonymous).
+   * requests should include this in all routes submitted if they want to be 
+   * received by the server as an authenticated (having a user account, even if
+   * anonymous) request. Most Api calls will require they be made from a user
+   * (again, even if anonymous).
    *
-   * Route: __user
+   * @param Server $server
+   *   Server object that has invoked our route.
+   *
+   * Route: __user (Private, hooks into Server)
    *
    * JSON encoded request:
    * - payload: Associative array:
-   *   - user: Associative array:
-   *     - user_id: (int) Unique user identification.
-   *     - secret_key: (int) Secret password.
+   *   - api: Associative array:
+   *     - user: Associative array for user specific requests:
+   *       - user_id: (int) Unique user identification.
+   *       - secret_key: (int) Secret password.
    *
+   * @ingroup Route
    * @see route_api_user_request()
    */
   public function route__user(Server $server) {
-    /** Setup our user if authentiction credentials are provided. */
+    // Setup our user if authentiction credentials are provided.
     $user_id = $server->get_payload('api', 'user', 'auth', 'user_id');
     $secret  = $server->get_payload('api', 'user', 'auth', 'secret_key');
     if ($user_id && $secret) {
       if (User::authenticate($user_id, $secret)) {
         User::purge($user_id);
         $user = new User($user_id);
-        /** Set the current request's user. */
+        // Set the current request's user.
         if (!$server->set_user($user)) {
           throw new Exception('Can not set user property on server.');
         }
@@ -185,6 +191,9 @@ class UserApi extends Plugin {
       elseif ($name && ($user->set_name($name) != $name)) {
         $msg = 'Invalid name';
       }
+      elseif ($password && ($user->set_password($password) != $password)) {
+        $msg = 'Invalid password';
+      }
       else {
         $user->save();
         $updated = TRUE;
@@ -207,6 +216,17 @@ class UserApi extends Plugin {
   /**
    * Report the user identification associated with an email and password.
    *
+   * A previously registered user id can only be claimed by loging in with this
+   * route. The client should provide the user's email and password, and then
+   * will be informed of the account (user id) associated with those
+   * credentials. Afterwards the client may use the user id and password to 
+   * send requests that are authenticated as a registered account.
+   *
+   * @param Server $server
+   *   Server that received this route.
+   *
+   * Route: api/user/login
+   *
    * JSON encoded request:
    * - payload: Associative array:
    *   - api: Associative array:
@@ -223,6 +243,7 @@ class UserApi extends Plugin {
    *     - secret_key: (mixed) Password.
    *
    * @ingroup Route
+   * @see route__user().
    */
   public function route_api_user_login(Server $server) {
     $user = $server->get_user();
@@ -245,21 +266,32 @@ class UserApi extends Plugin {
       'type' => 'api_login',
       'user' => $user_array,
     );
-    $server->add_json_output(__CLASS__, $response);    
+    $server->add_json_output(__CLASS__, $response);
   }
 
   /**
-   * Grant and report to client their new user identification.
+   * Generate random user identification and password for a prospective client.
+   *
+   * The combination of a user identification and password when passed back to
+   * the server will act as a session. Most all route handlers require the
+   * requestor to at least have an active session, therefore this is normally
+   * one of the first routes called by a client.
+   *
+   * Route: api/user/request
    *
    * JSON encoded response:
-   * - __CLASS__: Associative array:
+   * - UserApi: Associative array:
    *   - type: (string) 'api_request'.
    *   - user: (array) Associative array:
    *     - user_id:    (int) Unique user identification.
    *     - secret_key: (mixed) Password.
+   *
+   * @ingroup Route
+   * @todo Consider renaming all this functionality to include the word session.
+   * @todo Invoke hook to allow other objects to refuse session grant.
    */
   public function route_api_user_request(Server $server) {
-    /** Create new anonymous user. */
+    // Create new user session.
     $user = new User(User::create());
     $user->set_online(TRUE);
     $user->set_time(time());
