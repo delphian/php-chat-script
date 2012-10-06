@@ -57,8 +57,9 @@ ProcessMessage.prototype.inputMessage = function(msg_obj) {
 }
 ProcessMessage.prototype.outputMessage = function(route, payload) {
   for (x in this.handlersOutput) {
-    this.handlersOutput[x].outputMessage(route, payload);
+    payload = this.handlersOutput[x].outputMessage(route, payload);
   }
+  return payload;
 }
 
 var PM = new ProcessMessage();
@@ -154,7 +155,7 @@ function pmProcessed (message) {
 function __sm(route, payload) {
 
   /** Allow plugins to alter or append the outbound message. */
-  PM.outputMessage(route, payload);
+  payload = PM.outputMessage(route, payload);
 
   if (payload) {
     var url = route+"?payload="+JSON.stringify(payload);

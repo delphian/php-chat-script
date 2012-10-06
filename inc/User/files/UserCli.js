@@ -116,6 +116,7 @@ UserApiCli.prototype.outputMessage = function(route, payload) {
     payload.api.user.auth.user_id = this.id;
     payload.api.user.auth.password = this.password;
   }
+  return payload;
 }
 
 userApiCli = new UserApiCli();
