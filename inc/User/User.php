@@ -16,7 +16,7 @@
  * The associative array stored in SimpleTextStorage is:
  * - users: Associative array containing user informatio keyed by user id:
  *   - user_id:    (int) The unique user identification.
- *   - secret_key: (int) Secret authetnication key only this user knows about.
+ *   - password:   (string) Secret password only this user knows about.
  *   - name:       (string) Name of the user.
  *   - time:       (int) Unix time stamp. Last time this user accessed the system.
  *   - registered: (bool) Is the user registered? If not they are anonymous.
@@ -32,10 +32,10 @@ class User extends Observed {
   /** The unique user identification. This is first created by a registration
       process and the value will not change for the life of the user. */
   protected $user_id = NULL;
-  /** The secret key is used on a session basis for the client to authenticate
-      it's curent connection. A user id and secret key must be sent back to
-      the server to process most requests. */
-  protected $secret_key = NULL;
+  /** The password is used on a session basis for the client to authenticate
+      it's curent connection. A user id and password must be sent back to
+      the server to process most other requests. */
+  protected $password = NULL;
   /** Name of the user. */
   protected $name = NULL;
   /** Time the user last accessed the system. */
@@ -50,7 +50,7 @@ class User extends Observed {
    */
    
   /** Email address, required for registration. A combination of email address
-      and secret_key are used to authenticate a registered user. This should
+      and password are used to authenticate a registered user. This should
       not be confused with regulary user authentication, which only confirms
       that the current requestor has at least an anonymous user id. */
   protected $email = NULL;
@@ -82,18 +82,18 @@ class User extends Observed {
    *
    * @param int $user_id
    *   The unique user identification.
-   * @param string $secret_key
+   * @param string $password
    *   The secret key that is assigned to a user.
    *
    * @return bool TRUE|FALSE
    *   TRUE if the user claim is authentic, FALSE otherwise.
    */
-  public static function authenticate($user_id, $secret_key) {
+  public static function authenticate($user_id, $password) {
     $authentic = FALSE;
 
     $users = SimpleTextStorage::load()->read('User', 'users');
     if (array_key_exists($user_id, $users)) {
-      if ($users[$user_id]['secret_key'] == $secret_key) {
+      if ($users[$user_id]['password'] == $password) {
         $authentic = TRUE;
       }
     }
@@ -116,13 +116,13 @@ class User extends Observed {
     while (self::exists($user_id = mt_rand()));
     /** Construct default user record. */
     $record = array(
-      'user_id' => $user_id,
-      'secret_key' => mt_rand(),
-      'name' => 'guest_' . $user_id,
-      'time' => time(),
+      'user_id'    => $user_id,
+      'password'   => mt_rand(),
+      'name'       => 'guest_' . $user_id,
+      'time'       => time(),
       'registered' => FALSE,
-      'online' => FALSE,
-      'email' => FALSE,
+      'online'     => FALSE,
+      'email'      => FALSE,
     );
     /** Save new record directly to the database. */
     $users = SimpleTextStorage::load()->read('User', 'users');
@@ -151,7 +151,7 @@ class User extends Observed {
     $users = self::purge(NULL, 'online');
     if (!empty($users)) {
       foreach ($users as $user_id => $data) {
-        if ($data['email'] == $email && $data['secret_key'] == $password) {
+        if ($data['email'] == $email && $data['password'] == $password) {
           $report = $user_id;
         }
       }
@@ -233,7 +233,7 @@ class User extends Observed {
     $users = SimpleTextStorage::load()->read('User', 'users');
 
     $this->user_id    = $users[$user_id]['user_id'];
-    $this->secret_key = $users[$user_id]['secret_key'];
+    $this->password   = $users[$user_id]['password'];
     $this->name       = $users[$user_id]['name'];
     $this->time       = $users[$user_id]['time'];
     $this->online     = $users[$user_id]['online'];
@@ -256,7 +256,7 @@ class User extends Observed {
     $user_id = $this->user_id;
 
     $users[$user_id]['user_id']    = $user_id;
-    $users[$user_id]['secret_key'] = $this->secret_key;
+    $users[$user_id]['password']   = $this->password;
     $users[$user_id]['name']       = $this->name;
     $users[$user_id]['time']       = $this->time;
     $users[$user_id]['online']     = $this->online;
@@ -385,8 +385,8 @@ class User extends Observed {
   }
 
   /** Get property. */
-  public function get_secret_key() {
-    return $this->secret_key;
+  public function get_password() {
+    return $this->password;
   }
 
   /** Get property. */

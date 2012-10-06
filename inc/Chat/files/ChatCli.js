@@ -7,18 +7,7 @@ var ChatCli = function() {
  * Run once commands after the client receives it's identification.
  */
 ChatCli.prototype.runOnce = function() {
-  var images = new Array();
-  images.push('/php-chat-script/inc/Chat/files/PinkiePie/pinkie-pie-1.jpg');
-  images.push('/php-chat-script/inc/Chat/files/PinkiePie/pinkie-pie-2.png');
-  images.push('/php-chat-script/inc/Chat/files/PinkiePie/pinkie-pie-3.png');
-  images.push('/php-chat-script/inc/Chat/files/PinkiePie/pinkie-pie-4.jpg');
-  images.push('/php-chat-script/inc/Chat/files/PinkiePie/pinkie-pie-5.jpg');
 
-  var index = Math.floor((Math.random()*5)+1);
-
-  var payload = {type:"join",message:my_client_id};
-  __sm('chat/join', payload);
-  this.inputMessage('/image '+images[index]);
 }
 
 /**
@@ -31,8 +20,21 @@ ChatCli.prototype.serverMessage = function(message) {
     if (msg_obj.hasOwnProperty("code")) {
       var code = msg_obj.code;
     }
+    if (msg_obj.hasOwnProperty("UserApi")) {
+      var userApi = msg_obj.UserApi;
+    }
   } catch(err) {
     var code = 0;
+  }
+
+  if (userApi) {
+    for (x in userApi) {
+      type = userApi[x].type;
+      if (type == 'api_request') {
+        var payload = {type:"join",message:userApiCli.id};
+        __sm('chat/join', payload);
+      }
+    }
   }
 
   if (code == 'chat') {

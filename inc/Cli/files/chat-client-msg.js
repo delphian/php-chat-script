@@ -45,7 +45,7 @@ ProcessMessage.prototype.serverMessage = function(msg_obj) {
 /**
  * Execute plugin setup code after client id has been received.
  */
-ProcessMessage.prototype.runOnce = function(msg_obj) {
+ProcessMessage.prototype.runOnce = function() {
   for (x in this.handlersRunOnce) {
     this.handlersRunOnce[x].runOnce();
   }
@@ -55,9 +55,9 @@ ProcessMessage.prototype.inputMessage = function(msg_obj) {
     this.handlersInput[x].inputMessage(msg_obj);
   }
 }
-ProcessMessage.prototype.outputMessage = function(msg_obj) {
+ProcessMessage.prototype.outputMessage = function(route, payload) {
   for (x in this.handlersOutput) {
-    this.handlersOutput[x].outputMessage(msg_obj);
+    this.handlersOutput[x].outputMessage(route, payload);
   }
 }
 
@@ -155,24 +155,6 @@ function __sm(route, payload) {
 
   /** Allow plugins to alter or append the outbound message. */
   PM.outputMessage(route, payload);
-
-  /** Insert our client credentials. */
-  if (my_client_id) {
-    if (typeof payload == 'undefined') {
-      payload = {};
-    }
-    if (typeof payload.api == 'undefined') {
-      payload.api = {};
-    }
-    if (typeof payload.api.user == 'undefined') {
-      payload.api.user = {};
-    }
-    if (typeof payload.api.user.auth == 'undefined') {
-      payload.api.user.auth = {};
-    }
-    payload.api.user.auth.user_id = my_client_id;
-    payload.api.user.auth.secret_key = my_secret_key;
-  }
 
   if (payload) {
     var url = route+"?payload="+JSON.stringify(payload);

@@ -125,7 +125,7 @@ class UserApi extends Plugin {
    *   - api: Associative array:
    *     - user: Associative array for user specific requests:
    *       - user_id: (int) Unique user identification.
-   *       - secret_key: (int) Secret password.
+   *       - password: (int) Secret password.
    *
    * @ingroup Route
    * @see route_api_user_request()
@@ -133,7 +133,7 @@ class UserApi extends Plugin {
   public function route__user(Server $server) {
     // Setup our user if authentiction credentials are provided.
     $user_id = $server->get_payload('api', 'user', 'auth', 'user_id');
-    $secret  = $server->get_payload('api', 'user', 'auth', 'secret_key');
+    $secret  = $server->get_payload('api', 'user', 'auth', 'password');
     if ($user_id && $secret) {
       if (User::authenticate($user_id, $secret)) {
         User::purge($user_id);
@@ -240,7 +240,7 @@ class UserApi extends Plugin {
    *   - type: (string) 'api_login'
    *   - user: NULL on failure or Associative array:
    *     - user_id: (int) User id associated with email and password.
-   *     - secret_key: (mixed) Password.
+   *     - password: (string) Password.
    *
    * @ingroup Route
    * @see route__user().
@@ -254,8 +254,8 @@ class UserApi extends Plugin {
     if ($user_id) {
       $user = new User($user_id);
       $user_array = array(
-        'user_id' => $user->get_user_id(),
-        'secret_key' => $user->get_secret_key(),
+        'user_id'  => $user->get_user_id(),
+        'password' => $user->get_password(),
       );
     }
     else {
@@ -283,8 +283,8 @@ class UserApi extends Plugin {
    * - UserApi: Associative array:
    *   - type: (string) 'api_request'.
    *   - user: (array) Associative array:
-   *     - user_id:    (int) Unique user identification.
-   *     - secret_key: (mixed) Password.
+   *     - user_id:  (int) Unique user identification.
+   *     - password: (string) Password.
    *
    * @ingroup Route
    * @todo Consider renaming all this functionality to include the word session.
@@ -299,8 +299,8 @@ class UserApi extends Plugin {
     $response = array(
       'type' => 'api_request',
       'user' => array(
-        'user_id' => $user->get_user_id(),
-        'secret_key' => $user->get_secret_key(),
+        'user_id'  => $user->get_user_id(),
+        'password' => $user->get_password(),
       ),
     );
     $server->add_json_output(__CLASS__, $response);
@@ -391,12 +391,34 @@ class UserApi extends Plugin {
    *   - ids: (array) Array of integer user identifications that are online.
    */
   public function route_api_user_list_online(Server $server) {
-    $users = User::purge($server->get_user()->get_user_id(), 'online');
-    $response = array(
-      'type' => 'api_list_online',
-      'ids'  => $users,
-    );
+    if ($server->get_user()) {
+      $users = User::purge($server->get_user()->get_user_id(), 'online');
+      $response = array(
+        'type' => 'api_list_online',
+        'ids'  => $users,
+      );
+    }
+    else {
+      $response = $this->no_session($server);
+    }
     $server->add_json_output(__CLASS__, $response);
+  }
+
+  /**
+   * Report to the client that their request requires an active session but they
+   * have not provided credentials to authenticate one.
+   *
+   * JSON encoded response:
+   * - UserApi: Associative array:
+   *   - type: (strnig) 'api_no_session'
+   *   - route: (string) The route requested for which a session is required.
+   */
+  private function no_session(Server $server) {
+    $response = array(
+      'type' => 'api_no_session',
+      'route' => $server->get_route(),
+    );
+    return $response;
   }
 
   /**

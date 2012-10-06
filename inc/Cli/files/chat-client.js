@@ -1,6 +1,4 @@
 
-var my_client_id      = 0;
-var my_secret_key     = 0;
 var my_client_version = '0.9.42a';
 var my_server_version = '';
 var my_int_id         = 0;
@@ -81,8 +79,8 @@ function initChat() {
   printPlus("text_div", '<span class="cln_all">Try <b>/help</b> if you get lost.</span><br />');
   document.getElementById('input_box').focus();
 
-  /** Request unique client identification. */
-  pmRaw(__sm('api/user/request'));
+  // Allow each javascript plugin to do something during startup.
+  PM.runOnce();
 
   // Call the send message function at interval to poll the server for updates.
   my_int_id = setInterval("__sm('cli/get_message')", 5000);

@@ -1,14 +1,16 @@
 var UserApiCli = function() {
   this.users = new Array();
+  this.id = null;
+  this.password = null;
 };
 
 /**
  * Run once commands after the client receives it's identification.
  */
 UserApiCli.prototype.runOnce = function() {
-  var payload = {};
-  /** Request a list of all online users. */
-  __sm('api/user/list/online', payload);
+  // Request unique client identification. Wait for this syncronous call to
+  // finish, running the result through the message processor right away.
+  pmRaw(__sm('api/user/request'));  
 }
 
 /**
@@ -37,10 +39,11 @@ UserApiCli.prototype.serverMessage = function(message) {
           printPlus('text_div', '<div class="cli-info">UserApi:'+y+':'+sup[x].user[y]+'</div>');
         }
       } else if (type == 'api_request') {
-        my_client_id = sup[x].user.user_id;
-        my_secret_key = sup[x].user.secret_key;
-        printPlus("text_div", '<span class="cli-info">'+"Client identification : "+my_client_id+".</span><br />");
-        PM.runOnce();        
+        this.id = sup[x].user.user_id;
+        this.password = sup[x].user.password;
+        printPlus("text_div", '<span class="cli-info">'+"Client identification : "+this.id+".</span><br />");
+        // Request a list of all online users.
+        __sm('api/user/list/online');
       } else {
         printPlus("text_div", '<div class="cli-warning">Received unknown User message:'+message+'</div>');
       }
@@ -96,7 +99,23 @@ UserApiCli.prototype.inputMessage = function(message) {
  * Alter or append the message from the client to the server.
  */
 UserApiCli.prototype.outputMessage = function(route, payload) {
-
+  /** Insert our client credentials. */
+  if (this.id) {
+    if (typeof payload == 'undefined') {
+      payload = {};
+    }
+    if (typeof payload.api == 'undefined') {
+      payload.api = {};
+    }
+    if (typeof payload.api.user == 'undefined') {
+      payload.api.user = {};
+    }
+    if (typeof payload.api.user.auth == 'undefined') {
+      payload.api.user.auth = {};
+    }
+    payload.api.user.auth.user_id = this.id;
+    payload.api.user.auth.password = this.password;
+  }
 }
 
 userApiCli = new UserApiCli();
