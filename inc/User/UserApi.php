@@ -12,8 +12,6 @@
  */
 
 /**
- * @class UserApi
- *
  * Provides a http based API for remote clients to utilize user services.
  *
  * User services provides user tracking through session management and
@@ -46,7 +44,7 @@
  * - api/user/list/all:        UserApi::route_api_user_list_all().
  * - api/user/list/online:     UserApi::route_api_user_list_online().
  * - api/user/list/registered: UserApi::route_api_user_list_registered().
- * - api/user/list/id:         UserApi::route_api_user_id().
+ * - api/user/list/id:         UserApi::route_api_user_list_id().
  * - api/user/list/udpate:     UserApi::route_api_user_update().
  * - api/user/request:         UserApi::route_api_user_request().
  * - api/user/login:           UserApi::route_api_user_login().
@@ -156,7 +154,6 @@ class UserApi extends Plugin {
    *       - user_id: (int) Unique user identification.
    *       - password: (int) Secret password.
    *
-   * @ingroup Route
    * @see route_api_user_request()
    */
   public function route__user(Server $server) {
@@ -201,8 +198,6 @@ class UserApi extends Plugin {
    *   - success: (array) Associative array:
    *     - value:   (bool) TRUE if updated, FALSE if update failed.
    *     - message: (string) Error message, if any.
-   *
-   * @ingroup Route
    */
   public function route_api_user_update(Server $server, $id) {
     $msg = NULL;
@@ -271,7 +266,6 @@ class UserApi extends Plugin {
    *     - user_id: (int) User id associated with email and password.
    *     - password: (string) Password.
    *
-   * @ingroup Route
    * @see route__user().
    */
   public function route_api_user_login(Server $server) {
@@ -315,7 +309,6 @@ class UserApi extends Plugin {
    *     - user_id:  (int) Unique user identification.
    *     - password: (string) Password.
    *
-   * @ingroup Route
    * @todo Consider renaming all this functionality to include the word session.
    * @todo Invoke hook to allow other objects to refuse session grant.
    */
