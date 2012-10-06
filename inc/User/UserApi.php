@@ -14,15 +14,44 @@
 /**
  * @class UserApi
  *
- * @ingroup WebApi
- *
  * Provides a http based API for remote clients to utilize user services.
  *
+ * User services provides user tracking through session management and
+ * registered user accounts. An example timeline of api requests from a client
+ * may be:
+ * - Prospective client requests a session with api/user/request:
+ *   - Client receives randomized user identification and password.
+ *   - Client contiues to provide the user id and password back with each
+ *     subsequent request. When these crendentials are provided the server
+ *     understands the client to have a session with an anonymous user account.
+ *     This user account is deleted after the client leaves the site.
+ * - Client wants a permenant account and registers with api/user/register:
+ *   - Client provides an email address and new password value to register.
+ *   - Client receives confirmation that the registration succeeded. Now the
+ *     user record will not be removed when the client leaves the site.
+ * - Client leaves the site.
+ * - Prospective client (same client) returns to the site.
+ * - Proespective client retrieves their registered user id with api/user/login
+ *   - Client provides email address and password to retrieve user id.
+ *   - Client continues to provide the user id and password back with each
+ *     subsequent request.
+ * - Client changes their name with api/user/update
+ *
+ * User services also hook into the server to automatically authenticate the
+ * user account that is making the current request. This can (and should) be
+ * done because the client always provides user credentials for each request.
+ *
  * Routes:
- * - __user: @see UserApi::route__user()
- * - api/user/list/all:
- * - api/user/list/online:
- * - api/user/request: @see UserApi::route_api_user_request()
+ * - __user:                   UserApi::route__user().
+ * - api/user/list/all:        UserApi::route_api_user_list_all().
+ * - api/user/list/online:     UserApi::route_api_user_list_online().
+ * - api/user/list/registered: UserApi::route_api_user_list_registered().
+ * - api/user/list/id:         UserApi::route_api_user_id().
+ * - api/user/list/udpate:     UserApi::route_api_user_update().
+ * - api/user/request:         UserApi::route_api_user_request().
+ * - api/user/login:           UserApi::route_api_user_login().
+ *
+ * @ingroup WebApi
  */
 class UserApi extends Plugin {
 
