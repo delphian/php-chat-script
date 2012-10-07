@@ -40,12 +40,12 @@ ChatCli.prototype.serverMessage = function(message) {
   if (code == 'chat') {
     for (x in msg_obj.payload) {
       user_id = msg_obj.payload[x].from_user_id;
-      from = msg_obj.payload[x].from_user_name;
+      from = userApiCli.users[user_id].name;
       msg  = msg_obj.payload[x].chat.message;
       if (msg_obj.payload[x].chat.type == 'say') {
-        printPlus("text_div", '<span class="cli-normal"><b>'+this.clients[user_id].name+'</b>: '+msg+'</span><br />');
+        printPlus("text_div", '<span class="cli-normal"><b>'+from+'</b>: '+msg+'</span><br />');
       } else if (msg_obj.payload[x].chat.type == 'emote') {
-        printPlus("text_div", '<span class="cli-normal">* '+this.clients[user_id].name+' '+msg+'</span><br />');
+        printPlus("text_div", '<span class="cli-normal">* '+from+' '+msg+'</span><br />');
       } else if (msg_obj.payload[x].chat.type == 'image') {
         //printPlus("text_div", '<img src="'+msg+'" style="width:100%;height:100%;" /><br />');
         this.showImage(msg);
@@ -53,7 +53,7 @@ ChatCli.prototype.serverMessage = function(message) {
         this.clients[user_id] = {name:msg};
         printPlus('text_div', '<div class="cli-normal">'+msg+' Has joined</div>');
       } else if (msg_obj.payload[x].chat.type == 'nick') {
-        printPlus('text_div', '<div class="cli-normal">'+this.clients[user_id].name+' is now known as '+msg+'</div>');
+        printPlus('text_div', '<div class="cli-normal">'+from+' is now known as '+msg+'</div>');
         this.clients[user_id] = {name:msg};
       } else {
         printPlus("text_div", '<div class="cli-warning">Received unknown chat message:'+message+'</div>');

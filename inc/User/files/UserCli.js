@@ -30,21 +30,25 @@ UserApiCli.prototype.serverMessage = function(message) {
   if (sup) {
     for (x in sup) {
       type = sup[x].type;
-      if (type == 'api_list_ids') {
+      if (type == 'api_list_online') {
         for (y in sup[x].ids) {
-          printPlus('text_div', '<div class="cli-info">UserApi:'+sup[x].ids[y]+'</div>');
+          this.inputMessage('/user list ' + sup[x].ids[y]);
         }
-      } else if (type == 'api_list_id') {
-        for (y in sup[x].user) {
-          printPlus('text_div', '<div class="cli-info">UserApi:'+y+':'+sup[x].user[y]+'</div>');
+      }
+      else if (type == 'api_list_id') {
+        if (typeof this.users[sup[x].user.user_id] == 'undefined') {
+          this.users[sup[x].user.user_id] = {};
         }
-      } else if (type == 'api_request') {
+        this.users[sup[x].user.user_id].name = sup[x].user.name;
+      }
+      else if (type == 'api_request') {
         this.id = sup[x].user.user_id;
         this.password = sup[x].user.password;
-        printPlus("text_div", '<span class="cli-info">'+"Client identification : "+this.id+".</span><br />");
+        printPlus("text_div", '<div class="cli-info">'+"Client identification : "+this.id+".</div>");
         // Request a list of all online users.
         __sm('api/user/list/online');
-      } else {
+      }
+      else {
         printPlus("text_div", '<div class="cli-warning">Received unknown User message:'+message+'</div>');
       }
     }
